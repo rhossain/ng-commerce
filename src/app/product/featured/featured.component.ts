@@ -7,6 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './featured.component.html',
   styleUrl: './featured.component.scss'
 })
-export class FeaturedComponent {
+export default class FeaturedComponent {
 
 }

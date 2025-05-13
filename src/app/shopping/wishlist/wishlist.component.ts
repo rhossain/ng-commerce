@@ -7,6 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './wishlist.component.html',
   styleUrl: './wishlist.component.scss'
 })
-export class WishlistComponent {
+export default class WishlistComponent {
 
 }

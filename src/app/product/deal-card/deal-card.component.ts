@@ -7,6 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './deal-card.component.html',
   styleUrl: './deal-card.component.scss'
 })
-export class DealCardComponent {
+export default class DealCardComponent {
 
 }
