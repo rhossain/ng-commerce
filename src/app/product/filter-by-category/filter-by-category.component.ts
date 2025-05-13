@@ -7,6 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './filter-by-category.component.html',
   styleUrl: './filter-by-category.component.scss'
 })
-export class FilterByCategoryComponent {
+export default class FilterByCategoryComponent {
 
 }

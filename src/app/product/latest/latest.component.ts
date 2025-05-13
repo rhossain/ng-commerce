@@ -7,6 +7,6 @@ import { Component } from '@angular/core';
   templateUrl: './latest.component.html',
   styleUrl: './latest.component.scss'
 })
-export class LatestComponent {
+export default class LatestComponent {
 
 }
