@@ -1,1 +1,77 @@
-<p>cart works!</p>
+<div class="cart-mini" (click)="toggleCart()">
+    <div class="d-flex cart-mini-anchor" id="cartMini" data-bs-toggle="dropdown" aria-haspopup="true"
+        aria-expanded="false">
+        <div class="position-relative d-inline-flex align-items-center justify-content-center cart-mini-mask">
+            <div class="position-absolute d-flex align-items-center justify-content-center cart-mini-count">
+                3
+            </div>
+            <fa-icon [icon]="faBagShopping" class="cart-mini-icon"></fa-icon>
+        </div>
+        <div class="d-none d-md-flex flex-column text-end text-uppercase cart-mini-info">
+            <span class="cart-mini-name">My Cart</span>
+            <span class="cart-mini-amount">$913.80</span>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div class="cart-overlay" *ngIf="isOpen" (click)="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="cart-sidebar d-flex flex-column bg-white shadow-lg" [class.open]="isOpen">
+  <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+    <h5 class="m-0 fw-bold">Shopping Cart</h5>
+    <button class="btn-close" (click)="closeSidebar()"></button>
+  </div>
+
+  <div class="p-3 border-bottom border-top shadow-lg">
+    <div class="small">
+        @if (subtotal >= 200) {
+            You will get <strong class="text-danger">FREE SHIPPING!</strong>
+        } @else {
+            Add <strong class="text-danger">${{(200 - subtotal)}}</strong> more to get <strong class="text-danger">FREE SHIPPING!</strong>
+        }
+    </div>
+  </div>
+
+  <div class="cart-items">
+    <div class="cart-item p-3" *ngFor="let item of cartItems">
+        <div class="d-flex mb-3">
+          <img [src]="item.image" alt="item.name" width="60" class="rounded me-2" />
+          <div class="flex-grow-1">
+            <div class="fw-semibold">{{ item.name }}</div>
+            <small class="text-muted">{{ item.variant }}</small>
+            <div class="d-flex align-items-center mt-1">
+              <button class="btn btn-sm btn-outline-secondary px-2 py-0">-</button>
+              <span class="px-2">{{ item.quantity }}</span>
+              <button class="btn btn-sm btn-outline-secondary px-2 py-0">+</button>
+            </div>
+            <div class="mt-1">
+              <small class="text-muted text-decoration-line-through" *ngIf="item.oldPrice">${{ item.oldPrice }}</small>
+              <strong class="text-danger ms-1">${{ item.price }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="p-3 border-top">
+    <div class="d-flex justify-content-between fw-bold mb-2">
+      <span>Subtotal:</span>
+      <span>${{ subtotal.toFixed(2) }}</span>
+    </div>
+    <small class="text-muted">Taxes, shipping and discounts codes calculated at checkout</small>
+
+    <div class="form-check my-2">
+      <input class="form-check-input" type="checkbox" id="agree" />
+      <label class="form-check-label small" for="agree">
+        I agree with the terms and conditions.
+      </label>
+    </div>
+
+    <div class="d-grid gap-2 mt-2">
+      <button class="btn btn-outline-secondary">View Cart</button>
+      <button class="btn btn-info text-white">Check Out</button>
+    </div>
+  </div>
+</div>

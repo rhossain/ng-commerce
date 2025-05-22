@@ -1,1 +1,53 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+  font-size: 14px;
+}
+
+a {
+  color: rgb(var(--clr-dark));
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  &:hover, &:active, &:focus {
+      color: rgb(var(--clr-secondary-custom));
+      text-decoration: none;
+  }
+}
+
+.logo-text {
+  color: rgb(var(--clr-primary-dark));
+  font-size: 35px;
+
+  span {
+      color: rgb(var(--clr-secondary-light));
+  }
+
+  &--white {
+      color: rgb(var(--clr-white));
+      font-size: 30px;
+
+      span {
+          color: rgb(var(--clr-secondary-custom));
+      }
+  }
+}
+
+.page {
+  &-home {
+      // .mobile-gradient {
+      //     @include media-breakpoint-down(sm) {
+      //         display: block;
+      //     }
+      // }
+
+      // .header-wrapper {
+      //     &--middle-left, &--middle-right {
+      //         background-color: transparent;
+      //     }            
+      // }
+      
+      // .main-content--top-contents {
+      //     padding: 15px 0 20px;
+      // }
+  }
+}

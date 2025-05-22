@@ -1,0 +1,14 @@
+.input-group {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 50px;
+    align-items: center;
+
+    input::placeholder {
+        color: #aaa;
+    }
+
+    .dropdown-toggle::after {
+        margin-left: 0.5rem;
+    }
+}

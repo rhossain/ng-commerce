@@ -1,0 +1,32 @@
+
+$primary:           #AB886D;
+$primary-light:     #D6C0B3;
+$primary-dark:      #493628;
+$secondary:         #656D4A;
+$secondary-light:   #A4AC86;
+$secondary-dark:    #414833;
+$success:           #F7A51B;
+$info:              #F7A51B;
+$warning:           #F7A51B;
+$danger:            #F7A51B;
+$light:             #F2F2F2;
+$dark:              #222831;
+
+:root {
+    --clr-primary-custom:           171, 136, 109;  // #AB886D
+    --clr-primary-light:            214, 192, 179;  // #D6C0B3
+    --clr-primary-dark:             73, 54, 40;     // #493628
+    --clr-secondary-custom:         101, 109, 74;   // #656D4A;
+    --clr-secondary-light:          164, 172, 134;  // #A4AC86;
+    --clr-secondary-dark:           65, 72, 51;     // #414833;
+    --clr-white:                    255, 255, 255;  // #FFFFFF;
+    --clr-black:                    0, 0, 0;        // #000000;
+    --clr-dark:                     34, 40, 49;     // #222831;
+    --clr-dark-light:               57, 62, 70;     // #393E46;
+    --clr-dark-lighter:             82, 82, 82;     // #525252;
+    --clr-gray:                     242, 242, 242;  // #F2F2F2;
+    --clr-gray-light:               238, 238, 238;  // #EEEEEE;
+    --clr-gray-dark:                221, 221, 221;  // #DDDDDD;
+
+    --sidebar-width:                280px;
+}

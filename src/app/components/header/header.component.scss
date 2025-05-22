@@ -1,0 +1,227 @@
+@import 'bootstrap-bp.scss';
+
+.header {
+    $this: header !default;
+
+    &-top {
+        background-color: rgb(var(--clr-gray));
+
+        &-left, &-center, &-right {
+            min-height: 36px;
+        }
+
+        &-item {
+            .dropdown-toggle {
+                &::after {
+                    @include media-breakpoint-down(sm) {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .btn, .btn-link {
+            color: rgb(var(--clr-white));
+            font-size: 12px;
+
+            &:hover, &:active, &:focus {
+                color: rgb(var(--clr-secondary-light));
+                text-decoration: none;
+            }
+        }
+
+        > .container, .container-fluid {
+            > .row {
+                > .col, > [class*="col-"] {                    
+                    @include media-breakpoint-down(sm) {
+                        padding-right: 0;
+                        padding-left: 0;
+                    }
+                }
+                
+                @include media-breakpoint-down(sm) {
+                    margin-right: 0;
+                    margin-left: 0;
+                }
+            }
+
+            @include media-breakpoint-down(sm) {
+                padding: 0;
+            }
+        }
+
+        @include media-breakpoint-down(sm) {
+            position: fixed;
+            top: 50px;
+            right: -60px;
+            opacity: 0;
+            width: 55px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            background-color: rgb(var(--clr-primary-dark));
+            z-index: 6;
+            transition: all 0.2s ease-in-out;
+        }
+    }
+
+    &-middle {
+        background-color:  rgb(var(--clr-white));
+        padding: 20px 0;
+
+        &-left, &-center, &-right {
+            min-height: 85px;
+
+            @include media-breakpoint-down(sm) {
+                min-height: 50px;
+            }
+        }
+
+        &-left {
+            @include media-breakpoint-down(sm) {
+                position: absolute;
+                width: 100%;
+                background-color: rgb(var(--clr-primary-dark));
+                z-index: 7;
+            }
+        }
+
+        &-center {
+            width: 55%;
+
+            @include media-breakpoint-down(sm) {
+                width: 100%;
+            }
+        }
+
+        &-right {
+            @include media-breakpoint-down(sm) {
+                position: absolute;
+                right: 15px;
+                background-color: rgb(var(--clr-primary-dark));
+                z-index: 7;
+            }
+        }
+
+        > .container, .container-fluid {
+            > .row {
+                > .col, > [class*="col-"] {
+                    @include media-breakpoint-down(sm) {
+                        padding-right: 0;
+                        padding-left: 0;
+                    }
+                }
+
+                @include media-breakpoint-down(sm) {
+                    margin-right: 0;
+                    margin-left: 0;
+                }
+            }
+
+            @include media-breakpoint-down(sm) {
+                padding: 0;
+                max-width: 100%;
+            }
+        }
+
+        &.sticky {
+            .#{$this}-middle-left {
+                background-color: rgb(var(--clr-primary-dark)) !important;
+
+                @include media-breakpoint-down(sm) {
+                    position: fixed;
+                }
+            }
+
+            .#{$this}-middle-right {
+                .search-box-icon {
+                    display: none !important;
+                }
+                
+                @include media-breakpoint-down(sm) {
+                    position: fixed;
+                }
+            }
+        }
+
+        @include media-breakpoint-down(sm) {
+            position: absolute;
+            top: 0;
+            padding: 0;
+            // z-index: 7;
+        }
+    }
+
+    &-bottom {
+        background-color: rgb(var(--clr-white));
+        border-bottom: 4px solid rgb(var(--clr-primary-custom));
+
+        &.collapsed {
+            @include media-breakpoint-down(sm) {
+                width: 0;
+            }
+        }
+
+        > .container, .container-fluid {
+            @include media-breakpoint-down(sm) {
+                padding: 0;
+            }
+        }
+
+        @include media-breakpoint-down(sm) {
+            top: 50px;
+            bottom: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            padding-top: 0;
+            position: fixed;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: rgb(var(--clr-primary-light));
+            border: 0 !important;
+            -webkit-transition: width .4s;
+            -moz-transition: width .4s;
+            -ms-transition: width .4s;
+            transition: width .4s;
+            z-index: 5;
+        } 
+        
+        @include media-breakpoint-down(xs) {
+            width: calc(100% - 55px);
+        }
+    }
+
+    &.collapsed {
+        .page-overlay {
+            @include media-breakpoint-down(sm) {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 3;
+            }        
+        }
+
+        .#{$this}-top {
+            @include media-breakpoint-down(sm) {
+                right: 0;
+                opacity: 1;
+            }
+        }
+        
+    }
+
+    @include media-breakpoint-down(sm) {
+        height: 100%;
+    }
+}
+
+.header-home {
+    .header {
+        &-middle-left, &-middle-right {
+            background-color: transparent;
+        }            
+    }
+}
