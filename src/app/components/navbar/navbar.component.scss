@@ -54,6 +54,12 @@
             > .nav-link {
                 &.dropdown-toggle {
                     color: rgb(var(--clr-white));
+
+                    @include media-breakpoint-up(xl) {
+                        user-select: none;
+                        pointer-events: none;
+                        cursor: text;
+                    }
                 }
             } 
         }
@@ -302,6 +308,14 @@
         transform: scale(1, 0);
         border: 0;
         z-index: -1;
+
+        &.dropdown-categories {
+            @include media-breakpoint-up(xl) {
+                opacity: 1;
+                transform: scale(1, 1);
+                z-index: 1100;
+            }
+        }
     }
 
     &-item {

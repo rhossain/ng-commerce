@@ -36,6 +36,7 @@
             ],
             "styles": [
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+              "node_modules/swiper/swiper-bundle.min.css",
               "src/assets/styles/bootstrap-custom.scss",
               "src/styles.scss"
             ],

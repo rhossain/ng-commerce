@@ -32,22 +32,68 @@ a {
   }
 }
 
-.page {
-  &-home {
-      // .mobile-gradient {
-      //     @include media-breakpoint-down(sm) {
-      //         display: block;
-      //     }
-      // }
+// Define your brand colors
+$brand-primary: rgb(var(--clr-primary-custom));
+$brand-secondary: rgb(var(--clr-secondary-custom));
 
-      // .header-wrapper {
-      //     &--middle-left, &--middle-right {
-      //         background-color: transparent;
-      //     }            
-      // }
-      
-      // .main-content--top-contents {
-      //     padding: 15px 0 20px;
-      // }
+// Outline versions
+.btn-outline-brand-primary {
+  background-color: transparent;
+  color: $brand-primary;
+  border: 2px solid $brand-primary;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $brand-primary;
+    color: #fff;
+  }
+}
+
+.btn-outline-brand-secondary {
+  background-color: transparent;
+  color: $brand-secondary;
+  border: 2px solid $brand-secondary;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: $brand-secondary;
+    color: #fff;
+  }
+}
+
+.btn-minimal {
+  background: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.25s ease-in-out;
+
+  &:hover {
+    background: #000;
+    color: #fff;
+  }
+}
+
+.btn-icon {
+  background: #212529;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: #343a40;
+  }
+
+  i {
+    font-size: 1rem;
   }
 }

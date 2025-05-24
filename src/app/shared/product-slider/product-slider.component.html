@@ -1,0 +1,52 @@
+<swiper-container 
+  [slidesPerView]="1"           
+  [spaceBetween]="20"           
+  [loop]="true"                 
+  [autoplay]="{ delay: 2500 }"  
+  [pagination]="{ clickable: true, dynamicBullets: true }"
+  [navigation]="true"
+  class="h-100"
+  >
+    <swiper-slide *ngFor="let product of products; let i = index">
+        <!-- <div class="product-card p-2 border rounded">
+          <img
+            [src]="product.featuredImage"
+            [alt]="product.name"
+            class="img-fluid product-image mb-2"
+          />
+          <h6 class="mb-1">{{ product.name }}</h6>
+          <small class="text-muted">{{ product.brand }}</small>
+        </div> -->
+
+        <div class="product-card h-100">
+          <!-- Image wrapper -->
+          <div class="image-wrapper position-relative">
+            <!-- Spinner -->
+            <div class="spinner-wrapper" *ngIf="loadingImages[i]">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+    
+            <!-- Product Image -->
+            <img
+              [src]="product.variant?.product_images?.[0]?.image_url || product.product.featuredImage"
+              alt="{{ product.product.name }}"
+              (load)="loadingImages[i] = false"
+              (error)="loadingImages[i] = false"
+              [class.invisible]="loadingImages[i]"
+            />
+          </div>
+    
+          <div class="product-info">
+            <p *ngIf="product.variant?.discountPrice">
+              Exclusive offer <span class="text-danger fw-bold">${{ product.variant?.discountPrice }}</span> off this week
+            </p>
+            <h2>{{ product.product.name }}</h2>
+            <a [routerLink]="['/product/detail', product.product.id]" class="btn btn-outline-brand-secondary">
+              Explore Now
+            </a>
+          </div>
+        </div>
+    </swiper-slide>
+</swiper-container>
