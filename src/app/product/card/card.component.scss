@@ -1,0 +1,94 @@
+.product-card {
+    border: 1px solid rgb(var(--clr-gray-light));
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(var(--clr-black), 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+
+    .price {
+        font-weight: bold;
+        color: rgb(var(--clr-secondary-light));
+    }
+}
+
+.featured__item__pic {
+    width: 100%;
+    height: 250px;
+    background-color: rgb(var(--clr-gray-light));
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    transition: background-image 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Skeleton styles */
+.skeleton {
+    &-image {
+        height: 180px;
+        background-color: rgb(var(--clr-gray-dark));
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+
+    &-line {
+        height: 14px;
+        background-color: rgb(var(--clr-gray-dark));
+        margin-bottom: 0.5rem;
+        border-radius: 4px;
+    
+        &.short {
+            width: 50%;
+        }
+    }
+}
+
+/* shimmer placeholder */
+.shimmer {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150px;
+        height: 100%;
+        width: 150px;
+        background: linear-gradient(90deg, transparent, rgba(var(--clr-white), 0.6), transparent);
+        animation: shimmer 1.5s infinite;
+    }
+
+    &-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150px;
+        width: 150px;
+        height: 100%;
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(var(--clr-white), 0.4),
+                transparent);
+        animation: shimmer 1.2s infinite;
+    }
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.loaded::after {
+    display: none;
+}

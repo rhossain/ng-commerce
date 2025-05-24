@@ -1,1 +1,28 @@
-<p>card works!</p>
+<!-- Skeleton View -->
+<div class="product-card shimmer" *ngIf="isLoading">
+    <div class="skeleton-image"></div>
+    <div class="skeleton-line short"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line"></div>
+</div>
+
+<div class="featured__item" *ngIf="!isLoading">
+    <div 
+        #bgImageEl
+        class="featured__item__pic set-bg shimmer-bg"
+        [class.loaded]="imageVisible"
+        [style.background-image]="imageVisible ? 'url(' + backgroundUrl + ')' : null"
+    >
+        <ul class="featured__item__pic__hover">
+            <li><a href="#"><i class="fa fa-heart"></i></a></li>
+            <li><a [routerLink]="['/product/detail', product.id]" routerLinkActive="router-link-active"><i
+                        class="fa fa-retweet"></i></a></li>
+            <li><a (click)="addToCart(product)"><i class="fa fa-shopping-cart"></i></a></li>
+        </ul>
+    </div>
+    <div class="featured__item__text">
+        <h6><a [routerLink]="['/product/detail', product.id]" routerLinkActive="router-link-active">{{ product.name
+                }}</a></h6>
+        <h5>${{ product.price }}</h5>
+    </div>
+</div>
