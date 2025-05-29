@@ -2,7 +2,7 @@
 
     <!-- Header - top -->
     <div class="header-top">
-        <div class="container-fluid">
+        <div class="container">
             <div class="row">
                 <div class="col-12 col-md-4">
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start header-top-left">
@@ -33,7 +33,7 @@
 
     <!-- Header - middle -->
     <div class="w-100 header-middle">
-        <div class="container-fluid">
+        <div class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="d-flex flex-column flex-md-row justify-content-between w-100 header-middle-inner">
@@ -64,7 +64,10 @@
                             <div class="d-flex justify-content-center align-items-center d-md-none search-box-icon">
                                 <i class="fas fa-lg fa-search"></i>
                             </div>
-                            <app-cart [cartItems]="cartItems" [subtotal]="subtotal" (cartClosed)="onSidebarClosed()">
+                            <app-cart
+                                [cartItems]="cartItems" 
+                                [subtotal]="subtotal" 
+                                (cartClosed)="onSidebarClosed()">
                             </app-cart>
                         </div>
                     </div>
@@ -76,7 +79,7 @@
 
     <!-- Header - bottom -->
     <div class="header-bottom w-100 collapsed">
-        <div class="container-fluid">
+        <div class="container">
             <app-navbar class="d-block w-100"></app-navbar>
         </div>
     </div>

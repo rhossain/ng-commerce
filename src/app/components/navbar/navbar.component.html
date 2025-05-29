@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-12 col-md-4 col-xl-3">
         <div class="d-flex align-items-center justify-content-start header-bottom-left">
-            <div class="d-flex w-100 navbar-categories">
+            <div class="d-flex w-100 navbar-categories" [ngClass]="(routeUtils.isCurrentRoute('/home') | async) ? 'navbar-home' : ''">
                 <nav class="w-100 navbar">
                     <ul class="w-100 navbar-nav">
                         <li class="nav-item dropdown dropdown-slide">
@@ -12,6 +12,9 @@
                             </a>
                             <ul class="py-1 py-md-0 position-absolute float-start dropdown-menu dropdown-categories"
                                 aria-labelledby="navbarDropdownMenuLink">
+                                <li class="d-flex dropdown dropdown-item" *ngIf="categories.length === 0">
+                                    Loading Categories..
+                                </li>
                                 @for (c of getVisibleCategories(); track c.id) {
                                     <li class="d-flex dropdown dropdown-item" [ngClass]="'dropdown-item--' + c.name">
                                         <a 

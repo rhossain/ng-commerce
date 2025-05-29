@@ -3,13 +3,13 @@
         aria-expanded="false">
         <div class="position-relative d-inline-flex align-items-center justify-content-center cart-mini-mask">
             <div class="position-absolute d-flex align-items-center justify-content-center cart-mini-count">
-                3
+              {{ cartItemsQuantity$ | async }}
             </div>
             <fa-icon [icon]="faBagShopping" class="cart-mini-icon"></fa-icon>
         </div>
         <div class="d-none d-md-flex flex-column text-end text-uppercase cart-mini-info">
             <span class="cart-mini-name">My Cart</span>
-            <span class="cart-mini-amount">$913.80</span>
+            <span class="cart-mini-amount">${{ subtotal }}</span>
         </div>
     </div>
 </div>

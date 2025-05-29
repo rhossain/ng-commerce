@@ -1,42 +1,40 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCartPlus, faRightLeft } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faHeart } from '@fortawesome/free-regular-svg-icons';
 import { ProductModel } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 
 @Component({
-  selector: 'app-card',
+  selector: 'app-product-card',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, FontAwesomeModule],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })
-export class CardComponent {
+export class CardComponent implements AfterViewInit {
   @Input() product!: ProductModel;
   @Input() isLoading = false;
-  @ViewChild('bgImageEl', { static: false }) bgImageEl!: ElementRef;
+  @ViewChild('imageEl', { static: false }) imageEl!: ElementRef;
   imageVisible = false;
-  backgroundUrl = '';
+  imageUrl = '';
 
   // Default fallback image path
   fallbackUrl = 'https://placehold.co/400x400/48A6A7/FFF?text=Fallback';
 
+  // Icons
+  faCartPlus = faCartPlus;
+  faEye = faEye;
+  faHeart = faHeart;
+  faRightLeft = faRightLeft;
+
   constructor(private cartService: CartService) {}
-
-  addToCart(product: ProductModel): void {
-    const selectedVariant = product.variants?.[0]; // or show UI to pick one
-    if (selectedVariant) {
-      this.cartService.addToCart(product, selectedVariant);
-    }
-  }
-
-  clearCart():void {
-    this.cartService.clearCart();
-  }
 
   ngAfterViewInit() {
     setTimeout(() => {
-      if (!this.bgImageEl) return;
+      if (!this.imageEl) return;
   
       const observer = new IntersectionObserver(
         (entries) => {
@@ -52,7 +50,7 @@ export class CardComponent {
         { threshold: 0.1 }
       );
   
-      observer.observe(this.bgImageEl.nativeElement);
+      observer.observe(this.imageEl.nativeElement);
     }, 0);
   }
   
@@ -68,7 +66,7 @@ export class CardComponent {
     const timeout = setTimeout(() => {
       if (!didLoad) {
         // console.warn('Image load timed out — using fallback');
-        this.backgroundUrl = fallbackUrl;
+        this.imageUrl = fallbackUrl;
         this.imageVisible = true;
       }
     }, timeoutMs);
@@ -77,7 +75,7 @@ export class CardComponent {
       didLoad = true;
       clearTimeout(timeout);
       // console.log('Image loaded successfully');
-      this.backgroundUrl = imgUrl;
+      this.imageUrl = imgUrl;
       this.imageVisible = true;
     };
   
@@ -85,10 +83,21 @@ export class CardComponent {
       didLoad = true;
       clearTimeout(timeout);
       // console.warn('Image failed — using fallback');
-      this.backgroundUrl = fallbackUrl;
+      this.imageUrl = fallbackUrl;
       this.imageVisible = true;
     };
   
     img.src = imgUrl;
+  }
+
+  addToCart(product: ProductModel): void {
+    const selectedVariant = product.variants?.[0];
+    if (selectedVariant) {
+      this.cartService.addToCart(product, selectedVariant);
+    }
+  }
+
+  clearCart():void {
+    this.cartService.clearCart();
   }
 }

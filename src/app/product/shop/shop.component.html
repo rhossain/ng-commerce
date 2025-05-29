@@ -1,1 +1,30 @@
-<p>shop works!</p>
+<!-- Shop Section Begin -->
+<section class="com-shop spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-4">
+                <div class="sidebar">
+                    <div class="sidebar-item">
+                        <h4>Vehicles</h4>
+                        <app-featured-category
+                            [categories]="categories"
+                            [styleType]="'sidebar'"
+                            [selectedCategoryId]="selectedCategoryId"
+                            (categorySelected)="onCategorySelect($event)">
+                        </app-featured-category>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-9 col-lg-8">
+                <app-product-list 
+                    [minPrice]="minPrice ?? undefined" 
+                    [maxPrice]="maxPrice ?? undefined" 
+                    [categoryId]="selectedCategoryId" 
+                    (productCountChanged)="productCountChanged($event)">
+                </app-product-list>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ./Shop Section Begin -->

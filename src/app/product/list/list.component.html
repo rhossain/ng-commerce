@@ -1,1 +1,93 @@
-<p>list works!</p>
+<!-- <div class="row loader" *ngIf="loading">
+    <div class="col-12">Loading...</div>
+</div> -->
+
+<div *ngIf="products.length > 0; else noProducts">
+    <div class="row">
+        <div class="col-lg-4 col-md-3">
+            <div class="sort-controls">
+                <label for="sort">Sort by:</label>
+                <select id="sort" [(ngModel)]="sortBy" (change)="onSortChange()">
+                    <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+                </select>
+              
+                <button (click)="toggleOrder()" title="Toggle sort direction">
+                    <fa-icon [icon]="orderBy === 'asc' ? faArrowUp : faArrowDown"></fa-icon>
+                </button>
+              
+                <button (click)="resetSort()" title="Reset sort to default">
+                    <fa-icon [icon]="faRotateLeft"></fa-icon>
+                </button>
+            </div>                            
+        </div>
+        <div class="col-lg-4 col-md-3">
+            <h6 style="text-align: center;"><span>{{ products.length }}</span> Products found</h6>
+        </div>
+        <div class="col-lg-4 col-md-3">
+            <!-- <div class="filter__option">
+                <span class="icon_grid-2x2"></span>
+                <span class="icon_ul"></span>
+            </div> -->
+            <select (change)="onPerPageChange($event)">
+                <option [value]="6">6</option>
+                <option [value]="12">12</option>
+                <option [value]="24">24</option>
+            </select>              
+        </div>
+    </div>
+
+    <div class="row" *ngIf="products.length > 0" style="min-height: 385px;">
+        <!-- While loading: skeleton shimmer cards -->
+        <ng-container *ngIf="loading">
+            <app-product-card
+                *ngFor="let n of skeletonCount"
+                [isLoading]="true"
+                class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            </app-product-card>
+        </ng-container>
+        
+        <!-- When loaded: real products -->
+        <ng-container *ngIf="!loading">
+            <app-product-card
+                *ngFor="let product of filteredProducts"
+                [product]="product"
+                [isLoading]="false"
+                class="col-lg-4 col-md-4 col-sm-6 mb-4">
+            </app-product-card>
+        </ng-container>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <!-- Pagination Controls -->
+            <div class="pagination-controls">
+                <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                    PREV
+                </button>
+            
+                <ng-container *ngFor="let page of pageNumbers">
+                <button
+                    *ngIf="page !== '...'; else ellipsis"
+                    (click)="goToPage(page)"
+                    [class.active]="page === currentPage"
+                    [disabled]="page === currentPage"
+                >
+                    {{ page }}
+                </button>
+            
+                <ng-template #ellipsis>
+                    <button disabled style="cursor: default;">...</button>
+                </ng-template>
+                </ng-container>
+            
+                <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                    NEXT
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #noProducts>
+  <p class="no-products">No products found.</p>
+</ng-template>

@@ -2,8 +2,10 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SearchComponent } from "../search/search.component";
-import CartComponent from "../../shopping/cart/cart.component";
+import { CartComponent } from "../../shopping/cart/cart.component";
 import { NavbarComponent } from "../navbar/navbar.component";
+import { Observable } from 'rxjs';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-header',

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 const shoppingRoutes: Routes = [
   {
     path: 'cart',
-    loadComponent: () => import('../shopping/cart/cart.component'),
+    loadComponent: () => import('../shopping/cart-details/cart-details.component'),
   },
   {
     path: 'wishlist',

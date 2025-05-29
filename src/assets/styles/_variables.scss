@@ -1,10 +1,10 @@
 
-$primary:           #AB886D;
-$primary-light:     #D6C0B3;
-$primary-dark:      #493628;
-$secondary:         #656D4A;
-$secondary-light:   #A4AC86;
-$secondary-dark:    #414833;
+$primary:           #606C38;
+$primary-light:     #93A655;
+$primary-dark:      #283618;
+$secondary:         #DDA15E;
+$secondary-light:   #FCC281;
+$secondary-dark:    #BC6C25;
 $success:           #F7A51B;
 $info:              #F7A51B;
 $warning:           #F7A51B;
@@ -13,12 +13,12 @@ $light:             #F2F2F2;
 $dark:              #222831;
 
 :root {
-    --clr-primary-custom:           171, 136, 109;  // #AB886D
-    --clr-primary-light:            214, 192, 179;  // #D6C0B3
-    --clr-primary-dark:             73, 54, 40;     // #493628
-    --clr-secondary-custom:         101, 109, 74;   // #656D4A;
-    --clr-secondary-light:          164, 172, 134;  // #A4AC86;
-    --clr-secondary-dark:           65, 72, 51;     // #414833;
+    --clr-primary-custom:           96, 108, 56;    // #AB886D
+    --clr-primary-light:            147, 166, 85;   // #D6C0B3
+    --clr-primary-dark:             40, 54, 24;     // #493628
+    --clr-secondary-custom:         221, 161, 94;   // #656D4A;
+    --clr-secondary-light:          252, 194, 129;  // #A4AC86;
+    --clr-secondary-dark:           188, 108, 37;   // #414833;
     --clr-white:                    255, 255, 255;  // #FFFFFF;
     --clr-black:                    0, 0, 0;        // #000000;
     --clr-dark:                     34, 40, 49;     // #222831;
@@ -27,6 +27,13 @@ $dark:              #222831;
     --clr-gray:                     242, 242, 242;  // #F2F2F2;
     --clr-gray-light:               238, 238, 238;  // #EEEEEE;
     --clr-gray-dark:                221, 221, 221;  // #DDDDDD;
+    --clr-gray-darker:              136, 144, 160;  // #8890A0;
 
     --sidebar-width:                280px;
+
+    --grid-gap: 20px;
+    --item-radius: 8px;
+    --content-padding: 15px;
+    --content-bg: rgba(0, 0, 0, 0.7);
+    --text-color: #ffffff;
 }

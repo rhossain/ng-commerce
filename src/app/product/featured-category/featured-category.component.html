@@ -1,1 +1,60 @@
-<p>featured-category works!</p>
+<ng-container [ngSwitch]="styleType">
+    <div *ngSwitchCase="'default'" class="default-style">
+        <ul *ngIf="categories">
+            <li (click)="selectCategory(null)">All</li>
+            @for (category of categories; track $index) {
+                <li [class.active]="category.id === selectedCategoryId">
+                    <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div *ngSwitchCase="'grid'" class="grid-style">
+        @if (loading) {
+            <div class="category-item">
+                <span class="loader-img"></span>
+            </div>
+        } @else {
+            <div class="category-grid">
+                @for (category of categories; track $index) {
+                    <div class="category-item">
+                        <div class="category-image" [ngStyle]="{'background-image': 'url(' + category.image + ')'}"></div>
+                        <div class="category-info">
+                            <h3>
+                                <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
+                            </h3>
+                            <span>{{ category.productCount }} Products</span>
+                            <div class="d-block">
+                                <a class="btn-icon-2" (click)="onCategorySelect(category.id)">View More</a>
+                            </div>
+                        </div>
+                        <!-- <img [src]="category.image" [alt]="category.name" /> -->
+                    </div>
+                }
+            </div>   
+        }
+    </div>
+
+    <div *ngSwitchCase="'pill'" class="pill-style">
+        <ul *ngIf="categories">
+            <li (click)="selectCategory(null)">All</li>
+            @for (category of categories; track $index) {
+                <li [class.active]="category.id === selectedCategoryId">
+                    <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div *ngSwitchCase="'sidebar'">
+        <ul class="category-list" *ngIf="categories">
+            <li (click)="selectCategory(null)">All</li>
+            @for (category of categories; track $index) {
+                <li [class.active]="category.id === selectedCategoryId">
+                    <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
+                </li>
+            }
+        </ul>
+    </div>
+</ng-container>

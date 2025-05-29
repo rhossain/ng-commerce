@@ -1,1 +1,99 @@
-<p>details works!</p>
+<!-- Product Details -->
+<section class="com-product-details">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ product.name }}</h2>
+                <p><strong>Category:</strong> {{ getCategoryName(product.category_id) }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <!-- Media Display -->
+                <div class="media-container">
+                    <div class="main-image">
+                    <!-- <img
+                        *ngIf="!isVideo()"
+                        [src]="selectedImageUrl"
+                        ngxImageZoom
+                        alt="Product image"
+                    /> -->
+                    <lib-ngx-image-zoom
+                        [thumbImage]="selectedImageUrl"
+                        [fullImage]="selectedImageUrl"
+                        [magnification]="2"
+                        [zoomMode]="'hover'"
+                        [enableLens]="true"
+                        [lensWidth]="150"
+                        [lensHeight]="150"
+                        class="zoomed-img"
+                        style="display: block;"
+                    ></lib-ngx-image-zoom>
+                    <video *ngIf="isVideo()" [src]="selectedImageUrl" controls width="100%"></video>
+                    </div>
+
+                    <div class="product-images" *ngIf="productImages.length > 0">
+                        <div class="thumbnails" *ngFor="let img of productImages" (click)="mediaClicked(img.image_url)">
+                          <img [src]="img.image_url" [alt]="product.name" class="thumbnail" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6">
+                <!-- Description -->
+                <p class="description">{{ product.description }}</p>     
+                
+                <!-- DEBUG -->
+                <p *ngIf="!product">Product not loaded</p>
+                <p *ngIf="!product?.options?.length">No options found</p>
+                <p *ngIf="!getOptionNames()?.length">No option names found</p>
+
+                <!-- Options -->
+                <div *ngFor="let optionName of getOptionNames()">
+                <p>{{ optionName }}:</p>
+                <button
+                    *ngFor="let value of groupedOptions[optionName]"
+                    (click)="onOptionSelect(optionName, value)"
+                    [class.selected]="selectedOptions[optionName] === value"
+                >
+                    {{ value }}
+                </button>
+                </div>
+
+                <!-- Selected Variant -->
+                <div *ngIf="selectedVariant">
+                <p>Price: {{ selectedVariant.discountPrice || selectedVariant.price }}</p>
+                <p *ngIf="selectedVariant.discountPrice">Original: <s>{{ selectedVariant.price }}</s></p>
+                <p>Stock: {{ selectedVariant.stock }}</p>
+                </div>
+
+                <p *ngIf="!selectedVariant">No variant matched</p>
+
+                <!-- Selected Variant Info -->
+                <div class="variant-info">
+                    <p *ngIf="selectedVariant">
+                        Price: 
+                        <span *ngIf="selectedVariant.discountPrice; else regularPrice">
+                          <del>{{ selectedVariant.price | currency }}</del>
+                          <strong>{{ selectedVariant.discountPrice | currency }}</strong>
+                        </span>
+                        <ng-template #regularPrice>
+                          <strong>{{ selectedVariant.price | currency }}</strong>
+                        </ng-template>
+                      </p>
+                      
+                      <p *ngIf="selectedVariant">Stock: {{ selectedVariant.stock }}</p>
+                      <p *ngIf="selectedVariant">Sold: {{ selectedVariant.totalSold }}</p>
+                </div>
+
+                <!-- Fallback -->
+                <div *ngIf="!selectedVariant && product.variants?.length">
+                    <p class="text-warning">Please select all options to view variant details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<!-- ./Product Details -->

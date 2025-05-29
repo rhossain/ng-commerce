@@ -5,6 +5,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faListUl } from '@fortawesome/free-solid-svg-icons';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
+import { RouteUtilsService } from '../../services/route-utils.service';
 
 @Component({
   selector: 'app-navbar',
@@ -17,11 +18,18 @@ export class NavbarComponent implements OnInit {
   faListUl = faListUl;
 
   categories: ProductCategory[] = [];
-
   initialVisibleCount = 6;
   showAll = false;
+  currentUrl$;
+  isHomePage$;
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    public routeUtils: RouteUtilsService
+  ) {
+    this.currentUrl$ = this.routeUtils.currentUrl$;
+    this.isHomePage$ = this.routeUtils.isCurrentRoute('/home');
+  }
 
   ngOnInit(): void {
     this.categoryService.getAllCategories().subscribe({
