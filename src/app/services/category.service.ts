@@ -18,4 +18,8 @@ export class CategoryService {
     const url = `${this.apiUrl}/${environment.apiEndpoints.category.getAllCategory}`;
     return this.http.get<ProductCategory[]>(url);
   }
+
+  getCategoryProductCounts(): Observable<{ category_id: number; count: number }[]> {
+    return this.http.get<{ category_id: number; count: number }[]>(`${this.apiUrl}/${environment.apiEndpoints.category.getCategoryProductCount}`);
+  }
 }

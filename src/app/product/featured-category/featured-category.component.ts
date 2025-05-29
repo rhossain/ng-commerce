@@ -21,11 +21,9 @@ export class FeaturedCategoryComponent {
   @Input() styleType: 'default' | 'grid' | 'pill' | 'sidebar' = 'default';
   @Input() selectedCategoryId!: number | null;
   @Input() onlyCategoryIds?: number[];
-  @Input() categories: CategoryWithCount[] = [];
+  @Input() categories: ProductCategory[] = [];
 
   @Output() categorySelected = new EventEmitter<number | null>();
-
-  loading = true;
   
   constructor(
     private route: ActivatedRoute, 
@@ -44,6 +42,7 @@ export class FeaturedCategoryComponent {
       queryParams: { categoryId, page: 1 }, // reset to page 1
       queryParamsHandling: 'merge'
     });
+    this.categorySelected.emit(categoryId);
   }  
 
   ngOnInit(): void {
@@ -60,37 +59,21 @@ export class FeaturedCategoryComponent {
   }
 
   loadCategoriesWithCounts(): void {
-    forkJoin([
-      this.categoryService.getAllCategories(),
-      this.productService.getProducts(1, 100) // Get first page with large perPage to get all products
-    ]).pipe(
-      map(([categories, productResponse]) => {
-        // Use productResponse.items instead of productResponse.products
-        const products = productResponse.items;
-        
-        // Filter categories if onlyCategoryIds is provided
-        let filteredCategories = categories;
-        if (Array.isArray(this.onlyCategoryIds) && this.onlyCategoryIds.length > 0) {
-          filteredCategories = categories.filter(c => this.onlyCategoryIds!.includes(c.id));
-        }
-        
-        // Add product counts to each category
-        return filteredCategories.map(category => ({
-          ...category,
-          productCount: products.filter(
-            product => product.category_id === category.id
-          ).length
-        }));
-      })
-    ).subscribe({
-      next: (categoriesWithCounts) => {
-        this.categories = categoriesWithCounts;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading categories:', error);
-        this.loading = false;
-      }
+    forkJoin({
+      categories: this.categoryService.getAllCategories(),
+      counts: this.categoryService.getCategoryProductCounts()
+    }).subscribe(({ categories, counts }) => {
+      const countMap = new Map<number, number>();
+      counts.forEach(c => countMap.set(c.category_id, c.count));
+
+      const filtered = Array.isArray(this.onlyCategoryIds) && this.onlyCategoryIds.length > 0
+        ? categories.filter(c => this.onlyCategoryIds!.includes(c.id))
+        : categories;
+
+      this.categories = filtered.map(cat => ({
+        ...cat,
+        productCount: countMap.get(cat.id) || 0
+      }));
     });
   }
 }

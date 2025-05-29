@@ -14,6 +14,7 @@ export interface EnvironmentConfiguration {
         category: {
             getAllCategory: string;
             getCategory: string;
+            getCategoryProductCount: string;
         }
     }
 }

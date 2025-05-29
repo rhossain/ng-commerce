@@ -17,7 +17,8 @@ export const environment:EnvironmentConfiguration = {
         },
         category: {
             getAllCategory: "category",
-            getCategory: "category"
+            getCategory: "category",
+            getCategoryProductCount: "category-product-counts",
         }
     }
 }
