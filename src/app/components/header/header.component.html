@@ -37,9 +37,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="d-flex flex-column flex-md-row justify-content-between w-100 header-middle-inner">
-                        <div
-                            class="d-flex align-items-center justify-content-start justify-content-md-center justify-content-md-start header-middle-left">
-                            <button class="navbar-toggler d-inline-block d-md-none" type="button"
+                        <div class="d-flex align-items-center justify-content-start justify-content-md-center justify-content-md-start header-middle-left">
+                            <!-- <button class="navbar-toggler d-inline-block d-md-none" type="button"
                                 data-bs-toggle="collapse-side" data-bs-target=".header-bottom" data-target-2=".header"
                                 data-target-3=".main-content" aria-controls="navbarSupportedContent"
                                 aria-expanded="false" aria-label="Toggle navigation">
@@ -51,7 +50,11 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                            </button>
+                            </button> -->
+                            <a class="d-inline-block d-md-none" (click)="toggleNavbarSidebar()">
+                                <h1 class="mb-0 d-none d-md-block logo-text">ng<span>C</span>ommerce</h1>
+                                <h1 class="mb-0 d-block d-md-none logo-text--white">ng<span>C</span>ommerce</h1>
+                            </a>
                             <a class="navbar-brand" href="#">
                                 <h1 class="mb-0 d-none d-md-block logo-text">ng<span>C</span>ommerce</h1>
                                 <h1 class="mb-0 d-block d-md-none logo-text--white">ng<span>C</span>ommerce</h1>
@@ -65,8 +68,6 @@
                                 <i class="fas fa-lg fa-search"></i>
                             </div>
                             <app-cart
-                                [cartItems]="cartItems" 
-                                [subtotal]="subtotal" 
                                 (cartClosed)="onSidebarClosed()">
                             </app-cart>
                         </div>
@@ -86,3 +87,10 @@
     <!-- ./Header - bottom -->
 
 </header>
+
+<app-sidebar
+    id="navbarId" 
+    title="Navbar"
+    width="300px">
+    Sidebar content
+</app-sidebar>

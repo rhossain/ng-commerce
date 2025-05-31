@@ -6,11 +6,13 @@ import { CartComponent } from "../../shopping/cart/cart.component";
 import { NavbarComponent } from "../navbar/navbar.component";
 import { Observable } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { SidebarService } from '../../services/sidebar.service';
+import { SidebarComponent } from "../sidebar/sidebar.component";
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, SearchComponent, CartComponent, NavbarComponent],
+  imports: [CommonModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -33,10 +35,20 @@ export class HeaderComponent {
     }
   ];
 
-  constructor(public router: Router) {}
+  constructor(
+    private sidebarService: SidebarService,
+    public router: Router
+  ) {}
 
   isHomeRoute(): boolean {
     return this.router.url === '/home';
+  }
+
+  toggleNavbarSidebar() {
+    this.sidebarService.open('navbarId', {
+      title: 'Navbar',
+      width: '300px'
+    });
   }
 
   get subtotal(): number {

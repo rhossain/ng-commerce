@@ -10,7 +10,7 @@
     <swiper-slide *ngFor="let product of products; let i = index">
         <!-- <div class="product-card p-2 border rounded">
           <img
-            [src]="product.featuredImage"
+            [src]="product.main_image_url"
             [alt]="product.name"
             class="img-fluid product-image mb-2"
           />
@@ -30,7 +30,7 @@
     
             <!-- Product Image -->
             <img
-              [src]="product.variant?.product_images?.[0]?.image_url || product.product.featuredImage"
+              [src]="product.variant?.product_images?.[0]?.image_url || product.product.main_image_url"
               alt="{{ product.product.name }}"
               (load)="loadingImages[i] = false"
               (error)="loadingImages[i] = false"

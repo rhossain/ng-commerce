@@ -9,7 +9,7 @@ export interface ProductModel {
     stock_quantity: number;
     isNewArrival: boolean;
     isFeatured: boolean;
-    featuredImage?: string;
+    main_image_url?: string;
     options?: ProductOption[];
     variants?: ProductVariant[];
     brand?: string;

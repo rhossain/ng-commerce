@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus, faRightLeft } from '@fortawesome/free-solid-svg-icons';
 import { faEye, faHeart } from '@fortawesome/free-regular-svg-icons';
+import { ToastrService } from 'ngx-toastr';
 import { ProductModel } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 
@@ -18,8 +19,11 @@ export class CardComponent implements AfterViewInit {
   @Input() product!: ProductModel;
   @Input() isLoading = false;
   @ViewChild('imageEl', { static: false }) imageEl!: ElementRef;
+  
   imageVisible = false;
   imageUrl = '';
+  quantity: number = 1;
+  isAddingToCart = false;
 
   // Default fallback image path
   fallbackUrl = 'https://placehold.co/400x400/48A6A7/FFF?text=Fallback';
@@ -30,7 +34,10 @@ export class CardComponent implements AfterViewInit {
   faHeart = faHeart;
   faRightLeft = faRightLeft;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private toastr: ToastrService
+  ) {}
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -90,14 +97,48 @@ export class CardComponent implements AfterViewInit {
     img.src = imgUrl;
   }
 
-  addToCart(product: ProductModel): void {
-    const selectedVariant = product.variants?.[0];
-    if (selectedVariant) {
-      this.cartService.addToCart(product, selectedVariant);
+  // addToCart(product: ProductModel): void {
+  //   const selectedVariant = product.variants?.[0];
+  //   if (selectedVariant) {
+  //     this.cartService.addToCart(product, selectedVariant);
+  //   }
+  // }
+
+  async addToCart(): Promise<void> {
+    if (this.isAddingToCart) return;
+    
+    this.isAddingToCart = true;
+    
+    try {
+      const selectedVariant = this.product.variants?.[0];
+      
+      if (!selectedVariant) {
+        this.toastr.warning('No variant available for this product', 'Cannot Add to Cart');
+        return;
+      }
+
+      await this.cartService.addToCart(this.product, selectedVariant, this.quantity);
+      this.toastr.success(`${this.product.name} added to cart`, 'Success');
+      this.quantity = 1; // Reset quantity after adding
+    } catch (error) {
+      this.toastr.error('Failed to add item to cart', 'Error');
+    } finally {
+      this.isAddingToCart = false;
     }
   }
 
-  clearCart():void {
+  incrementQuantity(): void {
+    this.quantity++;
+  }
+
+  decrementQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  clearCart(): void {
     this.cartService.clearCart();
+    this.toastr.info('Cart has been cleared', 'Cart Empty');
   }
 }

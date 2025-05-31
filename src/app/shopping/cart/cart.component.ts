@@ -4,39 +4,112 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBagShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { SidebarService } from '../../services/sidebar.service';
+import { SidebarComponent } from "../../components/sidebar/sidebar.component";
+import { CartItem } from '../../models/cart.model';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, FontAwesomeModule, SidebarComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit {
-  @Input() cartItems: any[] = [];
-  @Input() subtotal = 0;
   @Output() cartClosed = new EventEmitter<void>();
-  cartItemsQuantity$!: Observable<number>;
+  cartItems$: Observable<CartItem[]>;
+  cartItemsQuantity$: Observable<number>;
+  subtotal$: Observable<number>;
+  sidebarId = 'shopping-cart';
+  isSidebarOpen = false;
+
+  // Default fallback image path
+  fallbackUrl = 'https://placehold.co/400x400/48A6A7/FFF?text=Fallback';
 
   // Icons
   faBagShopping = faBagShopping;
-  isOpen = false;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private sidebarService: SidebarService
+  ) {
+    this.cartItems$ = this.cartService.cartItems$;
+    this.cartItemsQuantity$ = this.cartService.cart$;
+    this.subtotal$ = this.cartService.subtotal$;
+  }
 
   ngOnInit(): void {
-    this.cartItemsQuantity$ = this.cartService.cart$;
+    // Initialize cart data
+    this.cartService.getCart();
+
+    // Initialize sidebar position immediately
+    this.sidebarService.open(this.sidebarId, {
+      title: 'Shopping Cart',
+      position: 'right',
+      width: '350px'
+    });
+    this.sidebarService.close(this.sidebarId);
+
+    this.sidebarService.sidebarState$.subscribe(state => {
+      if (!state.componentId || state.componentId === this.sidebarId) {
+        this.isSidebarOpen = state.isOpen;
+        if (!state.isOpen) {
+          this.cartClosed.emit();
+        }
+      }
+    });
+  }
+
+  trackByItem(index: number, item: CartItem): string {
+    return `${item.product.id}-${item.variant.id}`;
   }
 
   toggleCart() {
-    this.isOpen = !this.isOpen;
-    if (!this.isOpen) {
-      this.cartClosed.emit();
+    if (this.isSidebarOpen) {
+      this.sidebarService.close(this.sidebarId);
+    } else {
+      this.sidebarService.open(this.sidebarId, {
+        title: 'Shopping Cart',
+        position: 'right',
+        width: '350px'
+      });
     }
   }
 
   closeSidebar() {
-    this.isOpen = false;
+    this.sidebarService.close(this.sidebarId);
     this.cartClosed.emit();
+  }
+
+  incrementQuantity(item: CartItem) {
+    this.cartService.updateQuantity(
+      item.product.id,
+      item.variant.id,
+      item.quantity + 1
+    );
+  }
+  
+  decrementQuantity(item: CartItem) {
+    this.cartService.updateQuantity(
+      item.product.id,
+      item.variant.id,
+      item.quantity - 1
+    );
+  }
+
+  removeItem(item: CartItem) {
+    this.cartService.removeFromCart(
+      item.product.id,
+      item.variant.id
+    );
+  }
+
+  clearCart() {
+    this.cartService.clearCart();
+  }
+
+  ngOnDestroy() {
+    // Clean up when component is destroyed
+    this.sidebarService.close(this.sidebarId);
   }
 }

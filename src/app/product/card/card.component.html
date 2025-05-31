@@ -24,6 +24,12 @@
         /> -->
       <!-- <img src="iphone15pro.png" alt="Apple iPhone 15 Pro" class="product-image" /> -->
     </div>
+    <!-- Quantity Selector (Optional) -->
+    <!-- <div class="quantity-selector" *ngIf="product.variants?.length === 0">
+        <button (click)="decrementQuantity()" class="btn-quantity">-</button>
+        <span class="quantity">{{ quantity }}</span>
+        <button (click)="incrementQuantity()" class="btn-quantity">+</button>
+    </div> -->
     <div class="action-icons">
         <button class="icon-btn wishlist">
             <fa-icon [icon]="faHeart"></fa-icon>
@@ -47,8 +53,9 @@
       </div>
       <div class="final-price">${{ product.variants?.[0]?.discountPrice }}</div>
     </div>
-    <button class="cart-btn">
+    <button class="cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
         <fa-icon [icon]="faCartPlus"></fa-icon>
+        <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm"></span>
     </button>
   </div>
   

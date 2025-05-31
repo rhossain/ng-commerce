@@ -311,6 +311,30 @@ $this: product-card;
     }
 }
 
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .btn-quantity {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ddd;
+        background: white;
+        font-size: 1rem;
+
+        &:hover {
+            background: #f8f9fa;
+        }
+    }
+
+    .quantity {
+        margin: 0 10px;
+        min-width: 20px;
+        text-align: center;
+    }
+}
+
 /* Skeleton styles */
 .skeleton {
     &-image {
