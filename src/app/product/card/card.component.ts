@@ -7,6 +7,7 @@ import { faEye, faHeart } from '@fortawesome/free-regular-svg-icons';
 import { ToastrService } from 'ngx-toastr';
 import { ProductModel } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
+import { ImageCacheService } from '../../services/image-cache.service';
 
 @Component({
   selector: 'app-product-card',
@@ -36,7 +37,8 @@ export class CardComponent implements AfterViewInit {
 
   constructor(
     private cartService: CartService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private imageCacheService: ImageCacheService
   ) {}
 
   ngAfterViewInit() {
@@ -66,10 +68,14 @@ export class CardComponent implements AfterViewInit {
     const fallbackUrl = this.fallbackUrl;
     const timeoutMs = 10000;
   
-    const img = new Image();
+    if (!imgUrl) {
+      this.imageUrl = fallbackUrl;
+      this.imageVisible = true;
+      return;
+    }
+  
     let didLoad = false;
   
-    // Set a timeout to trigger fallback
     const timeout = setTimeout(() => {
       if (!didLoad) {
         // console.warn('Image load timed out — using fallback');
@@ -78,24 +84,25 @@ export class CardComponent implements AfterViewInit {
       }
     }, timeoutMs);
   
-    img.onload = () => {
-      didLoad = true;
-      clearTimeout(timeout);
-      // console.log('Image loaded successfully');
-      this.imageUrl = imgUrl;
-      this.imageVisible = true;
-    };
-  
-    img.onerror = () => {
-      didLoad = true;
-      clearTimeout(timeout);
-      // console.warn('Image failed — using fallback');
-      this.imageUrl = fallbackUrl;
-      this.imageVisible = true;
-    };
-  
-    img.src = imgUrl;
+    this.imageCacheService.preloadImage(imgUrl)
+      .then(img => {
+        if (!didLoad) {
+          didLoad = true;
+          clearTimeout(timeout);
+          this.imageUrl = img.src;
+          this.imageVisible = true;
+        }
+      })
+      .catch(() => {
+        if (!didLoad) {
+          didLoad = true;
+          clearTimeout(timeout);
+          this.imageUrl = fallbackUrl;
+          this.imageVisible = true;
+        }
+      });
   }
+  
 
   // addToCart(product: ProductModel): void {
   //   const selectedVariant = product.variants?.[0];
