@@ -1,9 +1,24 @@
 <ng-container [ngSwitch]="styleType">
     <div *ngSwitchCase="'default'" class="default-style">
         <ul *ngIf="categories">
-            <li (click)="selectCategory(null)">All</li>
             @for (category of categories; track $index) {
                 <li [class.active]="category.id === selectedCategoryId">
+                    <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div *ngSwitchCase="'list'" class="list-style">
+        <ul *ngIf="categories">
+            @for (category of categories; track $index) {
+                <li class="d-flex align-items-center" [class.active]="category.id === selectedCategoryId" (click)="onCategorySelect(category.id)">
+                    <div class="category-img">
+                        <img [src]="category.image || fallbackImg" [alt]="category.name" />
+                        <div class="d-flex align-items-center justify-content-center product-count">
+                            {{ category.productCount || 0 }}
+                        </div>
+                    </div>
                     <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
                 </li>
             }

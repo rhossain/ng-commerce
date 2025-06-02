@@ -6,11 +6,13 @@ import { ProductSliderComponent } from "../../shared/product-slider/product-slid
 import { CategoryService } from '../../services/category.service';
 import { ProductCategory } from '../../models/category.model';
 import { FeaturedCategoryComponent } from "../../product/featured-category/featured-category.component";
+import { RouteUtilsService } from '../../services/route-utils.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent],
+  imports: [CommonModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -23,7 +25,8 @@ export default class HomeComponent {
   constructor (
       private route: ActivatedRoute, 
       private router: Router, 
-      private categoryService: CategoryService
+      private categoryService: CategoryService,
+      public routeUtils: RouteUtilsService
   ) {}
 
   onCategorySelect(categoryId: number | null): void {

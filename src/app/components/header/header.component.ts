@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faBarsStaggered, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { SearchComponent } from "../search/search.component";
 import { CartComponent } from "../../shopping/cart/cart.component";
 import { NavbarComponent } from "../navbar/navbar.component";
@@ -8,15 +10,23 @@ import { Observable } from 'rxjs';
 import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from "../sidebar/sidebar.component";
+import { FeaturedCategoryComponent } from "../../product/featured-category/featured-category.component";
+import { ProductCategory } from '../../models/category.model';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent],
+  imports: [CommonModule, FontAwesomeModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent, FeaturedCategoryComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+  categories: ProductCategory[] = [];
+  
+  // Icons
+  faBarsStaggered = faBarsStaggered;
+  faMagnifyingGlass = faMagnifyingGlass;
+
   cartItems = [
     {
       name: 'La Bohème Rose Gold',
@@ -37,7 +47,8 @@ export class HeaderComponent {
 
   constructor(
     private sidebarService: SidebarService,
-    public router: Router
+    public router: Router,
+    private route: ActivatedRoute, 
   ) {}
 
   isHomeRoute(): boolean {
@@ -45,10 +56,11 @@ export class HeaderComponent {
   }
 
   toggleNavbarSidebar() {
-    this.sidebarService.open('navbarId', {
-      title: 'Navbar',
-      width: '300px'
-    });
+    this.sidebarService.open('navbarId');
+  }
+
+  toggleSearchSidebar() {
+    this.sidebarService.open('searchId');
   }
 
   get subtotal(): number {
@@ -58,5 +70,16 @@ export class HeaderComponent {
   onSidebarClosed() {
     console.log('Sidebar closed');
     // Optional: sync UI state, reset backdrop, etc.
+  }
+
+  onCategorySelect(categoryId: number | null): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        categoryId: categoryId ?? null,
+        page: 1
+      },
+      queryParamsHandling: 'merge'
+    });
   }
 }

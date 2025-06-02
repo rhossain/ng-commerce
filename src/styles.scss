@@ -1,4 +1,5 @@
 @use 'loader';
+@import 'bootstrap-bp.scss';
 
 body {
   font-size: 14px;
@@ -10,9 +11,11 @@ a {
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 
-  &:hover, &:active, &:focus {
-      color: rgb(var(--clr-secondary-custom));
-      text-decoration: none;
+  &:hover,
+  &:active,
+  &:focus {
+    color: rgb(var(--clr-secondary-custom));
+    text-decoration: none;
   }
 }
 
@@ -21,16 +24,20 @@ a {
   font-size: 35px;
 
   span {
-      color: rgb(var(--clr-secondary-light));
+    color: rgb(var(--clr-secondary-light));
   }
 
-  &--white {
-      color: rgb(var(--clr-white));
-      font-size: 30px;
+  &-white {
+    color: rgb(var(--clr-white));
+    font-size: 30px;
 
-      span {
-          color: rgb(var(--clr-secondary-custom));
-      }
+    span {
+      color: rgb(var(--clr-secondary-custom));
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    font-size: 26px;
   }
 }
 
@@ -119,7 +126,3 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
-
-
-
-

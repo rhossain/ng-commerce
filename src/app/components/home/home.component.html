@@ -1,5 +1,5 @@
 <!-- Main content -->
-<main role="main" class="main-content">
+<main role="main" class="main-content" [ngClass]="(routeUtils.isCurrentRoute('/home') | async) ? 'main-home' : ''">
     <div class="mobile-gradient">
         <div class="overlay"></div>
     </div>

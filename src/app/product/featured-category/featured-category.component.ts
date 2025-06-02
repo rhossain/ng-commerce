@@ -18,12 +18,14 @@ interface CategoryWithCount extends ProductCategory {
   styleUrl: './featured-category.component.scss'
 })
 export class FeaturedCategoryComponent {
-  @Input() styleType: 'default' | 'grid' | 'pill' | 'sidebar' = 'default';
+  @Input() styleType: 'default' | 'list' | 'grid' | 'pill' | 'sidebar' = 'default';
   @Input() selectedCategoryId!: number | null;
   @Input() onlyCategoryIds?: number[];
   @Input() categories: ProductCategory[] = [];
 
   @Output() categorySelected = new EventEmitter<number | null>();
+
+  fallbackImg = 'assets/images/image-not-loaded.jpg';
   
   constructor(
     private route: ActivatedRoute, 

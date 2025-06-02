@@ -27,7 +27,7 @@ export class CardComponent implements AfterViewInit {
   isAddingToCart = false;
 
   // Default fallback image path
-  fallbackUrl = 'https://placehold.co/400x400/48A6A7/FFF?text=Fallback';
+  fallbackUrl = 'assets/images/image-not-loaded.jpg';
 
   // Icons
   faCartPlus = faCartPlus;
