@@ -8,11 +8,12 @@ import { ProductCategory } from '../../models/category.model';
 import { FeaturedCategoryComponent } from "../../product/featured-category/featured-category.component";
 import { RouteUtilsService } from '../../services/route-utils.service';
 import { CommonModule } from '@angular/common';
+import { ShowcaseComponent } from "../../product/showcase/showcase.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent],
+  imports: [CommonModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

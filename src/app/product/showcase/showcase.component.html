@@ -1,0 +1,41 @@
+<!-- <div *ngIf="isLoading" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <app-card *ngFor="let skel of skeletons" [isLoading]="true"></app-card>
+</div> -->
+
+<ng-container *ngIf="!isLoading">
+    <h2 *ngIf="title" class="title mb-4">{{ title }}</h2>
+    <h4 *ngIf="subtitle" class="mb-4">{{ subtitle }}</h4>
+
+    <!-- Grid Layout -->
+    <div *ngIf="layout === 'grid'" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+    </div>
+
+    <!-- List Layout -->
+    <div *ngIf="layout === 'list'" class="space-y-4">
+        <app-product-card
+        *ngFor="let product of products"
+        [product]="product"
+        class="flex items-center space-x-4"
+        ></app-product-card>
+    </div>
+
+    <!-- Slider Layout -->
+    <swiper-container 
+        *ngIf="layout === 'slider'"
+        [slidesPerView]="1.3"
+        [spaceBetween]="16"
+        [breakpoints]="{
+        '640': { slidesPerView: 1.3 },
+        '768': { slidesPerView: 2.3 },
+        '1024': { slidesPerView: 3.3 }
+        }"
+        navigation
+        pagination
+        class="w-full"
+    >
+        <swiper-slide *ngFor="let product of products">
+            <app-product-card [product]="product" [isLoading]="false"></app-product-card>
+        </swiper-slide>
+    </swiper-container>
+</ng-container>
