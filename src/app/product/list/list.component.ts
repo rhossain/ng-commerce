@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -7,6 +9,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowUp, faArrowDown, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { CardComponent } from '../card/card.component';
 import { ProductService } from '../../services/product.service';
+import { ProductCacheService } from '../../services/product-cache.service';
 import { CartService } from '../../services/cart.service';
 import { ProductModel } from '../../models/product.model';
 
@@ -17,281 +20,195 @@ import { ProductModel } from '../../models/product.model';
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss'
 })
-export default class ListComponent implements OnInit, OnChanges {
+export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   products: ProductModel[] = [];
   filteredProducts: ProductModel[] = [];
   loading = false;
   skeletonCount = Array(3);
+  destroy$ = new Subject<void>();
+
   @Input() minPrice?: number;
   @Input() maxPrice?: number = 100;
   @Input() categoryId?: number | null;
-  @Input() filterType: 'featured' | 'new' | null = null;
+  @Input() filterType: 'featured' | 'new' | 'best-sell' | 'discounted' | null = null;
   @Output() productCountChanged = new EventEmitter<number>();
 
   currentPage = 1;
   totalPages = 1;
   pageNumbers: (number | string)[] = [];
-  perPage: number = 6;
+  perPage = 6;
 
-  sortBy: string = 'id';
+  sortBy = 'id';
   orderBy: 'asc' | 'desc' = 'asc';
   sortOptions = [
     { label: 'ID', value: 'id' },
     { label: 'Name', value: 'name' },
     { label: 'Price', value: 'price' },
-    { label: 'Created At', value: 'created_at' }
+    { label: 'Created At', value: 'created_at' },
   ];
-  
-  // Icons
+
   faArrowUp = faArrowUp;
   faArrowDown = faArrowDown;
   faRotateLeft = faRotateLeft;
 
+  private filtersChanged$ = new Subject<void>();
+
   constructor(
-    private productService: ProductService,
+    private productCacheService: ProductCacheService,
     private cartService: CartService,
     private router: Router,
     private route: ActivatedRoute,
     private toastrService: ToastrService
   ) {}
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.filteredProducts = this.products.filter(f => {
-      if (this.maxPrice !== undefined && this.maxPrice !== null) {
-        return f.price <= this.maxPrice;
-      }
-      return true; // include all if no maxPrice filter
-    });
-    this.productCountChanged.emit(this.filteredProducts.length);
-    if (changes['categoryId'] && !changes['categoryId'].firstChange) {
-      this.currentPage = 1;
-      this.getProducts();
-    }
-
-    this.updateQueryParams({
-      page: this.currentPage,
-      perPage: this.perPage,
-      sortBy: this.sortBy,
-      orderBy: this.orderBy,
-      categoryId: this.categoryId,
-    });
-  }
-
   ngOnInit(): void {
-    // this.getProducts(this.currentPage);
-    this.route.queryParams.subscribe((params) => {
-      const pageParam = params['page'];
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
       this.filterType = params['filter'] || null;
-      // this.currentPage = parseInt(params['page'], 10) || 1;
-      // this.sortBy = params['sortBy'] || 'id';
-      // this.orderBy = params['orderBy'] === 'desc' ? 'desc' : 'asc';
-
       this.currentPage = +params['page'] || 1;
       this.perPage = +params['perPage'] || 6;
       this.sortBy = params['sortBy'] || 'id';
       this.orderBy = params['orderBy'] === 'desc' ? 'desc' : 'asc';
       this.categoryId = params['categoryId'] ? +params['categoryId'] : null;
-  
-      if (!pageParam || isNaN(this.currentPage) || this.currentPage < 1) {
-        // Redirect to page=1 if it's missing or invalid
+
+      if (!params['page'] || this.currentPage < 1 || isNaN(this.currentPage)) {
         this.router.navigate([], {
           relativeTo: this.route,
           queryParams: { page: 1 },
           queryParamsHandling: 'merge',
-          replaceUrl: true, // avoid adding an extra entry in browser history
+          replaceUrl: true,
         });
       } else {
-        if (this.filterType === 'featured') {
-          this.getFeaturedProducts();
-        } else if (this.filterType === 'new') {
-          this.getNewProducts();
-        } else {
-          this.getProducts(this.currentPage, this.perPage, this.sortBy, this.orderBy, this.categoryId);
-        }
+        await this.fetchProducts();
       }
+    });
+
+    this.filtersChanged$.pipe(debounceTime(200), takeUntil(this.destroy$)).subscribe(() => {
+      this.currentPage = 1;
+      this.updateQueryParams({
+        page: 1,
+        perPage: this.perPage,
+        sortBy: this.sortBy,
+        orderBy: this.orderBy,
+        categoryId: this.categoryId,
+      });
     });
   }
 
-  getProducts(
-    page: number = 1,
-    perPage: number = this.perPage,
-    sortBy: string = this.sortBy,
-    orderBy: 'asc' | 'desc' = 'asc',
-    categoryId: number | null = 1,
-    minPrice?: number | null,
-    maxPrice?: number | null
-  ): void {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['minPrice'] || changes['maxPrice'] || changes['categoryId']) {
+      this.filtersChanged$.next();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  async fetchProducts(): Promise<void> {
     this.loading = true;
-  
-    this.productService.getProducts(page, perPage, sortBy, orderBy, categoryId, this.minPrice ?? undefined, this.maxPrice ?? undefined).subscribe({
-      next: (res) => {
-        const { items, curPage, pageTotal } = res;
-  
-        // Handle invalid page early
-        if (curPage > pageTotal && pageTotal > 0) {
-          this.toastrService.warning(
-            `Page ${curPage} doesn't exist — showing page ${pageTotal} instead.`,
-            'Invalid Page'
-          );
-  
-          this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { page: pageTotal },
-            queryParamsHandling: 'merge',
-            replaceUrl: true,
-          });
-  
-          return;
-        }
-  
-        // Update data/state
-        this.products = items;
-        this.filteredProducts = items;
-        this.currentPage = curPage;
-        this.totalPages = pageTotal;
-        console.log('categoryId in ProductListComponent:', this.categoryId);
-        this.productCountChanged.emit(items.length);
-        this.generatePageNumbers();
-      },
-      error: (err) => {
-        console.error('Error fetching products:', err);
-        this.toastrService.error('Failed to load products');
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    });
-  }  
+    try {
+      const res = await this.productCacheService.getPaginatedProducts(
+        this.currentPage,
+        this.perPage,
+        this.sortBy,
+        this.orderBy,
+        this.categoryId ?? undefined,
+        this.minPrice ?? undefined,
+        this.maxPrice ?? undefined,
+        this.filterType ?? undefined
+      );
+      this.products = res.items;
+      this.filteredProducts = res.items;
+      this.currentPage = res.curPage;
+      this.totalPages = res.pageTotal;
+      this.productCountChanged.emit(this.filteredProducts.length);
+      this.generatePageNumbers();
+    } catch (err) {
+      console.error('Failed to fetch products:', err);
+      this.toastrService.error('Error loading products.', 'Error');
+    } finally {
+      this.loading = false;
+    }
+  }
 
   generatePageNumbers(): void {
     const total = this.totalPages;
     const current = this.currentPage;
-    const delta = 2; // how many pages to show on either side
-    const range = [];
-    const rangeWithDots = [];
-    let l: number | undefined = undefined;
-  
-    range.push(1); // always include first page
-  
+    const delta = 2;
+    const range = new Set<number>();
+    const result: (number | string)[] = [];
+
+    range.add(1);
     for (let i = current - delta; i <= current + delta; i++) {
-      if (i > 1 && i < total) {
-        range.push(i);
-      }
+      if (i > 1 && i < total) range.add(i);
     }
-  
-    if (total > 1) {
-      range.push(total); // always include last page
-    }
-  
-    for (let i of range) {
-      if (l !== undefined) {
-        if (i - l === 2) {
-          rangeWithDots.push(l + 1); // no dots, just insert in-between page
-        } else if (i - l > 2) {
-          rangeWithDots.push('...'); // dots when gap is large
-        }
-      }
-      rangeWithDots.push(i);
-      l = i;
-    }
-  
-    this.pageNumbers = rangeWithDots;
-  }  
+    if (total > 1) range.add(total);
 
-  getFeaturedProducts(): void {
-    this.loading = true;
-    this.productService.getFeaturedProducts().subscribe({
-      next: (res) => {
-        console.log('Featured products response:', res);
-        this.products = res.items; // ✅ items is an array
-        this.filteredProducts = res.items; // ✅ same here
-        console.log('Filtered Featured products response:', this.products);
-      },
-      error: (err) => {
-        console.error('Error fetching featured products', err);
-      },
-      complete: () => this.loading = false,
-    });    
+    const sorted = Array.from(range).sort((a, b) => a - b);
+    let prev: number | undefined;
+
+    for (const page of sorted) {
+      if (prev !== undefined && page - prev > 1) {
+        result.push('...');
+      }
+      result.push(page);
+      prev = page;
+    }
+
+    this.pageNumbers = result;
   }
-  
-  getNewProducts(): void {
-    this.loading = true;
-    this.productService.getNewProducts().subscribe({
-      next: (res) => {
-        console.log('New products response:', res);
-        this.products = res.items; // ✅ items is an array
-        this.filteredProducts = res.items; // ✅ same here
-      },
-      error: (err) => {
-        console.error('Error fetching new products', err);
-      },
-      complete: () => this.loading = false,
-    });
-  }  
 
-  goToPage(page: any): void {
-    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-      // 👇 updates the URL without reloading
-      this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: { page },
-        queryParamsHandling: 'merge', // preserves other params
-      });
+  goToPage(page: number | string): void {
+    if (typeof page === 'number' && page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.updateQueryParams({ page });
     }
-    this.updateQueryParams({ page });
-  }  
+  }
 
   onSortChange(): void {
     this.navigateWithSort(this.sortBy, this.orderBy);
   }
-  
+
   toggleOrder(): void {
     this.orderBy = this.orderBy === 'asc' ? 'desc' : 'asc';
     this.navigateWithSort(this.sortBy, this.orderBy);
-  }
-  
-  private navigateWithSort(sortBy: string, orderBy: 'asc' | 'desc'): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        sortBy,
-        orderBy,
-        page: 1 // Reset to page 1 on sort change
-      },
-      queryParamsHandling: 'merge'
-    });
   }
 
   resetSort(): void {
     this.sortBy = 'id';
     this.orderBy = 'asc';
-  
     this.navigateWithSort(this.sortBy, this.orderBy);
-  }  
+  }
+
+  navigateWithSort(sortBy: string, orderBy: 'asc' | 'desc'): void {
+    this.updateQueryParams({ sortBy, orderBy, page: 1 });
+  }
 
   updateQueryParams(params: { [key: string]: any }): void {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: params,
-      queryParamsHandling: 'merge', // keep other params
+      queryParamsHandling: 'merge',
     });
-  }  
+  }
 
   onPerPageChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const perPage = +target.value;
-    this.perPage = perPage;
-    this.updateQueryParams({ perPage: this.perPage, page: 1 }); // Reset to page 1
-  }  
+    const perPage = +(event.target as HTMLSelectElement).value;
+    if (perPage > 0) {
+      this.perPage = perPage;
+      this.updateQueryParams({ perPage, page: 1 });
+    }
+  }
 
   addToCart(product: ProductModel): void {
-    const selectedVariant = product.variants?.[0]; // or show UI to pick one
-    if (selectedVariant) {
-      this.cartService.addToCart(product, selectedVariant);
+    const variant = product.variants?.[0];
+    if (variant) {
+      this.cartService.addToCart(product, variant);
     }
-  }  
+  }
 
-  clearCart():void {
+  clearCart(): void {
     this.cartService.clearCart();
   }
 }
+
