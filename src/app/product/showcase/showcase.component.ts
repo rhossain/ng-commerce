@@ -4,11 +4,12 @@ import { SwiperOptions } from 'swiper/types';
 import { ProductModel } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { CardComponent } from '../card/card.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-product-showcase',
   standalone: true,
-  imports: [CommonModule, CardComponent],
+  imports: [CommonModule, RouterModule, CardComponent],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -17,8 +18,9 @@ export class ShowcaseComponent implements OnInit {
   @Input() title?: string;
   @Input() subtitle?: string;
   @Input() layout: 'grid' | 'list' | 'slider' = 'grid';
-  @Input() filterType: 'featured' | 'new' | 'best-sell' = 'featured';
+  @Input() filterType: 'featured' | 'new' | 'best-sell' | 'discounted' = 'featured';
   @Input() limit: number = 0; // 0 = no limit
+  @Input() showViewAll: boolean = true;
   products: ProductModel[] = [];
   isLoading = true;
 
@@ -41,15 +43,16 @@ export class ShowcaseComponent implements OnInit {
   };
 
   private loadProducts(): void {
-    const fetchCount = 100; // Arbitrary large number, not limited by input
+    const perPage = this.limit > 0 ? this.limit : 12;
   
-    this.productService.getProducts(1, fetchCount, 'id', 'desc').subscribe(res => {
+    // Load a large batch to filter on frontend
+    this.productService.getProducts(1, 1000, 'id', 'desc').subscribe(res => {
       let filtered = res.items || [];
   
       if (this.filterType === 'featured') {
-        filtered = filtered.filter(p => p.isFeatured || (p as any)['is_featured']);
+        filtered = filtered.filter(p => p.isFeatured);
       } else if (this.filterType === 'new') {
-        filtered = filtered.filter(p => p.isNewArrival || (p as any)['is_new_arrival']);
+        filtered = filtered.filter(p => p.isNewArrival);
       } else if (this.filterType === 'best-sell') {
         filtered = filtered
           .filter(p => p.variants?.length && p.variants[0]?.totalSold != null)
@@ -58,12 +61,14 @@ export class ShowcaseComponent implements OnInit {
             const soldB = b.variants?.[0]?.totalSold ?? 0;
             return soldB - soldA;
           });
+      } else if (this.filterType === 'discounted') {
+        filtered = filtered.filter(p =>
+          p.variants?.some(v => v.discountPrice != null && v.discountPrice < v.price)
+        );
       }
   
-      // ✅ Apply final limit after filtering
-      this.products = this.limit > 0 ? filtered.slice(0, this.limit) : filtered;
-  
+      this.products = filtered.slice(0, perPage);
       this.isLoading = false;
     });
-  }
+  }  
 }

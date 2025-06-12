@@ -25,6 +25,7 @@ export default class ShopComponent implements OnInit, OnChanges {
   currentPage = 1;
   sortBy: string = 'id';
   orderBy: 'asc' | 'desc' = 'asc';
+  filterType: 'featured' | 'new' | 'best-sell' | 'discounted' | null = null;
 
   categories: ProductCategory[] = [];
 
@@ -43,6 +44,7 @@ export default class ShopComponent implements OnInit, OnChanges {
       this.selectedCategoryId = params['categoryId'] ? +params['categoryId'] : null;
       this.minPrice = params['minPrice'] ? +params['minPrice'] : null;
       this.maxPrice = params['maxPrice'] ? +params['maxPrice'] : null;
+      this.filterType = params['filter'] ?? null;
     });
 
     this.loadCategories();
@@ -111,4 +113,12 @@ export default class ShopComponent implements OnInit, OnChanges {
       queryParamsHandling: 'merge'
     });
   }
+
+  applyFilter(filter: string) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { filter, page: 1 },
+      queryParamsHandling: 'merge'
+    });
+  }  
 }

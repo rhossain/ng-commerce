@@ -19,12 +19,13 @@ import { ProductModel } from '../../models/product.model';
 })
 export default class ListComponent implements OnInit, OnChanges {
   products: ProductModel[] = [];
+  filteredProducts: ProductModel[] = [];
   loading = false;
   skeletonCount = Array(3);
   @Input() minPrice?: number;
   @Input() maxPrice?: number = 100;
   @Input() categoryId?: number | null;
-  filteredProducts: ProductModel[] = [];
+  @Input() filterType: 'featured' | 'new' | null = null;
   @Output() productCountChanged = new EventEmitter<number>();
 
   currentPage = 1;
@@ -80,6 +81,7 @@ export default class ListComponent implements OnInit, OnChanges {
     // this.getProducts(this.currentPage);
     this.route.queryParams.subscribe((params) => {
       const pageParam = params['page'];
+      this.filterType = params['filter'] || null;
       // this.currentPage = parseInt(params['page'], 10) || 1;
       // this.sortBy = params['sortBy'] || 'id';
       // this.orderBy = params['orderBy'] === 'desc' ? 'desc' : 'asc';
@@ -99,7 +101,13 @@ export default class ListComponent implements OnInit, OnChanges {
           replaceUrl: true, // avoid adding an extra entry in browser history
         });
       } else {
-        this.getProducts(this.currentPage, this.perPage, this.sortBy, this.orderBy, this.categoryId);
+        if (this.filterType === 'featured') {
+          this.getFeaturedProducts();
+        } else if (this.filterType === 'new') {
+          this.getNewProducts();
+        } else {
+          this.getProducts(this.currentPage, this.perPage, this.sortBy, this.orderBy, this.categoryId);
+        }
       }
     });
   }
@@ -188,6 +196,37 @@ export default class ListComponent implements OnInit, OnChanges {
     }
   
     this.pageNumbers = rangeWithDots;
+  }  
+
+  getFeaturedProducts(): void {
+    this.loading = true;
+    this.productService.getFeaturedProducts().subscribe({
+      next: (res) => {
+        console.log('Featured products response:', res);
+        this.products = res.items; // ✅ items is an array
+        this.filteredProducts = res.items; // ✅ same here
+        console.log('Filtered Featured products response:', this.products);
+      },
+      error: (err) => {
+        console.error('Error fetching featured products', err);
+      },
+      complete: () => this.loading = false,
+    });    
+  }
+  
+  getNewProducts(): void {
+    this.loading = true;
+    this.productService.getNewProducts().subscribe({
+      next: (res) => {
+        console.log('New products response:', res);
+        this.products = res.items; // ✅ items is an array
+        this.filteredProducts = res.items; // ✅ same here
+      },
+      error: (err) => {
+        console.error('Error fetching new products', err);
+      },
+      complete: () => this.loading = false,
+    });
   }  
 
   goToPage(page: any): void {

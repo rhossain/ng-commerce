@@ -39,4 +39,14 @@ export class ProductService {
     // console.log(url);
     return this.http.get<ProductResponse>(url);
   }
+
+  getFeaturedProducts(): Observable<ProductResponse> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.getFeaturedProduct}`;
+    return this.http.get<ProductResponse>(url);
+  }
+
+  getNewProducts(): Observable<ProductResponse> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.getNewProduct}`;
+    return this.http.get<ProductResponse>(url);
+  }
 }

@@ -2,7 +2,7 @@
     <div class="col-12">Loading...</div>
 </div> -->
 
-<div *ngIf="products.length > 0; else noProducts">
+<div *ngIf="(products || filteredProducts) && (products.length || filteredProducts.length) > 0; else noProducts">
     <div class="row">
         <div class="col-lg-4 col-md-3">
             <div class="sort-controls">

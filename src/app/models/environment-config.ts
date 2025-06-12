@@ -5,7 +5,9 @@ export interface EnvironmentConfiguration {
     apiEndpoints: {
         product: {
             getAllProduct: string;
-            getProduct: string
+            getProduct: string,
+            getFeaturedProduct: string,
+            getNewProduct: string
         },
         product_images: {
             getAllImages: string;

@@ -13,6 +13,12 @@
                             (categorySelected)="onCategorySelect($event)">
                         </app-featured-category>
                     </div>
+                    <div class="sidebar-item">
+                        <div class="filter-chips">
+                            <button (click)="applyFilter('featured')">Featured</button>
+                            <button (click)="applyFilter('new')">New</button>
+                          </div>
+                    </div>
                 </div>
             </div>
 

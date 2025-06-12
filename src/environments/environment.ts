@@ -10,6 +10,8 @@ export const environment:EnvironmentConfiguration = {
         product: {
             getAllProduct: "product",
             getProduct: "product",
+            getFeaturedProduct: "products/featured",
+            getNewProduct: "products/new"
         },
         product_images: {
             getAllImages: "product_images",
