@@ -217,15 +217,16 @@ export class ProductCacheService {
     return sorted;
   }
 
-  getProductById(id: number): ProductModel | undefined {
+  getProductById(id: number): Observable<ProductModel> | undefined {
     const product = this.cachedProducts.find(p => p.id === id);
     if (!product) {
       this.toastr.warning('Product not found in cache.', 'Warning');
+      return undefined;
     } else {
       this.toastr.success('Product loaded from cache.', 'Success');
+      return of(product);
     }
-    return product;
-  }
+  }   
 
   private getTotalSoldFromVariants(product: ProductModel): number {
     return (
