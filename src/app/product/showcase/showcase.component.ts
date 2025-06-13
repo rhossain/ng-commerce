@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SwiperOptions } from 'swiper/types';
 import { ProductModel } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+import { ProductCacheService } from '../../services/product-cache.service';
 import { CardComponent } from '../card/card.component';
 import { RouterModule } from '@angular/router';
 
@@ -22,9 +23,9 @@ export class ShowcaseComponent implements OnInit {
   @Input() limit: number = 0; // 0 = no limit
   @Input() showViewAll: boolean = true;
   products: ProductModel[] = [];
-  isLoading = true;
+  loading = true;
 
-  constructor(private productService: ProductService) {}
+  constructor(private productCacheService: ProductCacheService) {}
   
   ngOnInit(): void {
     this.loadProducts();
@@ -43,32 +44,24 @@ export class ShowcaseComponent implements OnInit {
   };
 
   private loadProducts(): void {
-    const perPage = this.limit > 0 ? this.limit : 12;
-  
-    // Load a large batch to filter on frontend
-    this.productService.getProducts(1, 1000, 'id', 'desc').subscribe(res => {
-      let filtered = res.items || [];
-  
-      if (this.filterType === 'featured') {
-        filtered = filtered.filter(p => p.isFeatured);
-      } else if (this.filterType === 'new') {
-        filtered = filtered.filter(p => p.isNewArrival);
-      } else if (this.filterType === 'best-sell') {
-        filtered = filtered
-          .filter(p => p.variants?.length && p.variants[0]?.totalSold != null)
-          .sort((a, b) => {
-            const soldA = a.variants?.[0]?.totalSold ?? 0;
-            const soldB = b.variants?.[0]?.totalSold ?? 0;
-            return soldB - soldA;
-          });
-      } else if (this.filterType === 'discounted') {
-        filtered = filtered.filter(p =>
-          p.variants?.some(v => v.discountPrice != null && v.discountPrice < v.price)
-        );
-      }
-  
-      this.products = filtered.slice(0, perPage);
-      this.isLoading = false;
-    });
+    this.loading = true;
+
+    this.productCacheService.getPaginatedProducts(
+      1,
+      this.limit || 6,
+      'id',
+      'asc',
+      undefined,
+      undefined,
+      undefined,
+      this.filterType
+    )
+      .then(response => {
+        this.products = response.items;
+        this.loading = false;
+      })
+      .catch(() => {
+        this.loading = false;
+      });
   }  
 }

@@ -19,7 +19,7 @@
     <!-- ./Slider section -->
 
     <!-- Featured category - Grid -->
-    <div class="">
+    <div class="mb-3">
         <div class="container">
             <app-featured-category
                 [categories]="categories"
@@ -32,14 +32,40 @@
     <!-- ./Featured category - Grid -->
 
     <!-- Featured product - slider -->
-    <div>
+    <div class="mb-3">
         <div class="container">
-            <app-product-showcase
-                [layout]="'slider'"
-                [filterType]="'new'"
-                [limit]="8"
-                [showViewAll]="true"
-            ></app-product-showcase>
+            <mdb-tabs>
+                <mdb-tab title="Featured">
+                    <app-product-showcase
+                        [layout]="'slider'"
+                        [filterType]="'featured'"
+                        [limit]="8"
+                        [showViewAll]="true"
+                    ></app-product-showcase>
+                </mdb-tab>
+                <mdb-tab title="New Arrivals">
+                    <app-product-showcase
+                        [layout]="'slider'"
+                        [filterType]="'new'"
+                        [limit]="8"
+                        [showViewAll]="true"
+                    ></app-product-showcase>
+                </mdb-tab>
+                <mdb-tab title="Best Sells">
+                    <app-product-showcase
+                        [layout]="'slider'"
+                        [filterType]="'best-sell'"
+                        [limit]="10"
+                    ></app-product-showcase>
+                </mdb-tab>
+                <mdb-tab title="Discounted">
+                    <app-product-showcase
+                        [layout]="'slider'"
+                        [filterType]="'discounted'"
+                        [limit]="10"
+                    ></app-product-showcase>
+                </mdb-tab>
+            </mdb-tabs>
         </div>
     </div>
     <!-- Featured product - slider -->

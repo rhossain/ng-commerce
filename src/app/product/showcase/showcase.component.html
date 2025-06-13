@@ -2,7 +2,7 @@
     <app-card *ngFor="let skel of skeletons" [isLoading]="true"></app-card>
 </div> -->
 
-<ng-container *ngIf="!isLoading">
+<ng-container *ngIf="!loading">
     <h2 *ngIf="title" class="title mb-4">{{ title }}</h2>
     <h4 *ngIf="subtitle" class="mb-4">{{ subtitle }}</h4>
 
@@ -40,7 +40,6 @@
             '1024': { slidesPerView: 3.3 }
             }"
             navigation
-            pagination
             class="w-full"
         >
             <swiper-slide *ngFor="let product of products">

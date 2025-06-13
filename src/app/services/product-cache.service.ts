@@ -110,18 +110,6 @@ export class ProductCacheService {
 
     let filtered = [...this.cachedProducts];
 
-    if (categoryId != null) {
-      filtered = filtered.filter(p => p.category_id === categoryId);
-    }
-
-    if (minPrice != null) {
-      filtered = filtered.filter(p => p.price >= minPrice);
-    }
-
-    if (maxPrice != null) {
-      filtered = filtered.filter(p => p.price <= maxPrice);
-    }
-
     switch (filterType) {
       case 'featured':
         filtered = filtered.filter(p => p.isFeatured);
@@ -137,6 +125,18 @@ export class ProductCacheService {
           p.variants?.some(v => (v.discountPrice ?? 0) < (v.price ?? 0))
         );
         break;
+    }
+
+    if (categoryId != null) {
+      filtered = filtered.filter(p => p.category_id === categoryId);
+    }
+
+    if (minPrice != null) {
+      filtered = filtered.filter(p => p.price >= minPrice);
+    }
+
+    if (maxPrice != null) {
+      filtered = filtered.filter(p => p.price <= maxPrice);
     }
 
     filtered = filtered.sort((a, b) => {
