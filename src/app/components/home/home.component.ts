@@ -10,17 +10,19 @@ import { FeaturedCategoryComponent } from "../../product/featured-category/featu
 import { RouteUtilsService } from '../../services/route-utils.service';
 import { CommonModule } from '@angular/common';
 import { ShowcaseComponent } from "../../product/showcase/showcase.component";
+import { DealCardComponent } from "../../product/deal-card/deal-card.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MdbTabsModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent],
+  imports: [CommonModule, MdbTabsModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent, DealCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
 export default class HomeComponent {
   categories: ProductCategory[] = [];
   selectedCategoryId: number | null = null;
+  deal1 = Date.now() + 10 * 60 * 60 * 1000; // 2 hours from now
   
   faHouse = faHouse;
 
