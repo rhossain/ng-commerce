@@ -125,7 +125,7 @@ export class CardComponent implements AfterViewInit {
       }
 
       await this.cartService.addToCart(this.product, selectedVariant, this.quantity);
-      this.toastr.success(`${this.product.name} added to cart`, 'Success');
+      // this.toastr.success(`${this.product.name} added to cart`, 'Success');
       this.quantity = 1; // Reset quantity after adding
     } catch (error) {
       this.toastr.error('Failed to add item to cart', 'Error');

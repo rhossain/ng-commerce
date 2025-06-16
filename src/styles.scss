@@ -126,3 +126,22 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
+
+.toast-container {
+  position: fixed !important;
+}
+.toast-success {
+  background-color: #4CAF50 !important;
+  color: white;
+}
+.toast-error {
+  background-color: #F44336 !important;
+}
+.toast-info {
+  background-color: #026ec6 !important;
+  color: white;
+}
+.toast-warning {
+  background-color: #FFC107 !important;
+  color: black;
+}

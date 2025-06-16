@@ -59,7 +59,7 @@ export class CartService {
       : [...currentCart, { product, variant, quantity }];
 
     this.updateCart(updatedCart);
-    this.toastrService.success(`Added ${product.name} to cart`, 'Cart updated');
+    this.toastrService.success(`Added <strong>${product.name}</strong> to cart`, 'Cart updated', {enableHtml: true});
   }
 
   updateQuantity(productId: number, variantId: number, newQuantity: number): void {
