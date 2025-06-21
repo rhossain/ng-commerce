@@ -22,4 +22,9 @@ export class CategoryService {
   getCategoryProductCounts(): Observable<{ category_id: number; count: number }[]> {
     return this.http.get<{ category_id: number; count: number }[]>(`${this.apiUrl}/${environment.apiEndpoints.category.getCategoryProductCount}`);
   }
+
+  getCategoryNameById(id: number, categories: ProductCategory[]): string {
+    const category = categories.find(c => c.id === id);
+    return category?.name || 'Unknown';
+  }
 }

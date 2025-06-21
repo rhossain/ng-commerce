@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { ProductImageModel, ProductModel, ProductOption, ProductOptionValue, ProductVariant } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { ProductCategory } from '../../models/category.model';
+import { CategoryService } from '../../services/category.service';
 
 @Component({
   selector: 'app-product-details',
@@ -18,6 +19,8 @@ export default class DetailsComponent implements OnInit {
   productId!: number;
   product!: ProductModel;
   categories: ProductCategory[] = [];
+  categoryMap: { [id: number]: string } = {};
+  categoryName = '';
   selectedImageUrl!: string;
   selectedImageType!: string;
   selectedOptions: { [key: string]: string } = {};
@@ -30,7 +33,8 @@ export default class DetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) {}
 
   ngOnInit(): void {
@@ -41,7 +45,9 @@ export default class DetailsComponent implements OnInit {
       const id = params.get('productId') ?? '0';
       this.productId = +id;
       this.getProduct();
+      this.getCategoryName();
     });
+
   }
 
   getProduct(): void {
@@ -49,6 +55,10 @@ export default class DetailsComponent implements OnInit {
       next: (data: ProductModel) => {
         this.product = data;
   
+        console.log('Product category ID:', this.product.category_id);
+        this.categoryName = this.categoryMap[this.product.category_id] || 'Unknown';
+        console.log('Assigned category name:', this.categoryName);
+
         // Show default variant (first one) by default
         if (this.product?.variants && this.product.variants.length > 0) {
           this.selectedVariant = this.product.variants[0];
@@ -70,6 +80,9 @@ export default class DetailsComponent implements OnInit {
   
         // Reset selected options
         this.selectedOptions = {};
+
+        // ✅ Set category name if map is ready
+        this.getCategoryName();
       },
       error: (error) => {
         console.error('Error fetching product details', error);
@@ -77,8 +90,14 @@ export default class DetailsComponent implements OnInit {
     });
   }
 
-  getCategoryName(id: number): string {
-    return this.categories.find((f) => f.id === id)?.name || 'Unknown';
+  // getCategoryName(categoryId: number): string {
+  //   return this.categoryMap[categoryId] || 'Unknown';
+  // }
+
+  getCategoryName() {
+    this.categoryService.getAllCategories().subscribe(categories => {
+      return this.categoryName = this.categoryService.getCategoryNameById(this.product.category_id, categories);
+    });
   }
 
   mediaClicked(mediaUrl: string): void {
