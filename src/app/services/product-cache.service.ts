@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class ProductCacheService {
-  private readonly CACHE_KEY = 'cached_products';
+  private readonly CACHE_KEY = 'ngc-products';
   private readonly CACHE_EXPIRY_MINUTES = 30;
 
   private cachedProducts: ProductModel[] = [];
