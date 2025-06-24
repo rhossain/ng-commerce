@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ProductModel, ProductResponse } from '../models/product.model';
+import { ProductModel, ProductResponse, ProductReview } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -48,5 +48,11 @@ export class ProductService {
   getNewProducts(): Observable<ProductResponse> {
     const url = `${this.apiUrl}/${environment.apiEndpoints.product.getNewProduct}`;
     return this.http.get<ProductResponse>(url);
+  }
+
+  getAverageRating(reviews: ProductReview[] | undefined): number {
+    if (!reviews || reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return Math.round(total / reviews.length);
   }
 }

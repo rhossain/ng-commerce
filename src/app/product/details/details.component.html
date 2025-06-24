@@ -7,6 +7,7 @@
                 <p><strong>Category:</strong> {{ categoryName }}</p>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-6 col-md-6">
                 <!-- Media Display -->
@@ -42,7 +43,9 @@
 
             <div class="col-lg-6 col-md-6">
                 <!-- Description -->
-                <p class="description">{{ product.description }}</p>     
+                <p class="description">{{ product.description }}</p>   
+                
+                <app-star-rating [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
                 
                 <!-- DEBUG -->
                 <p *ngIf="!product">Product not loaded</p>
@@ -91,6 +94,26 @@
                 <div *ngIf="!selectedVariant && product.variants?.length">
                     <p class="text-warning">Please select all options to view variant details.</p>
                 </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h3>Customer Reviews ({{ product.reviews?.length || 0 }})</h3>
+
+                <div *ngIf="(product.reviews || []).length > 0; else noReviews" class="review-list">
+                    <div *ngFor="let review of product.reviews" class="review-card">
+                        <div class="review-rating">
+                        <app-star-rating [rating]="review.rating"></app-star-rating>
+                        </div>
+                        <p class="review-text">{{ review.review_text }}</p>
+                        <small class="review-meta">User ID: {{ review.user_id }} • {{ review.created_at | date:'mediumDate' }}</small>
+                    </div>
+                </div>
+
+                <ng-template #noReviews>
+                <p>No reviews yet. Be the first to review this product!</p>
+                </ng-template>
             </div>
         </div>
     </div>

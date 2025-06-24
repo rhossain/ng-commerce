@@ -3,15 +3,16 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgxImageZoomModule } from 'ngx-image-zoom';
 import { environment } from '../../../environments/environment';
-import { ProductImageModel, ProductModel, ProductOption, ProductOptionValue, ProductVariant } from '../../models/product.model';
+import { ProductImageModel, ProductModel, ProductOption, ProductOptionValue, ProductVariant, ProductReview } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
+import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, NgxImageZoomModule],
+  imports: [CommonModule, NgxImageZoomModule, StarRatingComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })
@@ -90,9 +91,9 @@ export default class DetailsComponent implements OnInit {
     });
   }
 
-  // getCategoryName(categoryId: number): string {
-  //   return this.categoryMap[categoryId] || 'Unknown';
-  // }
+  get avgRating(): number {
+    return this.productService.getAverageRating(this.product.reviews);
+  }
 
   getCategoryName() {
     this.categoryService.getAllCategories().subscribe(categories => {

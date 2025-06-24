@@ -1,0 +1,6 @@
+<div class="star-rating">
+  <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+    <i class="star-icon" [ngClass]="{'filled': star <= round(rating)}">&#9733;</i>
+  </ng-container>
+  <span *ngIf="reviewCount !== undefined" class="review-count">({{ reviewCount }} Reviews)</span>
+</div>

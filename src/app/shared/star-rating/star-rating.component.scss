@@ -1,0 +1,20 @@
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-icon {
+  font-size: 18px;
+  color: #ddd; // Empty star color
+  transition: color 0.3s ease;
+}
+
+.star-icon.filled {
+  color: #FFD700; // Gold color
+}
+
+.review-count {
+  font-size: 14px;
+  color: #555;
+}

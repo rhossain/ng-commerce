@@ -12,6 +12,7 @@ export interface ProductModel {
     main_image_url?: string;
     options?: ProductOption[];
     variants?: ProductVariant[];
+    reviews?: ProductReview[];
     brand?: string;
     category_id: number;
 }
@@ -60,4 +61,13 @@ export interface ProductResponse {
     itemsTotal: number;
     pageTotal: number;
     items: ProductModel[];
+}
+
+export interface ProductReview {
+  id: number;
+  created_at: number;
+  rating: number;
+  review_text: string;
+  user_id: number;
+  product_id: number;
 }

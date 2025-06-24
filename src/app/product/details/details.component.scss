@@ -100,3 +100,32 @@
         color: #e67e22;
     }
 }
+
+.review-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-card {
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.review-rating {
+  margin-bottom: 0.5rem;
+}
+
+.review-text {
+  font-size: 14px;
+  margin-bottom: 0.5rem;
+}
+
+.review-meta {
+  font-size: 12px;
+  color: #777;
+}
+

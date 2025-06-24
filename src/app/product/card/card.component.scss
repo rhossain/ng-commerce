@@ -244,6 +244,8 @@ $this: product-card;
 }
 
 .product-details {
+    position: relative;
+    z-index: 1;
     padding: 16px;
 
     h3 {
@@ -296,6 +298,7 @@ $this: product-card;
     position: absolute;
     bottom: 16px;
     right: 16px;
+    z-index: 1;
     background: rgb(var(--clr-primary-custom));
     color: rgb(var(--clr-white));
     border: none;

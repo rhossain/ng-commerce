@@ -42,11 +42,16 @@
         </button>
     </div>
     <div class="product-details">
-      <h3>{{ product.name }}</h3>
-      <div class="rating">
+      <!-- <h3>{{ product.name }}</h3> -->
+      <a [routerLink]="['/product/detail', product.id]" class="btn btn-outline-brand-secondary">
+              {{ product.name }}
+    </a>
+      <!-- <div class="rating">
         <span>★★★★★</span>
         <span class="reviews">💬 97</span>
-      </div>
+      </div> -->
+      <app-star-rating [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
+       
       <div class="price-section">
         <span class="original-price">${{ product.variants?.[0]?.price }}</span>
         <!-- <span class="discount">-{{ product.variants?.[0]?.price - product.variants?.[0]?.discountPrice }}</span> -->

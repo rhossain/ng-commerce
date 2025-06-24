@@ -8,11 +8,13 @@ import { ToastrService } from 'ngx-toastr';
 import { ProductModel } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { ImageCacheService } from '../../services/image-cache.service';
+import { ProductService } from '../../services/product.service';
+import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterModule, CommonModule, FontAwesomeModule],
+  imports: [RouterModule, CommonModule, FontAwesomeModule, StarRatingComponent],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })
@@ -38,6 +40,7 @@ export class CardComponent implements AfterViewInit {
   constructor(
     private cartService: CartService,
     private toastr: ToastrService,
+    private productService: ProductService,
     private imageCacheService: ImageCacheService
   ) {}
 
@@ -103,13 +106,9 @@ export class CardComponent implements AfterViewInit {
       });
   }
   
-
-  // addToCart(product: ProductModel): void {
-  //   const selectedVariant = product.variants?.[0];
-  //   if (selectedVariant) {
-  //     this.cartService.addToCart(product, selectedVariant);
-  //   }
-  // }
+  get avgRating(): number {
+    return this.productService.getAverageRating(this.product.reviews);
+  }
 
   async addToCart(): Promise<void> {
     if (this.isAddingToCart) return;
