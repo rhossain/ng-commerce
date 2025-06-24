@@ -11,7 +11,10 @@ export const environment:EnvironmentConfiguration = {
             getAllProduct: "product",
             getProduct: "product",
             getFeaturedProduct: "products/featured",
-            getNewProduct: "products/new"
+            getNewProduct: "products/new",
+            addReview: "review",
+            updateReview: "review",
+            deleteReview: "review"
         },
         product_images: {
             getAllImages: "product_images",

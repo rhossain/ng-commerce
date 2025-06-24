@@ -1,0 +1,48 @@
+.rating-summary {
+  max-width: 600px;
+}
+
+.average-rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.rating-distribution {
+  margin-top: 16px;
+}
+
+.distribution-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.star-label {
+  width: 50px;
+  font-size: 16px;
+}
+
+.progress-bar {
+  background-color: #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 300px;
+  height: 16px;
+}
+
+.progress-fill {
+  background-color: #4caf50;
+  height: 100%;
+  color: white;
+  font-size: 12px;
+  padding-left: 4px;
+  line-height: 16px;
+}
+
+.star-icon {
+  color: #ffd700;
+}

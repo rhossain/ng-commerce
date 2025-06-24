@@ -14,6 +14,12 @@
   color: #FFD700; // Gold color
 }
 
+.star-icon.half {
+  background: linear-gradient(to right, #FFA500 50%, #ddd 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .review-count {
   font-size: 14px;
   color: #555;

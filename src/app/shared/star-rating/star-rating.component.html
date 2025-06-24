@@ -1,6 +1,23 @@
 <div class="star-rating">
   <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
-    <i class="star-icon" [ngClass]="{'filled': star <= round(rating)}">&#9733;</i>
+    <i class="star-icon"
+       [ngClass]="{
+         'filled': star <= floor(rating),
+         'half': supportHalfStar && star === ceil(rating) && rating % 1 >= 0.5,
+         'empty': star > rating
+       }"
+       (click)="onStarClick(star)">
+      &#9733;
+    </i>
   </ng-container>
-  <span *ngIf="reviewCount !== undefined" class="review-count">({{ reviewCount }} Reviews)</span>
+
+  <!-- ✅ Display the rating text if enabled -->
+  <span *ngIf="showRatingText" class="rating-text">
+    {{ rating.toFixed(1) }} {{ ratingLabel }}
+  </span>
+
+  <!-- ✅ Show review count if provided -->
+  <span *ngIf="reviewCount !== undefined" class="review-count">
+    ({{ reviewCount }} Reviews)
+  </span>
 </div>

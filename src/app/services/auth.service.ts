@@ -58,10 +58,37 @@ export class AuthService {
     );
   }
 
+  // To get instant access to the user object without needing to subscribe
+  getCurrentUserSync(): UserModel | null {
+    const userData = localStorage.getItem('user_info');
+    if (userData) {
+      return JSON.parse(userData) as UserModel;
+    }
+    return null;
+  }
+
+  getUserId(): number | null {
+    const userData = localStorage.getItem('user_info');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.id || null;
+    }
+    return null;
+  }
+
+  getUserName(): string | null {
+    const userData = localStorage.getItem('user_info');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.name || null;
+    }
+    return null;
+  }
+
   loadUserFromStorage(): void {
-    const userJson = localStorage.getItem('user_info');
-    if (userJson && this.isLoggedIn()) {
-      this.userSubject.next(JSON.parse(userJson));
+    const userData = localStorage.getItem('user_info');
+    if (userData && this.isLoggedIn()) {
+      this.userSubject.next(JSON.parse(userData));
     } else if (this.isLoggedIn()) {
       this.getCurrentUser().subscribe();
     }

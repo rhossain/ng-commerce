@@ -1,3 +1,5 @@
+import { UserModel } from "./user.model";
+
 export interface ProductModel {
     id: number;
     created_at: any;
@@ -70,4 +72,5 @@ export interface ProductReview {
   review_text: string;
   user_id: number;
   product_id: number;
+  user?: UserModel;
 }

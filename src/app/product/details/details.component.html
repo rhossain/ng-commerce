@@ -45,7 +45,13 @@
                 <!-- Description -->
                 <p class="description">{{ product.description }}</p>   
                 
-                <app-star-rating [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
+                <app-star-rating 
+                    [rating]="avgRating" 
+                    [supportHalfStar]="true" 
+                    [showRatingText]="true"
+                    [ratingLabel]="'/ 5'"
+                    [reviewCount]="product.reviews?.length">
+                </app-star-rating>
                 
                 <!-- DEBUG -->
                 <p *ngIf="!product">Product not loaded</p>
@@ -101,18 +107,82 @@
             <div class="col-12">
                 <h3>Customer Reviews ({{ product.reviews?.length || 0 }})</h3>
 
+                <div *ngIf="userLoggedIn; else loginPrompt">
+                <h4>Write a Review</h4>
+
+                <!-- ⭐ Clickable Stars (Inline Star Input) -->
+                <div class="star-rating-input">
+                    <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                    <i class="star-icon"
+                        [ngClass]="{'filled': star <= newReviewRating}"
+                        (click)="newReviewRating = star">
+                        &#9733;
+                    </i>
+                    </ng-container>
+                </div>
+
+                <!-- 📝 Review Text Area -->
+                <textarea [(ngModel)]="newReviewText"
+                            rows="4"
+                            placeholder="Write your review..."
+                            class="review-input">
+                </textarea>
+
+                <!-- ✅ Submit Button -->
+                <button (click)="submitReview()"
+                        [disabled]="newReviewRating === 0 || newReviewText.trim() === ''">
+                    Submit Review
+                </button>
+                </div>
+
+                <!-- 🔒 If not logged in -->
+                <ng-template #loginPrompt>
+                <p>Please log in to write a review.</p>
+                </ng-template>
+
+                <app-rating-summary [reviews]="product.reviews || []"></app-rating-summary>
+                
                 <div *ngIf="(product.reviews || []).length > 0; else noReviews" class="review-list">
-                    <div *ngFor="let review of product.reviews" class="review-card">
+                    <!-- <div *ngFor="let review of product.reviews" class="review-card">
                         <div class="review-rating">
                         <app-star-rating [rating]="review.rating"></app-star-rating>
                         </div>
                         <p class="review-text">{{ review.review_text }}</p>
-                        <small class="review-meta">User ID: {{ review.user_id }} • {{ review.created_at | date:'mediumDate' }}</small>
+                        <small class="review-meta">{{ review.user?.name }} • {{ review.created_at | date:'mediumDate' }}</small>
+                    </div> -->
+                    <div *ngFor="let review of product.reviews" class="review-card">
+
+                        <!-- Show star rating -->
+                        <app-star-rating [rating]="review.rating"></app-star-rating>
+
+                        <!-- Editable or display mode -->
+                        <div *ngIf="editingReviewId === review.id; else displayMode">
+                            <div class="star-rating-input">
+                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                <i class="star-icon" [ngClass]="{'filled': star <= editableRating}" (click)="editableRating = star">&#9733;</i>
+                            </ng-container>
+                            </div>
+                            <textarea [(ngModel)]="editableText" rows="3"></textarea>
+                            <button (click)="updateReview(review.id)">Save</button>
+                            <button (click)="cancelReviewEdit()">Cancel</button>
+                        </div>
+
+                        <ng-template #displayMode>
+                            <p>{{ review.review_text }}</p>
+                            <small>{{ review.user?.name }} • {{ review.created_at | date:'mediumDate' }}</small>
+
+                            <!-- Show edit/delete buttons if review belongs to the logged-in user -->
+                            <div *ngIf="review.user_id === authService.getCurrentUserSync()?.id">
+                                <button (click)="enableReviewEdit(review)">Edit</button>
+                                <button (click)="deleteReview(review.id)">Delete</button>
+                            </div>
+                        </ng-template>
+
                     </div>
                 </div>
 
                 <ng-template #noReviews>
-                <p>No reviews yet. Be the first to review this product!</p>
+                    <p>No reviews yet. Be the first to review this product!</p>
                 </ng-template>
             </div>
         </div>

@@ -53,6 +53,21 @@ export class ProductService {
   getAverageRating(reviews: ProductReview[] | undefined): number {
     if (!reviews || reviews.length === 0) return 0;
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
-    return Math.round(total / reviews.length);
+    return total / reviews.length;
+  }
+
+  submitReview(reviewPayload: any): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.addReview}`;
+    return this.http.post(url, reviewPayload);
+  }
+
+  updateReview(reviewId: number, updatedReview: any): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.updateReview}/${reviewId}`;
+    return this.http.patch(url, updatedReview);
+  }
+
+  deleteReview(reviewId: number): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.deleteReview}/${reviewId}`;
+    return this.http.delete(url);
   }
 }

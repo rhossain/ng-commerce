@@ -8,11 +8,14 @@ import { ProductService } from '../../services/product.service';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
+import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { RatingSummaryComponent } from "../../shared/rating-summary/rating-summary.component";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, NgxImageZoomModule, StarRatingComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, StarRatingComponent, RatingSummaryComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })
@@ -28,6 +31,13 @@ export default class DetailsComponent implements OnInit {
   selectedVariant: ProductVariant | null = null;
   groupedOptions: { [key: string]: string[] } = {};
 
+  userLoggedIn: boolean = false;
+  newReviewText: string = '';
+  newReviewRating: number = 0;
+  editingReviewId: number | null = null;
+  editableText: string = '';
+  editableRating: number = 0;
+
   apiUrl = environment.apiBaseUrl;
   productImages: ProductImageModel[] = [];
   productImageUrl = environment.apiEndpoints.product_images.getImage;
@@ -35,7 +45,8 @@ export default class DetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -49,12 +60,14 @@ export default class DetailsComponent implements OnInit {
       this.getCategoryName();
     });
 
+    this.userLoggedIn = this.authService.isLoggedIn();
   }
 
   getProduct(): void {
     this.productService.getProduct(this.productId).subscribe({
       next: (data: ProductModel) => {
         this.product = data;
+        console.log('Product', this.product);
   
         console.log('Product category ID:', this.product.category_id);
         this.categoryName = this.categoryMap[this.product.category_id] || 'Unknown';
@@ -93,6 +106,79 @@ export default class DetailsComponent implements OnInit {
 
   get avgRating(): number {
     return this.productService.getAverageRating(this.product.reviews);
+  }
+
+  enableReviewEdit(review: ProductReview) {
+    this.editingReviewId = review.id;
+    this.editableText = review.review_text;
+    this.editableRating = review.rating;
+  }
+
+  cancelReviewEdit() {
+    this.editingReviewId = null;
+    this.editableText = '';
+    this.editableRating = 0;
+  }
+
+  submitReview() {
+    if (!this.newReviewText.trim() || this.newReviewRating === 0) return;
+
+    const currentUser = this.authService.getCurrentUserSync();
+    if (!currentUser) return;
+
+    const reviewPayload = {
+      rating: this.newReviewRating,
+      review_text: this.newReviewText,
+      product_id: this.product.id,
+      user_id: currentUser.id
+    };
+
+    this.productService.submitReview(reviewPayload).subscribe({
+      next: (savedReview: ProductReview) => { // Assuming your API returns the saved review
+
+        if (!this.product.reviews) {
+          this.product.reviews = [];
+        }
+
+        this.product.reviews.push(savedReview); // ✅ Full typed ProductReview including ID
+
+        // this.avgRating = this.productService.getAverageRating(this.product.reviews);
+
+        // Reset form
+        this.newReviewText = '';
+        this.newReviewRating = 0;
+      },
+      error: (err) => console.error('Error submitting review', err)
+    });
+  }
+
+  updateReview(reviewId: number) {
+    const updatedReview = {
+      rating: this.editableRating,
+      review_text: this.editableText
+    };
+
+    this.productService.updateReview(reviewId, updatedReview).subscribe({
+      next: () => {
+        const review = this.product.reviews?.find(r => r.id === reviewId);
+        if (review) {
+          review.rating = this.editableRating;
+          review.review_text = this.editableText;
+        }
+        this.editingReviewId = null;
+        this.avgRating; // Will auto-refresh if using a getter
+      },
+      error: (err) => console.error('Error updating review', err)
+    });
+  }
+
+  deleteReview(reviewId: number) {
+    this.productService.deleteReview(reviewId).subscribe({
+      next: () => {
+        this.product.reviews = this.product.reviews?.filter(r => r.id !== reviewId);
+      },
+      error: (err) => console.error('Error deleting review', err)
+    });
   }
 
   getCategoryName() {
