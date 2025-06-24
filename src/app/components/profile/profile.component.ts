@@ -19,10 +19,17 @@ export class ProfileComponent {
   ) {}
 
   ngOnInit(): void {
-    this.authService.getCurrentUser().subscribe({
+    this.getUserInfo();
+  }
+
+  getUserInfo(): void {
+    this.authService.user$.subscribe({
       next: (res) => {
         this.user = res;
-        console.log('detail', this.user);
+
+        if (!res) {
+          this.router.navigate(['/login']);
+        }
       },
       error: () => {
         this.authService.logout();
