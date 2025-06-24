@@ -21,6 +21,11 @@ export const environment:EnvironmentConfiguration = {
             getAllCategory: "category",
             getCategory: "category",
             getCategoryProductCount: "category-product-counts",
+        },
+        auth: {
+            setLogin: "auth/login",
+            getProfile: "auth/me",
+            setSignup: "auth/signup"
         }
     }
 }

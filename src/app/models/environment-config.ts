@@ -17,6 +17,11 @@ export interface EnvironmentConfiguration {
             getAllCategory: string;
             getCategory: string;
             getCategoryProductCount: string;
+        },
+        auth: {
+            setLogin: string;
+            getProfile: string;
+            setSignup: string;
         }
     }
 }

@@ -1,0 +1,12 @@
+<form (ngSubmit)="register()">
+  <input [(ngModel)]="user.name" name="name" placeholder="Username" required />
+  <input [(ngModel)]="user.email" name="email" placeholder="Email" required />
+  <input type="password" [(ngModel)]="user.password" name="password" placeholder="Password" required />
+  <input [(ngModel)]="user.first_name" name="first_name" placeholder="First Name" required />
+  <input [(ngModel)]="user.last_name" name="last_name" placeholder="Last Name" required />
+  <input [(ngModel)]="user.street" name="street" placeholder="Street" required />
+  <input [(ngModel)]="user.city" name="city" placeholder="City" required />
+  <input [(ngModel)]="user.state" name="state" placeholder="State" />
+  <input [(ngModel)]="user.zip_code" name="zip_code" placeholder="Zip Code" required />
+  <button type="submit">Register</button>
+</form>
