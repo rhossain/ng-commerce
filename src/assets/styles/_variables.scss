@@ -5,12 +5,13 @@ $primary-dark:      #283618;
 $secondary:         #DDA15E;
 $secondary-light:   #FCC281;
 $secondary-dark:    #BC6C25;
-$success:           #F7A51B;
+$success:           #38B000;
 $info:              #F7A51B;
 $warning:           #F7A51B;
-$danger:            #F7A51B;
+$danger:            #EF233C;
 $light:             #F2F2F2;
 $dark:              #222831;
+$gray:              #EEEEEE;
 
 :root {
     --clr-primary-custom:           96, 108, 56;    // #AB886D
@@ -28,6 +29,8 @@ $dark:              #222831;
     --clr-gray-light:               238, 238, 238;  // #EEEEEE;
     --clr-gray-dark:                221, 221, 221;  // #DDDDDD;
     --clr-gray-darker:              136, 144, 160;  // #8890A0;
+    --clr-green:                    56, 176, 0;     // #38B000;
+    --clr-red:                      239, 35, 60;    // #EF233C;
 
     --sidebar-width:                280px;
 

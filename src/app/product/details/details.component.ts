@@ -11,11 +11,14 @@ import { StarRatingComponent } from "../../shared/star-rating/star-rating.compon
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { RatingSummaryComponent } from "../../shared/rating-summary/rating-summary.component";
+import { CartService } from '../../services/cart.service';
+import { CartItem } from '../../models/cart.model';
+import { QuantitySelectorComponent } from "../../shared/quantity-selector/quantity-selector.component";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, StarRatingComponent, RatingSummaryComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, StarRatingComponent, RatingSummaryComponent, QuantitySelectorComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })
@@ -30,6 +33,7 @@ export default class DetailsComponent implements OnInit {
   selectedOptions: { [key: string]: string } = {};
   selectedVariant: ProductVariant | null = null;
   groupedOptions: { [key: string]: string[] } = {};
+  selectedQuantity: number = 1;
 
   userLoggedIn: boolean = false;
   newReviewText: string = '';
@@ -46,6 +50,7 @@ export default class DetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private productService: ProductService,
     private categoryService: CategoryService,
+    private cartService: CartService,
     public authService: AuthService
   ) {}
 
@@ -248,5 +253,16 @@ export default class DetailsComponent implements OnInit {
 
   getOptionNames(): string[] {
     return Object.keys(this.groupedOptions || {});
+  }
+
+  addToCart() {
+    if (this.selectedQuantity <= 0) return;
+
+    this.cartService.addToCart(this.product, this.selectedVariant!, this.selectedQuantity);
+  }
+
+  get displayPrice(): number {
+    const price = this.selectedVariant?.discountPrice ?? this.selectedVariant?.price ?? 0;
+    return price * this.selectedQuantity;
   }
 }

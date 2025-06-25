@@ -1,0 +1,12 @@
+<div class="quantity-selector">
+  <button (click)="decrease()">-</button>
+
+  <input type="number"
+         [value]="quantity"
+         (input)="onInputChange($event)"
+         (blur)="validateQuantity()"
+         [min]="min"
+         [max]="max">
+
+  <button (click)="increase()">+</button>
+</div>

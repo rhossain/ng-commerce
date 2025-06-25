@@ -7,11 +7,12 @@ import { CartService } from '../../services/cart.service';
 import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from "../../components/sidebar/sidebar.component";
 import { CartItem } from '../../models/cart.model';
+import { QuantitySelectorComponent } from '../../shared/quantity-selector/quantity-selector.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, SidebarComponent],
+  imports: [CommonModule, FontAwesomeModule, SidebarComponent, QuantitySelectorComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
@@ -81,20 +82,8 @@ export class CartComponent implements OnInit {
     this.cartClosed.emit();
   }
 
-  incrementQuantity(item: CartItem) {
-    this.cartService.updateQuantity(
-      item.product.id,
-      item.variant.id,
-      item.quantity + 1
-    );
-  }
-  
-  decrementQuantity(item: CartItem) {
-    this.cartService.updateQuantity(
-      item.product.id,
-      item.variant.id,
-      item.quantity - 1
-    );
+  updateCartQuantity(item: CartItem, newQuantity: number) {
+    this.cartService.updateQuantity(item.product.id, item.variant.id, newQuantity);
   }
 
   removeItem(item: CartItem) {

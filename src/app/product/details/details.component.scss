@@ -1,3 +1,263 @@
+@import 'bootstrap-bp.scss';
+
+.product {
+    $this: product !default;
+
+    &-info-top {
+        // @include border-radius(7px);
+    }
+
+    &-preview {
+        padding: 15px 0 15px 15px;
+
+        // Product images zoom style 
+        // .magnify {
+        //     width: 100%;
+        
+        //     > .magnify-lens {
+        //         border-radius: 10%;
+        //         box-shadow: 0 0 0 2px rgba($white-color, 0.85), 0 0 7px 7px rgba($black-color, 0.25), inset 0 0 40px 2px rgba($black-color, 0.25);
+        //     }
+        // }
+        // .zoom {
+        //     display: inline-block !important;
+        // }
+
+        // // Product preview slider
+        // .owl-carousel {
+        //     &.owl-carousel--product-single {
+        //         .owl-nav {
+        //             top: 45%;
+        //             justify-content: space-between;
+        //             width: 100%;
+        //             padding: 0 15px;
+        //         }
+        //     }
+        // }
+        
+        // .owl-thumbs {
+        //     .owl-thumb-item {
+        //         margin-right: 3px;
+        
+        //         img {
+        //             max-width: 70px;
+        //             -webkit-filter: grayscale(100%);
+        //                     filter: grayscale(100%);
+        
+        //             @include bp-between(768, 991) {
+        //                 max-width: 40px;
+        //             }
+        //         }
+        
+        //         &:hover, &.active {
+        //             border-color: $secondary-color;
+        //             img {
+        //                 -webkit-filter: grayscale(0%);
+        //                     filter: grayscale(0%);
+        //             }
+        //         }
+        
+        //         &:last-child {
+        //             margin-right: 0;
+        //         }
+        //     }
+        
+        //     @include media-breakpoint-down(xs) {
+        //         display: none !important;
+        //     }
+        // }
+    }
+
+    &-info {
+        padding: 15px 15px 15px 0;
+    }
+
+    &-title {
+        &--name {
+            font-size: 20px;
+        }
+
+        &--availability {
+            font-size: 16px;
+
+            &-in {
+                color: rgb(var(--clr-primary-light));
+            }
+
+            &-out {
+                color: rgb(var(--clr-red));
+            }
+        }
+    }
+
+    &-price {
+        &--current {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        &--original {
+            color: rgb(var(--clr-gray-dark));
+            font-size: 16px;
+            text-decoration: line-through;
+        }
+    }
+
+    &-color, &-size {
+        ul {
+            li {
+                position: relative;
+                margin-right: 5px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+
+    &-color {
+        &--unavailable {
+            cursor: no-drop;
+
+            &::before, &::after {
+                // content: "";
+                display: block;
+                position: absolute;                
+                left: 22px;
+                top: 0;
+                width: 1px;
+                height: 100%;
+                background: rgb(var(--clr-red));
+                z-index: 1;
+            }
+
+            &::before {                
+                transform: scale(1.2) rotate(45deg);
+            }
+
+            &::after {
+                transform: scale(1.2) rotate(-45deg);                
+            }
+
+            label {
+                user-select: none;
+                pointer-events: none;
+            }
+
+            img {
+                -webkit-filter: blur(.8px) grayscale(100%);
+                filter: blur(.8px) grayscale(100%);
+            }
+        }            
+    }
+
+    &-quantity {
+        &--counter {
+            width: auto;
+
+            input {
+                width: 50px;
+                background-color: rgba(var(--clr-gray), 0.7);
+                border: 0;
+
+                &:focus {
+                    outline: 0;
+                    box-shadow: none;
+                }
+            }
+
+            .btn {
+                min-width: 37px;
+                background-color: rgb(var(--clr-gray));
+                font-size: 12px;
+
+                &-minus {
+                    border-radius: 4px 0 0 4px;
+                }
+
+                &-plus {
+                    border-radius: 0 4px 4px 0;
+                }
+
+                &:focus {
+                    outline: 0;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        &--info {
+            font-size: 12px;
+            color: rgb(var(--clr-gray-dark));
+        }
+    }
+    
+    &-actions {
+        .btn {
+            margin-right: 5px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+
+    &-socials {
+        li {
+            margin-right: 15px;
+
+            &:last-child {
+                margin-right: 0;;
+            }
+
+            a {
+                color: rgb(var(--clr-gray-dark));
+
+                &:hover, &:active, &:focus {
+                    color: rgb(var(--clr-gray-light));
+                }
+            }
+        }
+    }
+
+    &-desc {
+        &--header {
+            i {
+                font-size: 15px;
+            }
+        }
+    }
+
+    &-review {
+        &--rating {
+            &-total {
+
+            }
+
+            &-details {
+                span {
+                    width: 35px;
+                }
+
+                .progress {
+                    width: calc(100% - 35px);
+                    background-color: rgba(var(--clr-gray-dark), 0.7);
+                }
+            }
+        }
+
+        &--customer-reviews {
+            .flags-box--item {
+                &::before {
+                    top: 3px;
+                }
+            }
+        }
+    }
+}
+
 .main-image {
     width: 500px;
     height: 500px;

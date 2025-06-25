@@ -52,7 +52,7 @@
               <small class="text-muted d-block mb-2">
                 {{ item.variant.sku }}
               </small>
-              <div class="d-flex align-items-center mb-2">
+              <!-- <div class="d-flex align-items-center mb-2">
                 <button class="btn btn-sm btn-outline-secondary px-2 py-0" 
                         (click)="decrementQuantity(item)">
                   -
@@ -62,7 +62,13 @@
                         (click)="incrementQuantity(item)">
                   +
                 </button>
-              </div>
+              </div> -->
+              <app-quantity-selector
+                [quantity]="item.quantity"
+                [min]="1"
+                [max]="item.variant.stock"
+                (quantityChange)="updateCartQuantity(item, $event)">
+              </app-quantity-selector>
               <!-- <div class="mt-1">
                 <small class="text-muted text-decoration-line-through" *ngIf="item.oldPrice">${{ item.oldPrice }}</small>
                 <strong class="text-danger ms-1">${{ item.price }}</strong>
@@ -71,14 +77,14 @@
                 <div>
                   <small class="text-muted text-decoration-line-through me-2" 
                          *ngIf="item.variant.discountPrice">
-                    {{ item.variant.discountPrice | currency }}
+                    {{ item.variant.price | currency }}
                   </small>
                   <strong class="text-primary">
-                    {{ item.variant.price | currency }}
+                    {{ (item.variant.discountPrice ?? item.variant.price) | currency }}
                   </strong>
                 </div>
                 <strong>
-                  {{ (item.variant.price * item.quantity) | currency }}
+                  {{ ((item.variant.discountPrice ?? item.variant.price) * item.quantity) | currency }}
                 </strong>
               </div>
             </div>
