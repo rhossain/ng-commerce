@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-quantity-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './quantity-selector.component.html',
   styleUrls: ['./quantity-selector.component.scss']
 })
@@ -13,8 +15,12 @@ export class QuantitySelectorComponent {
   @Input() quantity: number = 1;
   @Input() min: number = 1;
   @Input() max: number = 99;
+  @Input() disabled: boolean = false;
 
   @Output() quantityChange = new EventEmitter<number>();
+
+  faPlus = faPlus;
+  faMinus = faMinus;
 
   constructor(private toastr: ToastrService) {}
 

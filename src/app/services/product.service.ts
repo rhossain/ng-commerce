@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ProductModel, ProductResponse, ProductReview } from '../models/product.model';
+import { ProductModel, ProductResponse, ProductReview, ProductVariant } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -69,5 +69,10 @@ export class ProductService {
   deleteReview(reviewId: number): Observable<any> {
     const url = `${this.apiUrl}/${environment.apiEndpoints.product.deleteReview}/${reviewId}`;
     return this.http.delete(url);
+  }
+
+  isInStock(product: ProductModel, variant?: ProductVariant | null): boolean {
+    const targetVariant = variant || product.variants?.[0];
+    return targetVariant ? targetVariant.stock > 0 : false;
   }
 }

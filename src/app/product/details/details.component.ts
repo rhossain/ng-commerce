@@ -2,6 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgxImageZoomModule } from 'ngx-image-zoom';
+import { MdbTabsModule } from 'mdb-angular-ui-kit/tabs';
+import { MdbTooltipModule } from 'mdb-angular-ui-kit/tooltip';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faFacebookF, faInstagram, faXTwitter, faPinterestP, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
+import { faCodeCompare, faEnvelope, faHeart, faPrint } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../../environments/environment';
 import { ProductImageModel, ProductModel, ProductOption, ProductOptionValue, ProductVariant, ProductReview } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
@@ -14,11 +19,12 @@ import { RatingSummaryComponent } from "../../shared/rating-summary/rating-summa
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart.model';
 import { QuantitySelectorComponent } from "../../shared/quantity-selector/quantity-selector.component";
+import { CharInitialsPipe } from "../../shared/char-initials.pipe";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, StarRatingComponent, RatingSummaryComponent, QuantitySelectorComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, StarRatingComponent, RatingSummaryComponent, QuantitySelectorComponent, CharInitialsPipe],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })
@@ -45,6 +51,16 @@ export default class DetailsComponent implements OnInit {
   apiUrl = environment.apiBaseUrl;
   productImages: ProductImageModel[] = [];
   productImageUrl = environment.apiEndpoints.product_images.getImage;
+
+  faFacebookF = faFacebookF;
+  faInstagram = faInstagram;
+  faXTwitter = faXTwitter;
+  faPinterestP = faPinterestP;
+  faLinkedinIn = faLinkedinIn;
+  faCodeCompare = faCodeCompare;
+  faEnvelope = faEnvelope;
+  faHeart = faHeart;
+  faPrint = faPrint;
 
   constructor(
     private route: ActivatedRoute,
@@ -264,5 +280,13 @@ export default class DetailsComponent implements OnInit {
   get displayPrice(): number {
     const price = this.selectedVariant?.discountPrice ?? this.selectedVariant?.price ?? 0;
     return price * this.selectedQuantity;
+  }
+
+  isInStock(): boolean {
+    return this.productService.isInStock(this.product, this.selectedVariant);
+  }
+
+  trackByFn(index: number, item: any): number {
+    return item.id; // or index if you don't have unique IDs
   }
 }

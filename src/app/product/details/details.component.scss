@@ -1,5 +1,10 @@
 @import 'bootstrap-bp.scss';
 
+.com-product-details {
+    padding-bottom: 20px;
+    background-color: rgb(var(--clr-gray-light));
+}
+
 .product {
     $this: product !default;
 
@@ -70,6 +75,14 @@
 
     &-info {
         padding: 15px 15px 15px 0;
+
+        .in-stock {
+            color: rgb(var(--clr-green));
+        }
+
+        .out-of-stock {
+            color: rgb(var(--clr-red));
+        }
     }
 
     &-title {
@@ -79,14 +92,6 @@
 
         &--availability {
             font-size: 16px;
-
-            &-in {
-                color: rgb(var(--clr-primary-light));
-            }
-
-            &-out {
-                color: rgb(var(--clr-red));
-            }
         }
     }
 
@@ -98,7 +103,7 @@
         }
 
         &--original {
-            color: rgb(var(--clr-gray-dark));
+            color: rgb(var(--clr-gray-darker));
             font-size: 16px;
             text-decoration: line-through;
         }
@@ -209,14 +214,14 @@
             margin-right: 15px;
 
             &:last-child {
-                margin-right: 0;;
+                margin-right: 0;
             }
 
             a {
-                color: rgb(var(--clr-gray-dark));
+                color: rgb(var(--clr-gray-darker));
 
                 &:hover, &:active, &:focus {
-                    color: rgb(var(--clr-gray-light));
+                    color: rgb(var(--clr-secondary-light));
                 }
             }
         }
@@ -414,8 +419,51 @@
 }
 
 button {
-  padding: 8px 16px;
+//   padding: 8px 16px;
   cursor: pointer;
 }
 
+.custom-radios {
+  
+  div {
+    display: inline-block;
+  }
 
+  input[type="radio"] {
+    display: none;
+
+    + label {
+      color: #333;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+
+      span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        margin: -1px 4px 0 0;
+        vertical-align: middle;
+        cursor: pointer;
+        border-radius: 50%;
+        border: 2px solid #FFFFFF;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        line-height: 44px;
+    
+        img {
+            max-width: 16px;
+            opacity: 0;
+            transition: all .3s ease;
+        }
+      }
+    }
+
+    &:checked + label span img {
+      opacity: 1;
+    }
+  }
+}

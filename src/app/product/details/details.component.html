@@ -1,194 +1,522 @@
 <!-- Product Details -->
 <section class="com-product-details">
+
+    <!-- Breadcrumb -->
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2>{{ product.name }}</h2>
-                <p><strong>Category:</strong> {{ categoryName }}</p>
+                <nav aria-label="breadcrumb">
+                    <div class="container">
+                        <ol class="breadcrumb ps-0 py-2">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item"><a href="#">Category</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Product name</li>
+                        </ol>
+                    </div>                
+                </nav>
             </div>
         </div>
+    </div>
+    <!-- ./Breadcrumb -->
 
-        <div class="row">
-            <div class="col-lg-6 col-md-6">
-                <!-- Media Display -->
-                <div class="media-container">
-                    <div class="main-image">
-                        <!-- <img
-                        *ngIf="!isVideo()"
-                        [src]="selectedImageUrl"
-                        ngxImageZoom
-                        alt="Product image"
-                    /> -->
-                        <lib-ngx-image-zoom [thumbImage]="selectedImageUrl" [fullImage]="selectedImageUrl"
-                            [magnification]="2" [zoomMode]="'hover'" [enableLens]="true" [lensWidth]="150"
-                            [lensHeight]="150" class="zoomed-img" style="display: block;"></lib-ngx-image-zoom>
-                        <video *ngIf="isVideo()" [src]="selectedImageUrl" controls width="100%"></video>
-                    </div>
-
-                    <div class="product-images" *ngIf="productImages.length > 0">
-                        <div class="thumbnails" *ngFor="let img of productImages" (click)="mediaClicked(img.image_url)">
-                            <img [src]="img.image_url" [alt]="product.name" class="thumbnail" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6 col-md-6">
-                <!-- Description -->
-                <p class="description">{{ product.description }}</p>
-
-                <app-star-rating [rating]="avgRating" [supportHalfStar]="true" [showRatingText]="true"
-                    [ratingLabel]="'/ 5'" [reviewCount]="product.reviews?.length">
-                </app-star-rating>
-
-                <!-- DEBUG -->
-                <p *ngIf="!product">Product not loaded</p>
-                <p *ngIf="!product?.options?.length">No options found</p>
-                <p *ngIf="!getOptionNames()?.length">No option names found</p>
-
-                <!-- Options -->
-                <div *ngFor="let optionName of getOptionNames()">
-                    <p>{{ optionName }}:</p>
-                    <button *ngFor="let value of groupedOptions[optionName]" (click)="onOptionSelect(optionName, value)"
-                        [class.selected]="selectedOptions[optionName] === value">
-                        {{ value }}
-                    </button>
-                </div>
-
-                <!-- Selected Variant -->
-                <div *ngIf="selectedVariant">
-                    <p>Price: {{ selectedVariant.discountPrice || selectedVariant.price }}</p>
-                    <p *ngIf="selectedVariant.discountPrice">Original: <s>{{ selectedVariant.price }}</s></p>
-                    <p>Stock: {{ selectedVariant.stock }}</p>
-                </div>
-
-                <p *ngIf="!selectedVariant">No variant matched</p>
-
-                <!-- Selected Variant Info -->
-                <div class="variant-info">
-                    <p *ngIf="selectedVariant">
-                        Price:
-                        <span *ngIf="selectedVariant.discountPrice; else regularPrice">
-                            <del>{{ selectedVariant.price | currency }}</del>
-                            <strong>{{ selectedVariant.discountPrice | currency }}</strong>
-                        </span>
-                        <ng-template #regularPrice>
-                            <strong>{{ selectedVariant.price | currency }}</strong>
-                        </ng-template>
-                    </p>
-
-                    <p *ngIf="selectedVariant">Stock: {{ selectedVariant.stock }}</p>
-                    <p *ngIf="selectedVariant">Sold: {{ selectedVariant.totalSold }}</p>
-                </div>
-
-                <!-- Fallback -->
-                <div *ngIf="!selectedVariant && product.variants?.length">
-                    <p class="text-warning">Please select all options to view variant details.</p>
-                </div>
-
-                <div class="quantity-selector-section mb-3">
-                    <label for="quantity" class="form-label">Quantity:</label>
-
-                    <app-quantity-selector [(quantity)]="selectedQuantity" [min]="1"
-                        [max]="selectedVariant?.stock || 99">
-                    </app-quantity-selector>
-                </div>
-
-                <div class="price-section mb-3">
-                    <small class="text-muted text-decoration-line-through me-2" *ngIf="selectedVariant?.discountPrice">
-                        {{ selectedVariant?.price | currency }}
-                    </small>
-                    <strong class="text-success">
-                        {{ selectedVariant?.discountPrice ?? selectedVariant?.price | currency }}
-                    </strong>
-                </div>
-
-                <div class="total-price-section mb-3">
-                    <strong>Total Price: {{ displayPrice | currency }}</strong>
-                </div>
-
-                <button class="btn btn-primary" (click)="addToCart()">Add to Cart</button>
-            </div>
-        </div>
-
+    <div class="container">
         <div class="row">
             <div class="col-12">
-                <h3>Customer Reviews ({{ product.reviews?.length || 0 }})</h3>
 
-                <div *ngIf="userLoggedIn; else loginPrompt">
-                    <h4>Write a Review</h4>
+                <!-- Product info top -->
+                <div class="bg-white rounded-3 product-info-top">
+                    <div class="row">
+                        <div class="col-md-6">
 
-                    <!-- ⭐ Clickable Stars (Inline Star Input) -->
-                    <div class="star-rating-input">
-                        <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
-                            <i class="star-icon" [ngClass]="{'filled': star <= newReviewRating}"
-                                (click)="newReviewRating = star">
-                                &#9733;
-                            </i>
-                        </ng-container>
-                    </div>
+                            <!-- Product image preview -->
+                            <div class="media-container">
+                                <div class="main-image">
+                                    <!-- <img
+                                    *ngIf="!isVideo()"
+                                    [src]="selectedImageUrl"
+                                    ngxImageZoom
+                                    alt="Product image"
+                                /> -->
+                                    <lib-ngx-image-zoom [thumbImage]="selectedImageUrl" [fullImage]="selectedImageUrl"
+                                        [magnification]="2" [zoomMode]="'hover'" [enableLens]="true" [lensWidth]="150"
+                                        [lensHeight]="150" class="zoomed-img" style="display: block;"></lib-ngx-image-zoom>
+                                    <video *ngIf="isVideo()" [src]="selectedImageUrl" controls width="100%"></video>
+                                </div>
 
-                    <!-- 📝 Review Text Area -->
-                    <textarea [(ngModel)]="newReviewText" rows="4" placeholder="Write your review..."
-                        class="review-input">
-                </textarea>
-
-                    <!-- ✅ Submit Button -->
-                    <button (click)="submitReview()" [disabled]="newReviewRating === 0 || newReviewText.trim() === ''">
-                        Submit Review
-                    </button>
-                </div>
-
-                <!-- 🔒 If not logged in -->
-                <ng-template #loginPrompt>
-                    <p>Please log in to write a review.</p>
-                </ng-template>
-
-                <app-rating-summary [reviews]="product.reviews || []"></app-rating-summary>
-
-                <div *ngIf="(product.reviews || []).length > 0; else noReviews" class="review-list">
-                    <!-- <div *ngFor="let review of product.reviews" class="review-card">
-                        <div class="review-rating">
-                        <app-star-rating [rating]="review.rating"></app-star-rating>
-                        </div>
-                        <p class="review-text">{{ review.review_text }}</p>
-                        <small class="review-meta">{{ review.user?.name }} • {{ review.created_at | date:'mediumDate' }}</small>
-                    </div> -->
-                    <div *ngFor="let review of product.reviews" class="review-card">
-
-                        <!-- Show star rating -->
-                        <app-star-rating [rating]="review.rating"></app-star-rating>
-
-                        <!-- Editable or display mode -->
-                        <div *ngIf="editingReviewId === review.id; else displayMode">
-                            <div class="star-rating-input">
-                                <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
-                                    <i class="star-icon" [ngClass]="{'filled': star <= editableRating}"
-                                        (click)="editableRating = star">&#9733;</i>
-                                </ng-container>
+                                <div class="product-images" *ngIf="productImages.length > 0">
+                                    <div class="thumbnails" *ngFor="let img of productImages" (click)="mediaClicked(img.image_url)">
+                                        <img [src]="img.image_url" [alt]="product.name" class="thumbnail" />
+                                    </div>
+                                </div>
                             </div>
-                            <textarea [(ngModel)]="editableText" rows="3"></textarea>
-                            <button (click)="updateReview(review.id)">Save</button>
-                            <button (click)="cancelReviewEdit()">Cancel</button>
+                            <!-- ./Product image preview -->
+
                         </div>
 
-                        <ng-template #displayMode>
-                            <p>{{ review.review_text }}</p>
-                            <small>{{ review.user?.name }} • {{ review.created_at | date:'mediumDate' }}</small>
+                        <div class="col-md-6">
 
-                            <!-- Show edit/delete buttons if review belongs to the logged-in user -->
-                            <div *ngIf="review.user_id === authService.getCurrentUserSync()?.id">
-                                <button (click)="enableReviewEdit(review)">Edit</button>
-                                <button (click)="deleteReview(review.id)">Delete</button>
+                            <!-- Product key info -->
+                            <div class="product-info">
+
+                                <!-- Product name & availability -->
+                                <div class="product-title">
+                                    <a class="text-secondary text-uppercase fw-bold cursor-pointer">{{ categoryName }}</a>
+                                    <h2 class="product-title--name">
+                                        {{ product.name }}
+                                    </h2>
+                                </div>
+                                <!-- ./Product name & availability -->
+
+                                <!-- Horizontal divider -->
+                                <div class="my-3 bg-gray divider-h">[invisible]</div>
+                                <!-- ./Horizontal divider -->
+
+                                <!-- Product price -->
+                                <div class="d-flex align-items-center">
+                                    <div *ngIf="selectedVariant" class="d-flex align-items-center product-price">
+                                        <span class="d-flex align-items-center" *ngIf="selectedVariant.discountPrice; else regularPrice">
+                                            <span class="product-price--current">
+                                                {{ selectedVariant.discountPrice | currency }}
+                                            </span>
+                                            <span class="ps-2 product-price--original">
+                                                {{ selectedVariant.price | currency }}
+                                            </span>
+                                        </span>
+                                        <ng-template #regularPrice>
+                                            <strong>{{ selectedVariant.price | currency }}</strong>
+                                        </ng-template>
+                                    </div>
+
+                                    <div class="mx-2 bg-gray divider-v">[invisible]</div>
+
+                                    <span class="fs-6 fw-bold" [ngClass]="{'in-stock': isInStock(), 'out-of-stock': !isInStock()}">
+                                        {{ isInStock() ? 'In Stock' : 'Out of Stock' }}
+                                    </span>
+                                </div>
+                                <!-- ./Product price -->
+
+                                <!-- Product shipping -->
+                                <!-- <div class="d-flex align-items-center pt-1 product-shipping">
+                                    <i class="fas fa-shipping-fast"></i>
+                                    <span class="ms-2 text-uppercase fw-bold">
+                                        Shipping:
+                                    </span>
+                                    <span class="ms-2 text-uppercase fw-bold">US $1.5</span>
+                                </div> -->
+                                <!-- ./Product shipping -->
+
+                                <!-- Horizontal divider -->
+                                <div class="my-3 bg-gray divider-h">[invisible]</div>
+                                <!-- ./Horizontal divider -->
+
+                                <!-- Product review -->
+                                <div class="d-flex align-items-center product-reviewer">
+                                    <app-star-rating 
+                                        [rating]="avgRating" 
+                                        [supportHalfStar]="true" 
+                                        [showRatingText]="true"
+                                        [ratingLabel]="''" 
+                                        [reviewCount]="product.reviews?.length"
+                                        class="d-flex">
+                                    </app-star-rating>
+                                    <div class="mx-2 bg-gray divider-v">[invisible]</div>
+                                    <div class="product-reviewer--orders">
+                                        <span class="fw-bold">{{ selectedVariant?.totalSold }}</span> sold
+                                    </div>
+                                </div>
+                                <!-- ./Product review -->
+
+                                <!-- Horizontal divider -->
+                                <div class="my-3 bg-gray divider-h">[invisible]</div>
+                                <!-- ./Horizontal divider -->
+
+                                <!-- Product color -->
+                                <!-- <div class="d-flex flex-column mb-3 product-color">
+                                    <span class="fw-bold text-uppercase pb-2">Color:</span>
+                                    <ul class="d-flex list-unstyled m-0 p-0">
+                                        <li data-bs-toggle="tooltip-img" data-bs-placement="bottom" data-bs-html="true"
+                                            title="<img width='200' height='200' src='./images/products/men-fashion/men-fashion-001-sq.jpg'/>">
+                                            <label class="mb-0 custom-radio custom-radio--color">
+                                                <input type="radio" name="color" value="color-1">
+                                                <img src="./images/products/men-fashion/men-fashion-001-sq.jpg">
+                                            </label>
+                                        </li>
+                                        <li data-bs-toggle="tooltip-img" data-bs-placement="bottom" data-bs-html="true"
+                                            title="<img width='200' height='200' src='./images/products/men-fashion/men-fashion-002-sq.jpg'/>">
+                                            <label class="mb-0 custom-radio custom-radio--color">
+                                                <input type="radio" name="color" value="color-2">
+                                                <img src="./images/products/men-fashion/men-fashion-002-sq.jpg">
+                                            </label>
+                                        </li>
+                                        <li data-bs-toggle="tooltip-img" data-bs-placement="bottom" data-bs-html="true"
+                                            title="<img width='200' height='200' src='./images/products/men-fashion/men-fashion-003-sq.jpg'/>">
+                                            <label class="mb-0 custom-radio custom-radio--color">
+                                                <input type="radio" name="color" value="color-3">
+                                                <img src="./images/products/men-fashion/men-fashion-003-sq.jpg">
+                                            </label>
+                                        </li>
+                                        <li class="product-color--unavailable">
+                                            <label
+                                                class="mb-0 custom-radio custom-radio--color custom-radio--color-unavailable">
+                                                <input type="radio" name="color" value="color-4">
+                                                <img src="./images/products/men-fashion/men-fashion-004-sq.jpg">
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div> -->
+                                <!-- ./Product color -->
+
+                                <!-- Product size -->
+                                <!-- <div class="d-flex flex-column product-size">
+                                    <span class="fw-bold text-uppercase pb-2">
+                                        Size:
+                                        <a href="#" data-bs-toggle="modal" data-bs-target="#productSizeChart"
+                                            class="fw-normal text-capitalize">Size chart</a>
+                                    </span>
+                                    <ul class="d-flex list-unstyled m-0 p-0">
+                                        <li>
+                                            <label class="mb-0 custom-radio custom-radio--size">
+                                                <input type="radio" name="size" value="small">
+                                                <span
+                                                    class="d-inline-flex justify-content-center align-items-center text-uppercase">S</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="mb-0 custom-radio custom-radio--size">
+                                                <input type="radio" name="size" value="medium">
+                                                <span
+                                                    class="d-inline-flex justify-content-center align-items-center text-uppercase">M</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="mb-0 custom-radio custom-radio--size">
+                                                <input type="radio" name="size" value="large">
+                                                <span
+                                                    class="d-inline-flex justify-content-center align-items-center text-uppercase">L</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="mb-0 custom-radio custom-radio--size">
+                                                <input type="radio" name="size" value="x-large">
+                                                <span
+                                                    class="d-inline-flex justify-content-center align-items-center text-uppercase">XL</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="mb-0 custom-radio custom-radio--size">
+                                                <input type="radio" name="size" value="xx-large">
+                                                <span
+                                                    class="d-inline-flex justify-content-center align-items-center text-uppercase">XXL</span>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div> -->
+                                <!-- ./Product size -->
+
+                                <!-- Product options -->
+                                @if (getOptionNames().length) {
+                                    <div *ngFor="let optionName of getOptionNames()">
+                                        @if (optionName === 'Color') {
+                                            <div class="pt-3">
+                                                <span class="flex fw-bold text-uppercase">{{ optionName }}:</span>
+                                                <div class="custom-radios d-flex align-items-center mt-2" style="column-gap: 6px;">
+                                                    <div 
+                                                        *ngFor="let value of groupedOptions[optionName]; let i = index;" 
+                                                        (click)="onOptionSelect(optionName, value)"
+                                                        [class.selected]="selectedOptions[optionName] === value">
+                                                        <input type="radio" [id]="'color-'+i" name="color" [value]="'color-'+i" checked>
+                                                        <label [for]="'color-'+i">
+                                                            <span [style]="'background-color:'+value">
+                                                            <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon" />
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (optionName === 'Size') {
+                                            <div>
+                                                <span class="flex align-items-center fw-bold text-uppercase pb-2">
+                                                    Size:
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#productSizeChart"
+                                                        class="fw-normal text-capitalize">Size chart</a>
+                                                </span>
+                                                <ul class="d-flex list-unstyled m-0 mt-2 p-0" style="column-gap: 6px;">
+                                                    <li
+                                                        *ngFor="let value of groupedOptions[optionName]; let i = index;" 
+                                                        (click)="onOptionSelect(optionName, value)"
+                                                        [class.selected]="selectedOptions[optionName] === value"
+                                                    >
+                                                        <label class="mb-0 custom-radio custom-radio--size">
+                                                            <input type="radio" name="size" [value]="value">
+                                                            <span class="d-inline-flex justify-content-center align-items-center text-uppercase">
+                                                                {{ value | charInitials:{take: 2} }}
+                                                            </span>
+                                                        </label>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                } @else {
+                                    <p>No options are found</p>
+                                }
+
+                                <p *ngIf="!selectedVariant">No variant matched</p>
+
+                                <!-- Fallback -->
+                                <div *ngIf="!selectedVariant && product.variants?.length">
+                                    <p class="text-warning">Please select all options to view variant details.</p>
+                                </div>
+                                <!-- ./Product options -->
+
+                                <!-- Horizontal divider -->
+                                <div class="my-3 bg-gray divider-h">[invisible]</div>
+                                <!-- ./Horizontal divider -->
+
+                                <!-- Product quantity -->
+                                <div class="d-flex align-items-center">
+                                    <app-quantity-selector 
+                                        [(quantity)]="selectedQuantity" 
+                                        [min]="1"
+                                        [max]="selectedVariant?.stock || 99"
+                                        [disabled]="!isInStock()">
+                                    </app-quantity-selector>
+
+                                    <div class="mx-2 bg-gray divider-v">[invisible]</div>
+
+                                    <span class="d-inline-block ps-1 fw-bold">{{ displayPrice | currency }}</span>
+                                </div>
+                                <!-- ./Product quantity -->
+
+                                <!-- Horizontal divider -->
+                                <div class="my-3 bg-gray divider-h">[invisible]</div>
+                                <!-- ./Horizontal divider -->
+
+                                
+
+                                <!-- DEBUG -->
+                                <!-- <p *ngIf="!product">Product not loaded</p>
+                                <p *ngIf="!product?.options?.length">No options found</p>
+                                <p *ngIf="!getOptionNames()?.length">No option names found</p> -->
+
+                                <!-- Options -->
+                                <!-- <div *ngFor="let optionName of getOptionNames()">
+                                    <p>{{ optionName }}:</p>
+                                    @if (optionName === 'Color') {
+                                        <div class="custom-radios d-flex align-items-center">
+                                            <div 
+                                                *ngFor="let value of groupedOptions[optionName]; let i = index;" 
+                                                (click)="onOptionSelect(optionName, value)"
+                                                [class.selected]="selectedOptions[optionName] === value">
+                                                <input type="radio" [id]="'color-'+i" name="color" [value]="'color-'+i" checked>
+                                                <label [for]="'color-'+i">
+                                                    <span [style]="'background-color:'+value">
+                                                    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon" />
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (optionName === 'Size') {
+                                        <ul class="d-flex list-unstyled m-0 p-0">
+                                            <li
+                                                *ngFor="let value of groupedOptions[optionName]; let i = index;" 
+                                                (click)="onOptionSelect(optionName, value)"
+                                                [class.selected]="selectedOptions[optionName] === value"
+                                            >
+                                                <label class="mb-0 custom-radio custom-radio--size">
+                                                    <input type="radio" name="size" [value]="value">
+                                                    <span class="d-inline-flex justify-content-center align-items-center text-uppercase">
+                                                        {{ value | charInitials:{take: 2} }}
+                                                    </span>
+                                                </label>
+                                            </li>
+                                        </ul>
+                                    }
+                                </div> -->
+
+                                <!-- Selected Variant -->
+                                <!-- <div *ngIf="selectedVariant">
+                                    <p>Price: {{ selectedVariant.discountPrice || selectedVariant.price }}</p>
+                                    <p *ngIf="selectedVariant.discountPrice">Original: <s>{{ selectedVariant.price }}</s></p>
+                                    <p>Stock: {{ selectedVariant.stock }}</p>
+                                </div> -->
+
+                                <!-- <p *ngIf="selectedVariant">Stock: {{ selectedVariant.stock }}</p>
+                                <p *ngIf="selectedVariant">Sold: {{ selectedVariant.totalSold }}</p> -->
+
+                                <!-- <p *ngIf="!selectedVariant">No variant matched</p> -->
+
+                                <!-- Fallback -->
+                                <!-- <div *ngIf="!selectedVariant && product.variants?.length">
+                                    <p class="text-warning">Please select all options to view variant details.</p>
+                                </div> -->
+
+                                <!-- Product action buttons -->
+                                <div class="d-flex product-actions">
+                                    <button class="btn btn-primary" [disabled]="!isInStock()" (click)="addToCart()">Add to Cart</button>
+                                    <button type="button" class="btn btn-light" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Add to Wishlist">
+                                        <fa-icon [icon]="faHeart"></fa-icon> 130
+                                    </button>
+                                    <button type="button" class="btn btn-light" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" title="Add to Compare">
+                                        <fa-icon [icon]="faCodeCompare"></fa-icon>
+                                    </button>
+                                </div>
+                                <!-- ./Product action buttons -->
+
                             </div>
-                        </ng-template>
+                            <!-- ./Product key info -->
 
+                        </div>
                     </div>
                 </div>
+                <!-- ./Product info top -->
 
-                <ng-template #noReviews>
-                    <p>No reviews yet. Be the first to review this product!</p>
-                </ng-template>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ul class="d-flex justify-content-center align-items-center list-unstyled m-0 py-3 product-socials">
+                    <li>
+                        <a href="#" mdbTooltip="Facebook" placement="top">
+                            <fa-icon [icon]="faFacebookF"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Twitter">
+                            <fa-icon [icon]="faInstagram"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Google plus">
+                            <fa-icon [icon]="faXTwitter"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Instagram">
+                            <fa-icon [icon]="faPinterestP"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Pinterest">
+                            <fa-icon [icon]="faLinkedinIn"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="mx-2 bg-gray-dark divider-v">[invisible]</div>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Send to Friend">
+                            <fa-icon [icon]="faEnvelope"></fa-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-bs-toggle="tooltip" data-bs-placement="top" title="Print">
+                            <fa-icon [icon]="faPrint"></fa-icon>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex flex-column h-100 rounded-3 bg-white p-3 product-desc">
+                    <mdb-tabs class="custom-tabs">
+                        <mdb-tab title="Overview">
+                            <p class="description">{{ product.description }}</p>
+                        </mdb-tab>
+                        <mdb-tab title="Warranty & Shipping">
+                            <p>Warranty & Shipping information goes here.</p>
+                        </mdb-tab>
+                        <mdb-tab title="Reviews">
+                            <!-- <h3>Customer Reviews ({{ product.reviews?.length || 0 }})</h3> -->
+
+                            <div *ngIf="userLoggedIn; else loginPrompt">
+                                <h4>Write a Review</h4>
+
+                                <!-- ⭐ Clickable Stars (Inline Star Input) -->
+                                <div class="star-rating-input">
+                                    <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                        <i class="star-icon" [ngClass]="{'filled': star <= newReviewRating}"
+                                            (click)="newReviewRating = star">
+                                            &#9733;
+                                        </i>
+                                    </ng-container>
+                                </div>
+
+                                <!-- 📝 Review Text Area -->
+                                <textarea 
+                                    [(ngModel)]="newReviewText" 
+                                    rows="4" 
+                                    placeholder="Write your review..."
+                                    class="review-input">
+                                </textarea>
+
+                                <!-- ✅ Submit Button -->
+                                <button (click)="submitReview()" [disabled]="newReviewRating === 0 || newReviewText.trim() === ''">
+                                    Submit Review
+                                </button>
+                            </div>
+
+                            <!-- 🔒 If not logged in -->
+                            <ng-template #loginPrompt>
+                                <p class="fs-5">Please log in to write a review.</p>
+                            </ng-template>
+
+                            <app-rating-summary class="d-block mt-3" [reviews]="product.reviews || []"></app-rating-summary>
+
+                            <div *ngIf="(product.reviews || []).length > 0; else noReviews" class="review-list">
+                                <div *ngFor="let review of product.reviews" class="review-card">
+
+                                    <!-- Show star rating -->
+                                    <app-star-rating [rating]="review.rating"></app-star-rating>
+
+                                    <!-- Editable or display mode -->
+                                    <div *ngIf="editingReviewId === review.id; else displayMode">
+                                        <div class="star-rating-input">
+                                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                                <i class="star-icon" [ngClass]="{'filled': star <= editableRating}"
+                                                    (click)="editableRating = star">&#9733;</i>
+                                            </ng-container>
+                                        </div>
+                                        <textarea [(ngModel)]="editableText" rows="3"></textarea>
+                                        <button (click)="updateReview(review.id)">Save</button>
+                                        <button (click)="cancelReviewEdit()">Cancel</button>
+                                    </div>
+
+                                    <ng-template #displayMode>
+                                        <p>{{ review.review_text }}</p>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <small>{{ review.user?.name }} • {{ review.created_at | date:'mediumDate' }}</small>
+
+                                            <!-- Show edit/delete buttons if review belongs to the logged-in user -->
+                                            <div *ngIf="review.user_id === authService.getCurrentUserSync()?.id">
+                                                <button class="btn btn-info btn-sm me-1" (click)="enableReviewEdit(review)">Edit</button>
+                                                <button class="btn btn-danger btn-sm" (click)="deleteReview(review.id)">Delete</button>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+
+                                </div>
+                            </div>
+
+                            <ng-template #noReviews>
+                                <p>No reviews yet. Be the first to review this product!</p>
+                            </ng-template>
+                        </mdb-tab>
+                    </mdb-tabs>
+                </div>
             </div>
         </div>
     </div>

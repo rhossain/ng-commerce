@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ProductModel, ProductResponse } from '../models/product.model';
+import { ProductModel, ProductResponse, ProductVariant } from '../models/product.model';
 import { ProductService } from './product.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of } from 'rxjs';
@@ -232,6 +232,11 @@ export class ProductCacheService {
     return (
       product.variants?.reduce((sum, v) => sum + (v.totalSold ?? 0), 0) ?? 0
     );
+  }
+
+  isInStock(product: ProductModel, variant?: ProductVariant): boolean {
+    const targetVariant = variant || product.variants?.[0];
+    return targetVariant ? targetVariant.stock > 0 : false;
   }
 
   clearCache(): void {

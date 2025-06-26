@@ -1,48 +1,56 @@
 .rating-summary {
-  max-width: 600px;
+    //   max-width: 600px;
 }
 
 .average-rating {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 24px;
-  margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 24px;
+    margin-bottom: 16px;
 }
 
 .rating-distribution {
-  margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0;
 }
 
 .distribution-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
 }
 
 .star-label {
-  width: 50px;
-  font-size: 16px;
+    width: 32px;
+    font-size: 16px;
 }
 
 .progress-bar {
-  background-color: #ddd;
-  border-radius: 8px;
-  overflow: hidden;
-  width: 300px;
-  height: 16px;
+    background-color: #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 300px;
+    height: 16px;
 }
 
 .progress-fill {
-  background-color: #4caf50;
-  height: 100%;
-  color: white;
-  font-size: 12px;
-  padding-left: 4px;
-  line-height: 16px;
+    background-color: #4caf50;
+    height: 100%;
+    color: white;
+    font-size: 12px;
+    padding-left: 4px;
+    line-height: 16px;
 }
 
 .star-icon {
-  color: #ffd700;
+    color: #ffd700;
+}
+
+app-star-rating.icon-large {
+    // .star-icon {
+    //     font-size: 30px;
+    // }
 }

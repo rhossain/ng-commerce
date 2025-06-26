@@ -1,4 +1,4 @@
-<div class="quantity-selector">
+<!-- <div class="quantity-selector">
   <button (click)="decrease()">-</button>
 
   <input type="number"
@@ -9,4 +9,32 @@
          [max]="max">
 
   <button (click)="increase()">+</button>
+</div> -->
+
+<div class="d-flex align-items-center product-quantity">
+    <div class="input-group product-quantity--counter">
+        <span class="input-group-btn">
+            <button class="btn btn-minus" type="button" (click)="decrease()">
+                <fa-icon [icon]="faMinus"></fa-icon>
+            </button>
+        </span>
+        <input 
+            type="number"
+            [value]="quantity"
+            (input)="onInputChange($event)"
+            (blur)="validateQuantity()"
+            [min]="min"
+            [max]="max"
+            class="text-center"
+        >
+        <span class="input-group-btn">
+            <button class="btn btn-plus" type="button" (click)="increase()">
+                <fa-icon [icon]="faPlus"></fa-icon>
+            </button>
+        </span>
+    </div>
+
+    <div class="ps-2 product-quantity--info">
+        <span>50 available</span>
+    </div>
 </div>

@@ -25,7 +25,10 @@ $custom-theme-colors: (
   "secondary": $secondary,
   "secondary-light": $secondary-light,
   "secondary-dark": $secondary-dark,
-  "gray": $gray
+  "gray": $gray,
+  "gray-light": $gray-light,
+  "gray-dark": $gray-dark,
+  "gray-darker": $gray-darker
 );
 
 // 3. Merge into Bootstrap’s theme colors

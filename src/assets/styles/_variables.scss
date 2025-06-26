@@ -11,7 +11,10 @@ $warning:           #F7A51B;
 $danger:            #EF233C;
 $light:             #F2F2F2;
 $dark:              #222831;
-$gray:              #EEEEEE;
+$gray:              #F2F2F2;
+$gray-light:        #EEEEEE;
+$gray-dark:         #DDDDDD;
+$gray-darker:       #8890A0;
 
 :root {
     --clr-primary-custom:           96, 108, 56;    // #AB886D
@@ -31,6 +34,7 @@ $gray:              #EEEEEE;
     --clr-gray-darker:              136, 144, 160;  // #8890A0;
     --clr-green:                    56, 176, 0;     // #38B000;
     --clr-red:                      239, 35, 60;    // #EF233C;
+    --clr-yellow:                   255, 182, 39;   // #FFB627;
 
     --sidebar-width:                280px;
 

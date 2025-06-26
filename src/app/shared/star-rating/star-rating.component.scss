@@ -1,26 +1,24 @@
-.star-rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+
+:host {
+    &.icon-large {
+        .star-icon {
+            font-size: 30px;
+        }
+    }
 }
 
 .star-icon {
-  font-size: 18px;
-  color: #ddd; // Empty star color
-  transition: color 0.3s ease;
-}
+    font-size: 18px;
+    color: rgb(var(--clr-gray-dark)); // Empty star color
+    transition: color 0.3s ease;
 
-.star-icon.filled {
-  color: #FFD700; // Gold color
-}
+    &.filled {
+        color: rgb(var(--clr-yellow)); // Gold color
+    }
 
-.star-icon.half {
-  background: linear-gradient(to right, #FFA500 50%, #ddd 50%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.review-count {
-  font-size: 14px;
-  color: #555;
+    &.half {
+        background: linear-gradient(to right, rgb(var(--clr-yellow)) 50%, rgb(var(--clr-gray-dark)) 50%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
 }
