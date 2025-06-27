@@ -2,8 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgxImageZoomModule } from 'ngx-image-zoom';
-import { MdbTabsModule } from 'mdb-angular-ui-kit/tabs';
-import { MdbTooltipModule } from 'mdb-angular-ui-kit/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../../environments/environment';
@@ -24,7 +22,7 @@ import { ProductGalleryComponent } from "./product-gallery/product-gallery.compo
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent, ProductGalleryComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent, ProductGalleryComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })

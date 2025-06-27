@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBarsStaggered, faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons';
-import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
-import { MdbRippleModule } from 'mdb-angular-ui-kit/ripple';
 import { SearchComponent } from "../search/search.component";
 import { CartComponent } from "../../shopping/cart/cart.component";
 import { NavbarComponent } from "../navbar/navbar.component";
@@ -19,7 +17,7 @@ import { ProductCategory } from '../../models/category.model';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FontAwesomeModule, MdbDropdownModule, MdbRippleModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent, FeaturedCategoryComponent],
+  imports: [CommonModule, RouterModule, FontAwesomeModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent, FeaturedCategoryComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })

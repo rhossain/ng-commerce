@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MdbTabsModule } from 'mdb-angular-ui-kit/tabs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { ProductSliderComponent } from "../../shared/product-slider/product-slider.component";
@@ -15,7 +14,7 @@ import { DealCardComponent } from "../../product/deal-card/deal-card.component";
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MdbTabsModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent, DealCardComponent],
+  imports: [CommonModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent, DealCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
