@@ -69,7 +69,13 @@
                             <app-search></app-search>
                         </div>
                         <div class="d-none d-md-flex align-items-center header-middle-right">
-                            <app-cart (cartClosed)="onSidebarClosed()"></app-cart>
+                            <div class="d-flex align-items-center w-100" style="height: 50px;">
+                                <div class="user-icon" routerLink="/profile">
+                                    <fa-icon [icon]="faUser"></fa-icon>
+                                </div>
+                                <div class="mx-3 bg-gray divider-v">[invisible]</div>
+                                <app-cart (cartClosed)="onSidebarClosed()"></app-cart>
+                            </div>
                         </div>
                     </div>
                 </div>
