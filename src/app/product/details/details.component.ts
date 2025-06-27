@@ -5,26 +5,25 @@ import { NgxImageZoomModule } from 'ngx-image-zoom';
 import { MdbTabsModule } from 'mdb-angular-ui-kit/tabs';
 import { MdbTooltipModule } from 'mdb-angular-ui-kit/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faFacebookF, faInstagram, faXTwitter, faPinterestP, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
-import { faCodeCompare, faEnvelope, faHeart, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../../environments/environment';
-import { ProductImageModel, ProductModel, ProductOption, ProductOptionValue, ProductVariant, ProductReview } from '../../models/product.model';
+import { ProductImageModel, ProductModel, ProductOptionValue, ProductVariant, ProductReview } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
-import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { RatingSummaryComponent } from "../../shared/rating-summary/rating-summary.component";
 import { CartService } from '../../services/cart.service';
-import { CartItem } from '../../models/cart.model';
-import { QuantitySelectorComponent } from "../../shared/quantity-selector/quantity-selector.component";
-import { CharInitialsPipe } from "../../shared/char-initials.pipe";
+import { ProductSocialsComponent } from "./product-socials/product-socials.component";
+import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
+import { ProductInfoComponent } from "./product-info/product-info.component";
+import { ProductDescriptionComponent } from "./product-description/product-description.component";
+import { ProductReviewsComponent } from "./product-reviews/product-reviews.component";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, StarRatingComponent, RatingSummaryComponent, QuantitySelectorComponent, CharInitialsPipe],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })
@@ -52,15 +51,8 @@ export default class DetailsComponent implements OnInit {
   productImages: ProductImageModel[] = [];
   productImageUrl = environment.apiEndpoints.product_images.getImage;
 
-  faFacebookF = faFacebookF;
-  faInstagram = faInstagram;
-  faXTwitter = faXTwitter;
-  faPinterestP = faPinterestP;
-  faLinkedinIn = faLinkedinIn;
   faCodeCompare = faCodeCompare;
-  faEnvelope = faEnvelope;
   faHeart = faHeart;
-  faPrint = faPrint;
 
   constructor(
     private route: ActivatedRoute,
@@ -141,53 +133,49 @@ export default class DetailsComponent implements OnInit {
     this.editableRating = 0;
   }
 
-  submitReview() {
-    if (!this.newReviewText.trim() || this.newReviewRating === 0) return;
+  submitReview(event: { rating: number, text: string }) {
+    if (!event.text.trim() || event.rating === 0) return;
 
     const currentUser = this.authService.getCurrentUserSync();
     if (!currentUser) return;
 
     const reviewPayload = {
-      rating: this.newReviewRating,
-      review_text: this.newReviewText,
+      rating: event.rating,
+      review_text: event.text,
       product_id: this.product.id,
       user_id: currentUser.id
     };
 
     this.productService.submitReview(reviewPayload).subscribe({
-      next: (savedReview: ProductReview) => { // Assuming your API returns the saved review
-
+      next: (savedReview: ProductReview) => {
         if (!this.product.reviews) {
           this.product.reviews = [];
         }
 
-        this.product.reviews.push(savedReview); // ✅ Full typed ProductReview including ID
+        this.product.reviews.push(savedReview);
 
+        // Optional: update average rating here if needed
         // this.avgRating = this.productService.getAverageRating(this.product.reviews);
-
-        // Reset form
-        this.newReviewText = '';
-        this.newReviewRating = 0;
       },
       error: (err) => console.error('Error submitting review', err)
     });
   }
 
-  updateReview(reviewId: number) {
+
+  updateReview(reviewId: number, rating: number, text: string) {
     const updatedReview = {
-      rating: this.editableRating,
-      review_text: this.editableText
+      rating: rating,
+      review_text: text
     };
 
     this.productService.updateReview(reviewId, updatedReview).subscribe({
       next: () => {
         const review = this.product.reviews?.find(r => r.id === reviewId);
         if (review) {
-          review.rating = this.editableRating;
-          review.review_text = this.editableText;
+          review.rating = rating;
+          review.review_text = text;
         }
-        this.editingReviewId = null;
-        this.avgRating; // Will auto-refresh if using a getter
+        // Optional: refresh average rating if needed
       },
       error: (err) => console.error('Error updating review', err)
     });

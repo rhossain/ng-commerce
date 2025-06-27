@@ -1,0 +1,13 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb ps-0 py-2">
+    <li class="breadcrumb-item">
+      <a routerLink="/">Home</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a [routerLink]="['/shop']" [queryParams]="{ categoryId: categoryId }">{{ categoryName }}</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+      {{ productName }}
+    </li>
+  </ol>
+</nav>

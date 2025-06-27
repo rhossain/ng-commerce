@@ -1,0 +1,19 @@
+.product {
+    &-socials {
+        li {
+            margin-right: 15px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            a {
+                color: rgb(var(--clr-gray-darker));
+
+                &:hover, &:active, &:focus {
+                    color: rgb(var(--clr-secondary-light));
+                }
+            }
+        }
+    }
+}
