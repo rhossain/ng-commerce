@@ -19,11 +19,12 @@ import { BreadcrumbComponent } from "./breadcrumb/breadcrumb.component";
 import { ProductInfoComponent } from "./product-info/product-info.component";
 import { ProductDescriptionComponent } from "./product-description/product-description.component";
 import { ProductReviewsComponent } from "./product-reviews/product-reviews.component";
+import { ProductGalleryComponent } from "./product-gallery/product-gallery.component";
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, MdbTabsModule, MdbTooltipModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent, ProductGalleryComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })

@@ -4,7 +4,7 @@
       <a routerLink="/">Home</a>
     </li>
     <li class="breadcrumb-item">
-      <a [routerLink]="['/shop']" [queryParams]="{ categoryId: categoryId }">{{ categoryName }}</a>
+      <a [routerLink]="['/product/shop']" [queryParams]="{ categoryId: categoryId }">{{ categoryName }}</a>
     </li>
     <li class="breadcrumb-item active" aria-current="page">
       {{ productName }}

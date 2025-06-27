@@ -25,26 +25,12 @@
                         <div class="col-md-6">
 
                             <!-- Product gallery -->
-                            <div class="media-container">
-                                <div class="main-image">
-                                    <!-- <img
-                                    *ngIf="!isVideo()"
-                                    [src]="selectedImageUrl"
-                                    ngxImageZoom
-                                    alt="Product image"
-                                /> -->
-                                    <lib-ngx-image-zoom [thumbImage]="selectedImageUrl" [fullImage]="selectedImageUrl"
-                                        [magnification]="2" [zoomMode]="'hover'" [enableLens]="true" [lensWidth]="150"
-                                        [lensHeight]="150" class="zoomed-img" style="display: block;"></lib-ngx-image-zoom>
-                                    <video *ngIf="isVideo()" [src]="selectedImageUrl" controls width="100%"></video>
-                                </div>
-
-                                <div class="product-images" *ngIf="productImages.length > 0">
-                                    <div class="thumbnails" *ngFor="let img of productImages" (click)="mediaClicked(img.image_url)">
-                                        <img [src]="img.image_url" [alt]="product.name" class="thumbnail" />
-                                    </div>
-                                </div>
-                            </div>
+                            <app-product-gallery 
+                            [productImages]="productImages" 
+                            [selectedImageUrl]="selectedImageUrl"
+                            [isVideo]="isVideo"
+                            (mediaSelected)="mediaClicked($event)">
+                            </app-product-gallery>
                             <!-- ./Product gallery -->
 
                         </div>
