@@ -70,8 +70,19 @@
                         </div>
                         <div class="d-none d-md-flex align-items-center header-middle-right">
                             <div class="d-flex align-items-center w-100" style="height: 50px;">
-                                <div class="user-icon" routerLink="/profile">
-                                    <fa-icon [icon]="faUser"></fa-icon>
+                                <div ngbDropdown class="d-inline-block user-dropdown" placement="bottom-right">
+                                    <button type="button" id="ddUser" ngbDropdownToggle>
+                                        <fa-icon [icon]="faUser"></fa-icon>
+                                    </button>
+                                    <div ngbDropdownMenu aria-labelledby="ddUser" *ngIf="isLoggedIn">
+                                        <p>{{ firstName }} {{ lastName }}</p>
+                                        <button ngbDropdownItem routerLink="/profile">Profile</button>
+                                        <button ngbDropdownItem (click)="logout()">Logout</button>
+                                    </div>
+                                    <div ngbDropdownMenu aria-labelledby="ddUser" *ngIf="!isLoggedIn">
+                                        <button ngbDropdownItem routerLink="/login">Sign In</button>
+                                        <button ngbDropdownItem routerLink="/register">Sign Up</button>
+                                    </div>
                                 </div>
                                 <div class="mx-3 bg-gray divider-v">[invisible]</div>
                                 <app-cart (cartClosed)="onSidebarClosed()"></app-cart>

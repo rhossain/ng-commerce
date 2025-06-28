@@ -74,24 +74,34 @@
         <div class="row">
             <div class="col-12">
                 <div class="d-flex flex-column h-100 rounded-3 bg-white p-3 product-desc">
-                    <!-- <mdb-tabs class="custom-tabs">
-                        <mdb-tab title="Overview">
-                            <app-product-description [product]="product"></app-product-description>
-                        </mdb-tab>
-                        <mdb-tab title="Warranty & Shipping">
-                            <p>Warranty & Shipping information goes here.</p>
-                        </mdb-tab>
-                        <mdb-tab title="Reviews">
-                            <app-product-reviews
-                                [reviews]="product.reviews || []"
-                                [userLoggedIn]="userLoggedIn"
-                                [currentUserId]="authService.getCurrentUserSync()?.id ?? null"
-                                (reviewAdded)="submitReview($event)"
-                                (reviewUpdated)="updateReview($event.reviewId, $event.rating, $event.text)"
-                                (reviewDeleted)="deleteReview($event)"
-                            ></app-product-reviews>
-                        </mdb-tab>
-                    </mdb-tabs> -->
+                    <ul ngbNav #nav="ngbNav" class="custom-tabs nav-tabs">
+                        <li [ngbNavItem]="1">
+                            <button ngbNavLink>Overview</button>
+                            <ng-template ngbNavContent>
+                                <app-product-description [product]="product"></app-product-description>
+                            </ng-template>
+                        </li>
+                        <li [ngbNavItem]="2">
+                            <button ngbNavLink>Warranty & Shipping</button>
+                            <ng-template ngbNavContent>
+                                <p>Warranty & Shipping information goes here.</p>
+                            </ng-template>
+                        </li>
+                        <li [ngbNavItem]="3">
+                            <button ngbNavLink>Reviews</button>
+                            <ng-template ngbNavContent>
+                                <app-product-reviews
+                                    [reviews]="product.reviews || []"
+                                    [userLoggedIn]="userLoggedIn"
+                                    [currentUserId]="authService.getCurrentUserSync()?.id ?? null"
+                                    (reviewAdded)="submitReview($event)"
+                                    (reviewUpdated)="updateReview($event.reviewId, $event.rating, $event.text)"
+                                    (reviewDeleted)="deleteReview($event)"
+                                ></app-product-reviews>
+                            </ng-template>
+                        </li>
+                    </ul>
+                    <div [ngbNavOutlet]="nav" class="mt-2"></div>
                 </div>
             </div>
         </div>

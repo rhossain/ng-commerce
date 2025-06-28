@@ -57,6 +57,51 @@
     <!-- Featured product - slider -->
     <div class="mb-3">
         <div class="container">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs">
+                <li [ngbNavItem]="1">
+                    <button ngbNavLink>Featured</button>
+                    <ng-template ngbNavContent>
+                        <app-product-showcase
+                            [layout]="'slider'"
+                            [filterType]="'featured'"
+                            [limit]="8"
+                            [showViewAll]="true"
+                        ></app-product-showcase>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="2">
+                    <button ngbNavLink>New Arrivals</button>
+                    <ng-template ngbNavContent>
+                        <app-product-showcase
+                            [layout]="'slider'"
+                            [filterType]="'new'"
+                            [limit]="8"
+                            [showViewAll]="true"
+                        ></app-product-showcase>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="3">
+                    <button ngbNavLink>Best Sells</button>
+                    <ng-template ngbNavContent>
+                        <app-product-showcase
+                            [layout]="'slider'"
+                            [filterType]="'best-sell'"
+                            [limit]="10"
+                        ></app-product-showcase>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="4">
+                    <button ngbNavLink>Discounted</button>
+                    <ng-template ngbNavContent>
+                        <app-product-showcase
+                            [layout]="'slider'"
+                            [filterType]="'discounted'"
+                            [limit]="10"
+                        ></app-product-showcase>
+                    </ng-template>
+                </li>
+            </ul>
+            <div [ngbNavOutlet]="nav" class="mt-2"></div>
             <!-- <mdb-tabs>
                 <mdb-tab title="Featured">
                     <app-product-showcase

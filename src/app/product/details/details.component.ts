@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgxImageZoomModule } from 'ngx-image-zoom';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../environments/environment';
 import { ProductImageModel, ProductModel, ProductOptionValue, ProductVariant, ProductReview } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
@@ -22,7 +23,7 @@ import { ProductGalleryComponent } from "./product-gallery/product-gallery.compo
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgxImageZoomModule, FontAwesomeModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent, ProductGalleryComponent],
+  imports: [CommonModule, FormsModule, NgxImageZoomModule, FontAwesomeModule, NgbNavModule, ProductSocialsComponent, BreadcrumbComponent, ProductInfoComponent, ProductDescriptionComponent, ProductReviewsComponent, ProductGalleryComponent],
   templateUrl: './details.component.html',
   styleUrl: './details.component.scss'
 })

@@ -2,6 +2,7 @@
 @import 'bootstrap-bp.scss';
 
 body {
+  background-color: rgb(var(--clr-gray-light));
   font-size: 14px;
 }
 
@@ -198,7 +199,7 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 }
 
 .custom-tabs {
-  .nav {
+  &.nav {
     display: flex;
     flex-wrap: wrap;
     padding-left: 0;
@@ -261,4 +262,19 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
 .ngxImageZoomThumbnail {
     width: 100%;
+}
+
+.auth {
+    &-wrapper {
+        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+        border-radius: 8px;
+        padding: 50px 60px 70px;
+        background-color: rgb(var(--clr-white));
+    }
+
+    &-title {
+        font-weight: 500;
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
 }

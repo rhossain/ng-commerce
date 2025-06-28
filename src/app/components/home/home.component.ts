@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { ProductSliderComponent } from "../../shared/product-slider/product-slider.component";
 import { CategoryService } from '../../services/category.service';
 import { ProductCategory } from '../../models/category.model';
@@ -14,7 +15,7 @@ import { DealCardComponent } from "../../product/deal-card/deal-card.component";
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent, DealCardComponent],
+  imports: [CommonModule, FontAwesomeModule, NgbNavModule, ProductSliderComponent, FeaturedCategoryComponent, ShowcaseComponent, DealCardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
