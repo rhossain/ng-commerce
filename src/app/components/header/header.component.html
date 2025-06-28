@@ -72,10 +72,14 @@
                             <div class="d-flex align-items-center w-100" style="height: 50px;">
                                 <div ngbDropdown class="d-inline-block user-dropdown" placement="bottom-right">
                                     <button type="button" id="ddUser" ngbDropdownToggle>
-                                        <fa-icon [icon]="faUser"></fa-icon>
+                                        @if (isLoggedIn) {
+                                            <span class="text-uppercase">{{ firstName+' '+lastName | charInitials:{allWords: true} }}</span>
+                                        } @else {
+                                            <fa-icon [icon]="faUser"></fa-icon>
+                                        }
                                     </button>
                                     <div ngbDropdownMenu aria-labelledby="ddUser" *ngIf="isLoggedIn">
-                                        <p>{{ firstName }} {{ lastName }}</p>
+                                        <p class="ps-3 mb-0 text-secondary-dark fs-5">{{ firstName }} {{ lastName }}</p>
                                         <button ngbDropdownItem routerLink="/profile">Profile</button>
                                         <button ngbDropdownItem (click)="logout()">Logout</button>
                                     </div>

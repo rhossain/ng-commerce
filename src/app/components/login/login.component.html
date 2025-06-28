@@ -14,16 +14,42 @@
         </div>
 
         <div class="auth-option">
-          <form (ngSubmit)="login()" class="needs-validation">
+          <form #loginForm="ngForm" (ngSubmit)="login()" novalidate>
             <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                [(ngModel)]="userEmail" 
+                #userEmailInput="ngModel" 
+                id="userEmail" 
+                name="userEmail" 
+                placeholder="Email" 
+                class="form-control"
+                [ngClass]="{ 'is-invalid': userEmailInput.invalid && userEmailInput.touched }" 
+                required />
+              <label for="userEmail">Email</label>
+            </div>
+            <!-- <div class="form-floating mb-3">
               <input type="email" class="form-control" id="userEmail" [(ngModel)]="userEmail" name="userEmail" placeholder="name@example.com"  required>
               <label for="userEmail">Email address</label>
-            </div>
-            <div class="form-floating">
-              <input type="password" class="form-control" id="userPassword" [(ngModel)]="userPassword" name="userPassword" placeholder="Password"  required>
+            </div> -->
+            <div class="form-floating mb-3">
+              <input 
+                type="password" 
+                [(ngModel)]="userPassword" 
+                #userPasswordInput="ngModel" 
+                id="userPassword" 
+                name="userPassword" 
+                placeholder="Password" 
+                class="form-control"
+                [ngClass]="{ 'is-invalid': userPasswordInput.invalid && userPasswordInput.touched }" 
+                required />
               <label for="userPassword">Password</label>
             </div>
-            <button class="btn btn-lg btn-dark w-100 mt-3" type="submit">Login</button>
+            <!-- <div class="form-floating">
+              <input type="password" class="form-control" id="userPassword" [(ngModel)]="userPassword" name="userPassword" placeholder="Password"  required>
+              <label for="userPassword">Password</label>
+            </div> -->
+            <button class="btn btn-lg btn-dark w-100 mt-3" type="submit" [disabled]="loginForm.invalid">Login</button>
           </form>
         </div>
       </div>

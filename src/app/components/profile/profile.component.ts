@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserModel } from '../../models/user.model';
+import { CharInitialsPipe } from "../../shared/char-initials.pipe";
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, CharInitialsPipe],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })

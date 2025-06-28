@@ -1,4 +1,75 @@
-<div>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8">
+      <div class="auth-wrapper">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div class="d-flex align-items-center">
+            <div class="user-avatar">
+              {{ user?.first_name + ' ' + user?.last_name | charInitials:{allWords: true} }}
+            </div>
+            <div class="user-greetings">
+              <p class="mb-0">Welcome</p>
+              <p class="mb-0 fs-5">{{ user?.first_name + ' ' + user?.last_name }}</p>
+            </div>
+          </div>
+          <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
+        </div>
+
+        <h5 class="mb-2 fs-6">Your information:</h5>
+        <div class="row mb-2" *ngIf="user?.name">
+          <div class="col-4">
+            Username:
+          </div>
+          <div class="col-8">
+            {{ user?.name }}
+          </div>
+        </div>
+        <div class="row mb-2" *ngIf="user?.email">
+          <div class="col-4">
+            Email:
+          </div>
+          <div class="col-8">
+            {{ user?.email }}
+          </div>
+        </div>
+        <div class="row mb-2" *ngIf="user?.street">
+          <div class="col-4">
+            Street:
+          </div>
+          <div class="col-8">
+            {{ user?.street }}
+          </div>
+        </div>
+        <div class="row mb-2" *ngIf="user?.city">
+          <div class="col-4">
+            City:
+          </div>
+          <div class="col-8">
+            {{ user?.city }}
+          </div>
+        </div>
+        <div class="row mb-2" *ngIf="user?.state">
+          <div class="col-4">
+            State:
+          </div>
+          <div class="col-8">
+            {{ user?.state }}
+          </div>
+        </div>
+        <div class="row" *ngIf="user?.zip_code">
+          <div class="col-4">
+            Zip Code:
+          </div>
+          <div class="col-8">
+            {{ user?.zip_code }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div>
   <h2>Welcome</h2>
   <p>{{ user?.first_name + ' ' + user?.last_name }}</p>
   <p>{{ user?.email }}</p>
@@ -7,4 +78,4 @@
   <p>{{ user?.state }}</p>
   <p>{{ user?.zip_code }}</p>
   <button (click)="logout()">Logout</button>
-</div>
+</div> -->

@@ -278,3 +278,7 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
         margin-bottom: 4px;
     }
 }
+
+.is-invalid {
+  border: 1px solid red !important;
+}
