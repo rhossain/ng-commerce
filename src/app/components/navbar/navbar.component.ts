@@ -6,11 +6,12 @@ import { faListUl } from '@fortawesome/free-solid-svg-icons';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 import { RouteUtilsService } from '../../services/route-utils.service';
+import { UnderDevelopmentDirective } from '../../shared/under-development.directive';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, FontAwesomeModule],
+  imports: [CommonModule, RouterModule, FontAwesomeModule, UnderDevelopmentDirective],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
