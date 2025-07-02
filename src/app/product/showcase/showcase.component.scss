@@ -1,0 +1,16 @@
+.shwocase {
+    $this: shwocase !default;
+
+    &-container {
+        position: relative;
+
+        &.slider {
+            .#{$this}-action {
+                position: absolute;
+                top: -76px;
+                right: 0;
+                display: inline-flex;
+            }
+        }
+    }
+}

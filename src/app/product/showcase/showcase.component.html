@@ -30,7 +30,7 @@
     </div>
 
     <!-- Slider Layout -->
-     <div *ngIf="layout === 'slider'">
+     <div class="shwocase-container slider" *ngIf="layout === 'slider'">
         <swiper-container
             [slidesPerView]="1.3"
             [spaceBetween]="16"
@@ -46,13 +46,13 @@
                 <app-product-card [product]="product" [isLoading]="false"></app-product-card>
             </swiper-slide>
         </swiper-container>
-        <div class="text-center mt-4" *ngIf="showViewAll">
+        <div class="shwocase-action text-center mt-4" *ngIf="showViewAll">
             <a
               [routerLink]="['/product/shop']"
               [queryParams]="{ filter: filterType }"
-              class="inline-block px-6 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition"
+              class="btn btn-sm btn-dark"
             >
-              View All
+              View More
             </a>
         </div>
      </div>
