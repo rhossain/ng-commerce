@@ -115,14 +115,11 @@
     </small>
     
     <div class="d-grid gap-2">
-      <button class="btn btn-outline-secondary" 
-              routerLink="/cart" 
-              (click)="closeSidebar()">
+      <button class="btn btn-outline-secondary" (click)="closeSidebar()">
         View Cart
       </button>
       <button class="btn btn-primary" 
               [disabled]="(cartItems$ | async)?.length === 0"
-              routerLink="/checkout"
               (click)="closeSidebar()">
         Proceed to Checkout
       </button>

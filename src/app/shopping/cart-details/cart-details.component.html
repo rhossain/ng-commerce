@@ -1,1 +1,86 @@
-<p>cart-details works!</p>
+<section class="cart-details py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ng-container *ngIf="(cartItems$ | async) as items">
+                    <ng-container *ngIf="items.length > 0; else emptyCart">
+                        <div class="table-responsive">
+                            <table class="table cart-table">
+                                <thead class="table-head">
+                                    <tr>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Quantity</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr *ngFor="let item of cartItems$ | async; trackBy: trackByItem">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img 
+                                                    [src]="item.product.main_image_url || item.product.variants?.[0]?.product_images?.[0]?.image_url || fallbackUrl" 
+                                                    [alt]="item.product.name" 
+                                                    width="80" 
+                                                    class="rounded me-3 object-fit-cover">
+                                                <a
+                                                    [routerLink]="['/product/detail', item.product.id]"
+                                                    href="javascript.void(0)"
+                                                    [title]="item.product.name">
+                                                    {{ item.product.name }}
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <small 
+                                                    class="text-muted text-decoration-line-through me-2" 
+                                                    *ngIf="item.variant.discountPrice"
+                                                >
+                                                    {{ item.variant.price | currency }}
+                                                </small>
+                                                <strong class="text-primary">
+                                                    {{ (item.variant.discountPrice ?? item.variant.price) | currency }}
+                                                </strong>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <app-quantity-selector
+                                                    [quantity]="item.quantity"
+                                                    [min]="1"
+                                                    [max]="item.variant.stock"
+                                                    (quantityChange)="updateCartQuantity(item, $event)">
+                                                </app-quantity-selector>
+                                            </div>
+                                        </td>
+                                        <td>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                                <tfoot>
+                                    <tr>
+                                        <td class="text-end">
+                                            Total
+                                        </td>
+                                        <td colspan="3">
+                                            <strong>{{ subtotal$ | async | currency }}</strong>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #emptyCart>
+                        
+                    </ng-template>
+                </ng-container>
+                
+            </div>
+        </div>
+    </div>
+</section>

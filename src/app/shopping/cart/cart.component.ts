@@ -8,6 +8,7 @@ import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from "../../components/sidebar/sidebar.component";
 import { CartItem } from '../../models/cart.model';
 import { QuantitySelectorComponent } from '../../shared/quantity-selector/quantity-selector.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart',
@@ -32,7 +33,8 @@ export class CartComponent implements OnInit {
 
   constructor(
     private cartService: CartService,
-    private sidebarService: SidebarService
+    private sidebarService: SidebarService,
+    private router: Router
   ) {
     this.cartItems$ = this.cartService.cartItems$;
     this.cartItemsQuantity$ = this.cartService.cart$;
@@ -79,6 +81,7 @@ export class CartComponent implements OnInit {
 
   closeSidebar() {
     this.sidebarService.close(this.sidebarId);
+    this.router.navigate(['/shopping/cart']);
     this.cartClosed.emit();
   }
 
