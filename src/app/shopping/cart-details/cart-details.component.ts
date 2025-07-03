@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBagShopping, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart.model';
 import { QuantitySelectorComponent } from '../../shared/quantity-selector/quantity-selector.component';
@@ -21,6 +21,7 @@ export default class CartDetailsComponent {
   selectedQuantity: number = 1;
   subtotal$: Observable<number>;
 
+  faBagShopping = faBagShopping;
   faXmark = faXmark;
 
   // Default fallback image path

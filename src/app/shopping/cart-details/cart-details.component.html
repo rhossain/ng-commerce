@@ -79,7 +79,14 @@
                     </ng-container>
 
                     <ng-template #emptyCart>
-                        
+                        <div class="text-center py-5">
+                            <fa-icon [icon]="faBagShopping" class="fs-1 text-muted"></fa-icon>
+                            <h5 class="mt-2">Your cart is empty</h5>
+                            <p class="text-muted">Start shopping to add items to your cart</p>
+                            <button class="btn btn-primary mt-2" routerLink="/shop">
+                                Continue Shopping
+                            </button>
+                        </div>
                     </ng-template>
                 </ng-container>
                 
