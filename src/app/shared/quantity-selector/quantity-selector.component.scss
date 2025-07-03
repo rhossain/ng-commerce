@@ -65,12 +65,22 @@
                     outline: 0;
                     box-shadow: none;
                 }
+
+                &:disabled {
+                    border-color: transparent;
+                    opacity: 0.6;
+                    cursor: no-drop;
+
+                    > * {
+                        opacity: 0.6;
+                    }
+                }
             }
         }
 
         &--info {
             font-size: 12px;
-            color: rgb(var(--clr-gray-dark));
+            color: rgb(var(--clr-gray-darker));
         }
     }
 }

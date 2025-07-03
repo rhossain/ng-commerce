@@ -5,8 +5,8 @@
                 <ng-container *ngIf="(cartItems$ | async) as items">
                     <ng-container *ngIf="items.length > 0; else emptyCart">
                         <div class="table-responsive">
-                            <table class="table cart-table">
-                                <thead class="table-head">
+                            <table class="table table-hover cart-table">
+                                <thead>
                                     <tr>
                                         <th scope="col">Product</th>
                                         <th scope="col">Price</th>
@@ -27,7 +27,8 @@
                                                 <a
                                                     [routerLink]="['/product/detail', item.product.id]"
                                                     href="javascript.void(0)"
-                                                    [title]="item.product.name">
+                                                    [title]="item.product.name"
+                                                    class="fw-semibold">
                                                     {{ item.product.name }}
                                                 </a>
                                             </div>
@@ -48,15 +49,17 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <app-quantity-selector
-                                                    [quantity]="item.quantity"
-                                                    [min]="1"
-                                                    [max]="item.variant.stock"
-                                                    (quantityChange)="updateCartQuantity(item, $event)">
-                                                </app-quantity-selector>
+                                                    [productVariantStock]="item.variant.stock"
+                                                    [showAvailable]="true"
+                                                    (quantityChange)="onQuantityChange($event)"
+                                                    (stockOut)="onStockOut()"
+                                                ></app-quantity-selector>
                                             </div>
                                         </td>
-                                        <td>
-
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-gray-dark text-danger" (click)="removeItem(item)">
+                                                <fa-icon [icon]="faXmark"></fa-icon>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -64,10 +67,10 @@
                                 <tfoot>
                                     <tr>
                                         <td class="text-end">
-                                            Total
+                                            <span class="fs-5">Total</span>
                                         </td>
                                         <td colspan="3">
-                                            <strong>{{ subtotal$ | async | currency }}</strong>
+                                            <strong class="fs-5">{{ subtotal$ | async | currency }}</strong>
                                         </td>
                                     </tr>
                                 </tfoot>

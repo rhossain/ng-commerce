@@ -20,6 +20,12 @@ a {
   }
 }
 
+button {
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 .logo-text {
   color: rgb(var(--clr-primary-dark));
   font-size: 35px;

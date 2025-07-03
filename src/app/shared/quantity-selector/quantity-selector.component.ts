@@ -12,53 +12,71 @@ import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./quantity-selector.component.scss']
 })
 export class QuantitySelectorComponent {
-  @Input() quantity: number = 1;
-  @Input() min: number = 1;
-  @Input() max: number = 99;
-  @Input() disabled: boolean = false;
+  @Input() productVariantStock: number = 0; // Stock from variant
+  @Input() showAvailable: boolean = true;
+
+  quantity: number = 1;
 
   @Output() quantityChange = new EventEmitter<number>();
+  @Output() stockOut = new EventEmitter<void>(); // Emits when stock runs out
 
   faPlus = faPlus;
   faMinus = faMinus;
 
-  constructor(private toastr: ToastrService) {}
+  get availableQuantity(): number {
+    return this.productVariantStock - this.quantity;
+  }
 
   increase() {
-    if (this.quantity < this.max) {
+    if (this.quantity < this.productVariantStock) {
       this.quantity++;
       this.quantityChange.emit(this.quantity);
-    } else {
-      this.toastr.warning(`Maximum allowed quantity is ${this.max}`, 'Limit Reached');
+
+      if (this.availableQuantity === 0) {
+        this.stockOut.emit();
+      }
     }
   }
 
   decrease() {
-    if (this.quantity > this.min) {
+    if (this.quantity > 1) {
       this.quantity--;
       this.quantityChange.emit(this.quantity);
-    } else {
-      this.toastr.warning(`Minimum allowed quantity is ${this.min}`, 'Limit Reached');
     }
   }
 
-  onInputChange(event: any) {
-    const value = Number(event.target.value);
-    if (!isNaN(value)) {
-      this.quantity = value;
-      this.quantityChange.emit(this.quantity);
+  onInputChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let value = parseInt(input.value, 10);
+
+    if (isNaN(value) || value < 1) {
+      value = 1;
+    } else if (value > this.productVariantStock) {
+      value = this.productVariantStock;
+    }
+
+    this.quantity = value;
+    this.quantityChange.emit(this.quantity);
+
+    if (this.availableQuantity === 0) {
+      this.stockOut.emit();
     }
   }
 
   validateQuantity() {
-    if (this.quantity < this.min) {
-      this.quantity = this.min;
-      this.quantityChange.emit(this.quantity);
-      this.toastr.warning(`Minimum allowed quantity is ${this.min}`, 'Limit Reached');
-    } else if (this.quantity > this.max) {
-      this.quantity = this.max;
-      this.quantityChange.emit(this.quantity);
-      this.toastr.warning(`Maximum allowed quantity is ${this.max}`, 'Limit Reached');
+    if (this.quantity < 1) {
+      this.quantity = 1;
+    } else if (this.quantity > this.productVariantStock) {
+      this.quantity = this.productVariantStock;
     }
+    this.quantityChange.emit(this.quantity);
+  }
+
+  isIncreaseDisabled(): boolean {
+    return this.quantity >= this.productVariantStock;
+  }
+
+  isDecreaseDisabled(): boolean {
+    return this.quantity <= 1;
   }
 }

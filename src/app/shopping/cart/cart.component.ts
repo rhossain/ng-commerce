@@ -9,6 +9,7 @@ import { SidebarComponent } from "../../components/sidebar/sidebar.component";
 import { CartItem } from '../../models/cart.model';
 import { QuantitySelectorComponent } from '../../shared/quantity-selector/quantity-selector.component';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-cart',
@@ -21,6 +22,7 @@ export class CartComponent implements OnInit {
   @Output() cartClosed = new EventEmitter<void>();
   cartItems$: Observable<CartItem[]>;
   cartItemsQuantity$: Observable<number>;
+  selectedQuantity: number = 1;
   subtotal$: Observable<number>;
   sidebarId = 'shopping-cart';
   isSidebarOpen = false;
@@ -34,7 +36,8 @@ export class CartComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private sidebarService: SidebarService,
-    private router: Router
+    private router: Router,
+    private toastr: ToastrService
   ) {
     this.cartItems$ = this.cartService.cartItems$;
     this.cartItemsQuantity$ = this.cartService.cart$;
@@ -87,6 +90,15 @@ export class CartComponent implements OnInit {
 
   updateCartQuantity(item: CartItem, newQuantity: number) {
     this.cartService.updateQuantity(item.product.id, item.variant.id, newQuantity);
+  }
+
+  onQuantityChange(newQuantity: number) {
+    this.selectedQuantity = newQuantity;
+    // console.log('Selected Quantity:', this.selectedQuantity);
+  }
+
+  onStockOut() {
+    this.toastr.warning('Stock is fully reserved!');
   }
 
   removeItem(item: CartItem) {

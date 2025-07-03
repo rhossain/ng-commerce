@@ -64,11 +64,11 @@
                 </button>
               </div> -->
               <app-quantity-selector
-                [quantity]="item.quantity"
-                [min]="1"
-                [max]="item.variant.stock"
-                (quantityChange)="updateCartQuantity(item, $event)">
-              </app-quantity-selector>
+                [productVariantStock]="item.variant.stock"
+                [showAvailable]="true"
+                (quantityChange)="onQuantityChange($event)"
+                (stockOut)="onStockOut()"
+              ></app-quantity-selector>
               <!-- <div class="mt-1">
                 <small class="text-muted text-decoration-line-through" *ngIf="item.oldPrice">${{ item.oldPrice }}</small>
                 <strong class="text-danger ms-1">${{ item.price }}</strong>

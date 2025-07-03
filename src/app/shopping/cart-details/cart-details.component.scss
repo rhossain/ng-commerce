@@ -1,0 +1,12 @@
+.cart-table {
+    &.table {
+        td {
+            vertical-align: middle;
+        }
+    }
+
+    &.table-hover > tbody > tr:hover > td {
+        background-color: rgba(var(--clr-white), 0.4);
+        --bs-table-bg-state: rgba(var(--clr-white), 0.4);
+    }
+}

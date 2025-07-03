@@ -127,13 +127,12 @@
 
   <!-- Product quantity -->
   <div class="d-flex align-items-center">
-    <app-quantity-selector 
-      [quantity]="selectedQuantity" 
-      (quantityChange)="onQuantityChange($event)"
-      [min]="1"
-      [max]="selectedVariant?.stock || 99"
-      [disabled]="!isInStock()">
-    </app-quantity-selector>
+    <app-quantity-selector
+        [productVariantStock]="product.variant.stock"
+        [showAvailable]="true"
+        (quantityChange)="onQuantityChange($event)"
+        (stockOut)="onStockOut()"
+    ></app-quantity-selector>
 
     <div class="mx-2 bg-gray divider-v">[invisible]</div>
 

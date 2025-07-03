@@ -6,6 +6,7 @@ import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { StarRatingComponent } from '../../../shared/star-rating/star-rating.component';
 import { QuantitySelectorComponent } from '../../../shared/quantity-selector/quantity-selector.component';
 import { CharInitialsPipe } from "../../../shared/char-initials.pipe";
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-info',
@@ -31,12 +32,20 @@ export class ProductInfoComponent {
   faCodeCompare = faCodeCompare;
   faHeart = faHeart;
 
+  constructor(
+      private toastr: ToastrService
+  ) {}
+
   onOptionSelect(optionName: string, value: string) {
     this.optionSelected.emit({ optionName, optionValue: value });
   }
 
   onQuantityChange(newQuantity: number) {
-    this.quantityChanged.emit(newQuantity);
+    this.selectedQuantity = newQuantity;
+  }
+
+  onStockOut() {
+    this.toastr.warning('Stock is fully reserved!');
   }
 
   addToCart() {
