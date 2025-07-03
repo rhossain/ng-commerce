@@ -151,7 +151,7 @@
 
     &-bottom {
         background-color: rgb(var(--clr-white));
-        border-bottom: 4px solid rgb(var(--clr-primary-custom));
+        border-bottom: 4px solid rgb(var(--clr-primary-dark));
 
         &.collapsed {
             @include media-breakpoint-down(sm) {

@@ -16,11 +16,12 @@ import { FeaturedCategoryComponent } from "../../product/featured-category/featu
 import { ProductCategory } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
 import { CharInitialsPipe } from "../../shared/char-initials.pipe";
+import { SiteLogoComponent } from "../../shared/site-logo/site-logo.component";
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FontAwesomeModule, NgbDropdownModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent, FeaturedCategoryComponent, CharInitialsPipe],
+  imports: [CommonModule, RouterModule, FontAwesomeModule, NgbDropdownModule, SearchComponent, CartComponent, NavbarComponent, SidebarComponent, FeaturedCategoryComponent, CharInitialsPipe, SiteLogoComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })

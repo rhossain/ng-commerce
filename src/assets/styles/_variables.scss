@@ -1,10 +1,12 @@
 
-$primary:           #606C38;
-$primary-light:     #93A655;
-$primary-dark:      #283618;
-$secondary:         #DDA15E;
-$secondary-light:   #FCC281;
-$secondary-dark:    #BC6C25;
+$primary:           #2F4F4F;
+$primary-light:     #708A8A;
+$primary-medium:    #4A6B6B;
+$primary-dark:      #1E3333;
+$secondary:         #F97316;
+$secondary-light:   #FED7AA;
+$secondary-medium:  #FB8C44;
+$secondary-dark:    #C45A0A;
 $success:           #38B000;
 $info:              #F7A51B;
 $warning:           #F7A51B;
@@ -17,12 +19,14 @@ $gray-dark:         #DDDDDD;
 $gray-darker:       #8890A0;
 
 :root {
-    --clr-primary-custom:           96, 108, 56;    // #AB886D
-    --clr-primary-light:            147, 166, 85;   // #D6C0B3
-    --clr-primary-dark:             40, 54, 24;     // #493628
-    --clr-secondary-custom:         221, 161, 94;   // #656D4A;
-    --clr-secondary-light:          252, 194, 129;  // #A4AC86;
-    --clr-secondary-dark:           188, 108, 37;   // #414833;
+    --clr-primary-custom:           47, 79, 79;     // #2F4F4F
+    --clr-primary-light:            112, 138, 138;  // #708A8A
+    --clr-primary-medium:           74, 107, 107;   // #4A6B6B
+    --clr-primary-dark:             30, 51, 51;     // #1E3333
+    --clr-secondary-custom:         249, 115, 22;   // #F97316;
+    --clr-secondary-light:          252, 194, 129;  // #FED7AA;
+    --clr-secondary-medium:         251, 140, 68;   // #FB8C44;
+    --clr-secondary-dark:           196, 90, 10;    // #C45A0A;
     --clr-white:                    255, 255, 255;  // #FFFFFF;
     --clr-black:                    0, 0, 0;        // #000000;
     --clr-dark:                     34, 40, 49;     // #222831;
