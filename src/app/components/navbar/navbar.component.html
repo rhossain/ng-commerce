@@ -21,16 +21,19 @@
                                             [routerLink]="['/product/shop']" [queryParams]="{ categoryId: c.id }"
                                             class="d-flex align-items-center w-100 dropdown-link"
                                             [title]="c.name">
-                                            <img [src]="c.image" [alt]="c.name" width="20" height="20" class="dropdown-icon" />
+                                            <img [src]="c.image" [alt]="c.name" width="35" height="30" class="dropdown-icon" />
                                             <span class="text-truncate">{{ c.name }}</span>
                                         </a>
                                     </li>
                                   }
                                 <li class="d-flex dropdown dropdown-item">
                                     <a 
-                                        class="d-flex align-items-center w-100 dropdown-link" 
+                                        class="d-flex align-items-center justify-content-between w-100 dropdown-link" 
+                                        href="javascript:void(0)"
                                         *ngIf="categories.length > initialVisibleCount" (click)="toggleShowAll()">
-                                        {{ showAll ? 'Show Less -' : 'Show More +' }}
+                                        {{ showAll ? 'Show Less' : 'Show More' }}
+                                        <fa-icon *ngIf="!showAll" [icon]="faPlus"></fa-icon>
+                                        <fa-icon *ngIf="showAll" [icon]="faMinus"></fa-icon>
                                     </a>
                                 </li>
                             </ul>

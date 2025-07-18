@@ -231,7 +231,7 @@
             }
 
             &-item {
-                height: 45.7px;
+                height: 48px;
                 padding: 0 15px;
                 transition: height .300s;
 
@@ -298,6 +298,7 @@
         .dropdown-menu {
             &.dropdown-categories {
                 @include media-breakpoint-up(xl) {
+                    min-height: 484px;
                     opacity: 1;
                     transform: scale(1, 1);
                     z-index: 1;
@@ -378,9 +379,11 @@
     
     &-icon {
         min-width: 35px;
+        object-fit: cover;
         text-align: center;
-        padding-right: 12px;
+        margin-right: 12px;
         color: rgba(var(--clr-gray-dark), 0.5);
+        border-radius: 4px;
     }
 
     .dropdown-toggle.show+.dropdown-menu {

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faListUl } from '@fortawesome/free-solid-svg-icons';
+import { faListUl, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { ProductCategory } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 import { RouteUtilsService } from '../../services/route-utils.service';
@@ -17,9 +17,11 @@ import { UnderDevelopmentDirective } from '../../shared/under-development.direct
 })
 export class NavbarComponent implements OnInit {
   faListUl = faListUl;
+  faPlus = faPlus;
+  faMinus = faMinus;
 
   categories: ProductCategory[] = [];
-  initialVisibleCount = 6;
+  initialVisibleCount = 9;
   showAll = false;
   currentUrl$;
   isHomePage$;
