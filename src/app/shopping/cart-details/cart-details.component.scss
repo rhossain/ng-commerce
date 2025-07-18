@@ -10,3 +10,442 @@
         --bs-table-bg-state: rgba(var(--clr-white), 0.4);
     }
 }
+
+// cart-details.component.scss
+
+/* cart-details.component.scss - Styles for the cart details component */
+.cart-details {
+  .page-header {
+    background: linear-gradient(135deg, #2F4F4F 0%, #F97316 100%);
+    color: white;
+    padding: 3rem 0 2rem;
+    margin-bottom: 2rem;
+
+    .page-title {
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+      background: transparent;
+      margin-bottom: 0;
+
+      .breadcrumb-item {
+        a {
+          color: rgba(255,255,255,0.8);
+          text-decoration: none;
+
+          &:hover {
+            color: white;
+          }
+        }
+
+        &.active {
+          color: white;
+        }
+
+        &:not(:last-child)::after {
+          color: rgba(255,255,255,0.6);
+        }
+      }
+    }
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+
+    .card-header {
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      padding: 1.25rem;
+
+      h5 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0;
+      }
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  // Cart Items Detailed View
+  .cart-item-detailed {
+    padding: 0 0 16px;
+
+    &:not(:last-child) {
+      // border-bottom: 1px solid #e9ecef;
+    }
+
+    img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border: 1px solid #e9ecef;
+    }
+
+    h6 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+
+      a {
+        color: #2c3e50;
+
+        &:hover {
+          color: #3498db;
+        }
+      }
+    }
+
+    .price-display {
+      .current-price {
+        color: #27ae60;
+        font-size: 1.1rem;
+      }
+    }
+
+    .item-subtotal {
+      font-size: 1.1rem;
+      color: #2c3e50;
+    }
+
+    .savings {
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+    }
+  }
+
+  // Address Section
+  .address-card {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+
+    &:hover {
+      border-color: #3498db;
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+    }
+
+    &.selected {
+      border-color: #3498db;
+      background: #f8fafe;
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .address-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+
+      .form-check-input {
+        margin: 0;
+      }
+    }
+
+    .address-details {
+      margin-left: 1.5rem;
+      color: #6c757d;
+      font-size: 0.9rem;
+      line-height: 1.4;
+
+      div {
+        margin-bottom: 0.25rem;
+      }
+    }
+
+    .address-actions {
+      margin-left: 1.5rem;
+    }
+  }
+
+  // Address Form
+  .address-form {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1.5rem;
+
+    h6 {
+      color: #2c3e50;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control,
+    .form-select {
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      padding: 0.75rem;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+      }
+    }
+
+    .form-actions {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+  }
+
+  // Shipping Methods
+  .shipping-methods {
+    .shipping-method {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+
+      &:hover {
+        border-color: #3498db;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+      }
+
+      &.selected {
+        border-color: #3498db;
+        background: #f8fafe;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+      }
+
+      .method-selection {
+        flex: 0 0 auto;
+        margin-right: 1rem;
+
+        .form-check-input {
+          margin: 0;
+        }
+      }
+
+      .method-details {
+        flex: 1;
+
+        .method-name {
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #2c3e50;
+
+          .badge {
+            font-size: 0.75rem;
+          }
+        }
+
+        .method-delivery {
+          color: #6c757d;
+          font-size: 0.9rem;
+          margin-bottom: 0.25rem;
+        }
+
+        .method-savings {
+          font-size: 0.85rem;
+        }
+      }
+
+      .method-price {
+        flex: 0 0 auto;
+        text-align: right;
+
+        .current-price {
+          font-size: 1.1rem;
+          color: #27ae60;
+        }
+
+        .original-price {
+          font-size: 0.9rem;
+          margin-top: 0.25rem;
+        }
+      }
+    }
+  }
+
+  // Order Summary Sidebar
+  .sticky-summary {
+    position: sticky;
+    top: 2rem;
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e9ecef;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.summary-total {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #2c3e50;
+        border-bottom: none;
+      }
+    }
+
+    .free-shipping-progress {
+      .progress {
+        height: 6px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+
+        .progress-bar {
+          transition: width 0.3s ease;
+        }
+      }
+    }
+
+    .d-grid {
+      .btn {
+        transition: all 0.3s ease;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Free Shipping Alert
+  .alert-success {
+    border: none;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border-radius: 8px;
+  }
+
+  // Loading States
+  .text-center {
+    py-3 {
+      padding: 2rem 0;
+    }
+
+    py-4 {
+      padding: 3rem 0;
+    }
+  }
+
+  // Security Badge
+  .card-body {
+    &.text-center {
+      fa-icon {
+        margin-bottom: 1rem;
+      }
+
+      h6 {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .small {
+        color: #6c757d;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .cart-details {
+    .cart-item-detailed {
+      .row {
+        text-align: center;
+
+        .col-2,
+        .col-6 {
+          // flex: none;
+          // width: 100%;
+          // margin-bottom: 1rem;
+        }
+      }
+    }
+
+    .address-card {
+      margin-bottom: 1rem;
+    }
+
+    .shipping-method {
+      flex-direction: column;
+      text-align: center;
+
+      .method-selection,
+      .method-details,
+      .method-price {
+        flex: none;
+        width: 100%;
+        margin: 0.5rem 0;
+      }
+    }
+
+    .sticky-summary {
+      position: static;
+      margin-top: 2rem;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .cart-details {
+    .page-header {
+      padding: 2rem 0 1rem;
+
+      .page-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    .card {
+      margin-bottom: 1rem;
+
+      .card-body {
+        padding: 1rem;
+      }
+    }
+
+    .address-form {
+      .col-md-6,
+      .col-md-4 {
+        flex: none;
+        width: 100%;
+      }
+    }
+  }
+}

@@ -1,1 +1,128 @@
-<p>checkout works!</p>
+<div class="checkout-container">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="checkout-header">
+          <h1 class="checkout-title">Checkout</h1>
+          <p class="checkout-subtitle">Complete your order in just a few steps</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Main Checkout Form -->
+      <div class="col-lg-8">
+        <div class="checkout-main">
+          
+          <!-- Steps Progress -->
+          <app-checkout-steps 
+            [currentStep]="currentStep"
+            [completedSteps]="completedSteps"
+            (stepChanged)="onStepChanged($event)">
+          </app-checkout-steps>
+
+          <!-- Step Content -->
+          <div class="checkout-content">
+            
+            <!-- Step 1: Shipping Information -->
+            <div class="step-content" *ngIf="currentStep === 1">
+              <app-shipping-form
+                [currentUser]="currentUser"
+                [shippingAddresses]="shippingAddresses"
+                [selectedAddress]="selectedShippingAddress"
+                [isLoading]="isLoadingAddresses"
+                (addressSelected)="onShippingAddressSelected($event)"
+                (validationChanged)="onShippingValidation($event)">
+              </app-shipping-form>
+            </div>
+
+            <!-- Step 2: Billing Information -->
+            <div class="step-content" *ngIf="currentStep === 2">
+              <app-billing-form
+                [currentUser]="currentUser"
+                [shippingAddresses]="shippingAddresses"
+                [selectedAddress]="selectedBillingAddress"
+                [sameBillingAddress]="sameBillingAddress"
+                [selectedShippingAddress]="selectedShippingAddress"
+                (addressSelected)="onBillingAddressSelected($event)"
+                (sameBillingChanged)="onSameBillingAddressChanged($event)"
+                (validationChanged)="onBillingValidation($event)">
+              </app-billing-form>
+            </div>
+
+            <!-- Step 3: Shipping Method -->
+            <div class="step-content" *ngIf="currentStep === 3">
+              <app-shipping-method
+                [shippingMethods]="shippingMethods"
+                [selectedMethod]="selectedShippingMethod"
+                [cartSubtotal]="cartSubtotal"
+                [isLoading]="isLoadingShippingMethods"
+                (methodSelected)="onShippingMethodSelected($event)"
+                (validationChanged)="onShippingMethodValidation($event)">
+              </app-shipping-method>
+            </div>
+
+            <!-- Step 4: Payment Information -->
+            <div class="step-content" *ngIf="currentStep === 4">
+              <app-payment-form
+                [selectedPaymentMethod]="selectedPaymentMethod"
+                [currentUser]="currentUser"
+                [orderTotal]="orderTotal"
+                (paymentMethodSelected)="onPaymentMethodSelected($event)"
+                (validationChanged)="onPaymentValidation($event)">
+              </app-payment-form>
+            </div>
+
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="checkout-navigation">
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary"
+              [disabled]="currentStep === 1"
+              (click)="currentStep = currentStep - 1">
+              Previous
+            </button>
+            
+            <button 
+              type="button" 
+              class="btn btn-primary"
+              *ngIf="currentStep < 4"
+              [disabled]="!stepValidation[currentStep === 1 ? 'shipping' : currentStep === 2 ? 'billing' : 'shippingMethod']"
+              (click)="currentStep = currentStep + 1; onStepCompleted(currentStep - 1)">
+              Continue
+            </button>
+
+            <button 
+              type="button" 
+              class="btn btn-success"
+              *ngIf="currentStep === 4"
+              [disabled]="!isOrderValid || isProcessingOrder"
+              (click)="processOrder()">
+              <span *ngIf="isProcessingOrder" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isProcessingOrder ? 'Processing...' : 'Place Order' }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Order Summary Sidebar -->
+      <div class="col-lg-4">
+        <div class="checkout-sidebar">
+          <app-checkout-summary
+            [cartItems]="cartItems"
+            [totals]="checkoutTotals"
+            [appliedPromotion]="appliedPromotion"
+            [selectedShippingMethod]="selectedShippingMethod"
+            [isProcessingOrder]="isProcessingOrder"
+            (promotionApplied)="onPromotionApplied($event)"
+            (promotionRemoved)="onPromotionRemoved()">
+          </app-checkout-summary>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

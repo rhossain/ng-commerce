@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
+import { CartDetailsComponent } from './cart-details/cart-details.component';
 
 const shoppingRoutes: Routes = [
   {
     path: 'cart',
-    loadComponent: () => import('../shopping/cart-details/cart-details.component'),
+    component: CartDetailsComponent,
   },
   {
     path: 'wishlist',

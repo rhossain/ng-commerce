@@ -5,18 +5,18 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { StarRatingComponent } from '../../../shared/star-rating/star-rating.component';
 import { QuantitySelectorComponent } from '../../../shared/quantity-selector/quantity-selector.component';
-import { CharInitialsPipe } from "../../../shared/char-initials.pipe";
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-info',
   standalone: true,
-  imports: [CommonModule, StarRatingComponent, QuantitySelectorComponent, RouterModule, FontAwesomeModule, CharInitialsPipe],
+  imports: [CommonModule, StarRatingComponent, QuantitySelectorComponent, RouterModule, FontAwesomeModule],
   templateUrl: './product-info.component.html',
   styleUrls: ['./product-info.component.scss']
 })
 export class ProductInfoComponent {
   @Input() product: any;
+  @Input() productId: number = 0; // Add this for unique radio button names
   @Input() categoryName: string = '';
   @Input() selectedVariant: any;
   @Input() avgRating: number = 0;
@@ -42,6 +42,7 @@ export class ProductInfoComponent {
 
   onQuantityChange(newQuantity: number) {
     this.selectedQuantity = newQuantity;
+    this.quantityChanged.emit(newQuantity);
   }
 
   onStockOut() {
@@ -49,6 +50,16 @@ export class ProductInfoComponent {
   }
 
   addToCart() {
+    if (!this.selectedVariant) {
+      this.toastr.warning('Please select a product variant first');
+      return;
+    }
+    
+    if (!this.isInStock()) {
+      this.toastr.warning('Product is out of stock');
+      return;
+    }
+
     this.addToCartClicked.emit();
   }
 

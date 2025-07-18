@@ -69,47 +69,55 @@ export default class DetailsComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('productId') ?? '0';
       this.productId = +id;
-      this.getProduct();
-      this.getCategoryName();
+      // Load categories first, then product
+      this.loadCategoriesAndProduct();
     });
 
     this.userLoggedIn = this.authService.isLoggedIn();
+  }
+
+  private loadCategoriesAndProduct(): void {
+    // First load categories to build the categoryMap
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.categoryMap = categories.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {} as { [id: number]: string });
+        
+        // Now load the product
+        this.getProduct();
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        // Continue loading product even if categories fail
+        this.getProduct();
+      }
+    });
   }
 
   getProduct(): void {
     this.productService.getProduct(this.productId).subscribe({
       next: (data: ProductModel) => {
         this.product = data;
-        console.log('Product', this.product);
+        console.log('Product loaded:', this.product);
   
-        console.log('Product category ID:', this.product.category_id);
-        this.categoryName = this.categoryMap[this.product.category_id] || 'Unknown';
-        console.log('Assigned category name:', this.categoryName);
-
-        // Show default variant (first one) by default
-        if (this.product?.variants && this.product.variants.length > 0) {
-          this.selectedVariant = this.product.variants[0];
+        // Set category name if we have the map
+        if (this.product?.category_id && this.categoryMap[this.product.category_id]) {
+          this.categoryName = this.categoryMap[this.product.category_id];
+        } else {
+          this.categoryName = 'Unknown Category';
         }
-  
+
+        // Initialize variant selection
+        this.initializeProductVariants();
+        
         // Group options for the UI
-        if (this.product?.options) {
-          this.groupProductOptions(this.product.options);
-        }
+        this.groupProductOptions();
   
-        // Flatten variant images
-        this.productImages = data.variants?.flatMap(variant => variant.product_images) || [];
-  
-        // Show first image
-        if (this.productImages.length > 0) {
-          this.selectedImageUrl = this.productImages[0].image_url;
-          this.selectedImageType = this.getMediaType(this.selectedImageUrl);
-        }
-  
-        // Reset selected options
-        this.selectedOptions = {};
-
-        // ✅ Set category name if map is ready
-        this.getCategoryName();
+        // Setup product images
+        this.setupProductImages();
       },
       error: (error) => {
         console.error('Error fetching product details', error);
@@ -117,8 +125,77 @@ export default class DetailsComponent implements OnInit {
     });
   }
 
+  private initializeProductVariants(): void {
+    if (this.product?.variants && this.product.variants.length > 0) {
+      // Show default variant (first one) by default
+      this.selectedVariant = this.product.variants[0];
+      
+      // If variant has option values, pre-select them
+      if (this.selectedVariant.optionValues) {
+        this.selectedOptions = { ...this.selectedVariant.optionValues };
+      }
+    } else {
+      console.warn('No variants found for product');
+      this.selectedVariant = null;
+    }
+  }
+
+  private setupProductImages(): void {
+    // Flatten variant images from all variants
+    this.productImages = this.product.variants?.flatMap(variant => 
+      variant.product_images || []
+    ) || [];
+
+    // If no variant images, try to use main product image
+    if (this.productImages.length === 0 && this.product.main_image_url) {
+      this.productImages = [{
+        id: 0,
+        created_at: Date.now(),
+        image_url: this.product.main_image_url,
+        product_id: this.product.id
+      }];
+    }
+
+    // Set default selected image
+    if (this.productImages.length > 0) {
+      this.selectedImageUrl = this.productImages[0].image_url;
+      this.selectedImageType = this.getMediaType(this.selectedImageUrl);
+    }
+  }
+
+  private groupProductOptions(): void {
+    if (!this.product?.options || this.product.options.length === 0) {
+      console.log('No product options found');
+      this.groupedOptions = {};
+      return;
+    }
+
+    const optionGroups: { [key: string]: string[] } = {};
+  
+    this.product.options.forEach(option => {
+      // Handle both old structure (option_values) and new structure
+      const values: ProductOptionValue[] = option.option_values || [];
+  
+      values.forEach((ov: ProductOptionValue) => {
+        const key = ov.option_name;
+        const value = ov.option_value;
+  
+        if (!optionGroups[key]) {
+          optionGroups[key] = [];
+        }
+  
+        if (!optionGroups[key].includes(value)) {
+          optionGroups[key].push(value);
+        }
+      });
+    });
+  
+    this.groupedOptions = optionGroups;
+    console.log('Grouped Options:', this.groupedOptions);
+  }
+
   get avgRating(): number {
-    return this.productService.getAverageRating(this.product.reviews);
+    return this.productService.getAverageRating(this.product?.reviews);
   }
 
   enableReviewEdit(review: ProductReview) {
@@ -151,16 +228,11 @@ export default class DetailsComponent implements OnInit {
         if (!this.product.reviews) {
           this.product.reviews = [];
         }
-
         this.product.reviews.push(savedReview);
-
-        // Optional: update average rating here if needed
-        // this.avgRating = this.productService.getAverageRating(this.product.reviews);
       },
       error: (err) => console.error('Error submitting review', err)
     });
   }
-
 
   updateReview(reviewId: number, rating: number, text: string) {
     const updatedReview = {
@@ -175,7 +247,6 @@ export default class DetailsComponent implements OnInit {
           review.rating = rating;
           review.review_text = text;
         }
-        // Optional: refresh average rating if needed
       },
       error: (err) => console.error('Error updating review', err)
     });
@@ -190,18 +261,13 @@ export default class DetailsComponent implements OnInit {
     });
   }
 
-  getCategoryName() {
-    this.categoryService.getAllCategories().subscribe(categories => {
-      return this.categoryName = this.categoryService.getCategoryNameById(this.product.category_id, categories);
-    });
-  }
-
   mediaClicked(mediaUrl: string): void {
     this.selectedImageUrl = mediaUrl;
     this.selectedImageType = this.getMediaType(mediaUrl);
   }
 
   getMediaType(url: string): string {
+    if (!url) return 'image';
     const ext = url.split('.').pop()?.toLowerCase();
     return ext === 'mp4' || ext === 'webm' ? 'video' : 'image';
   }
@@ -210,71 +276,78 @@ export default class DetailsComponent implements OnInit {
     return this.selectedImageType === 'video';
   }
 
-  private groupProductOptions(options: any[]): void {
-    const optionGroups: { [key: string]: string[] } = {};
-  
-    options.forEach(option => {
-      const values: ProductOptionValue[] = option.option_values || [];
-  
-      values.forEach((ov: ProductOptionValue) => {
-        const key = ov.option_name;
-        const value = ov.option_value;
-  
-        if (!optionGroups[key]) {
-          optionGroups[key] = [];
-        }
-  
-        if (!optionGroups[key].includes(value)) {
-          optionGroups[key].push(value);
-        }
-      });
-    });
-  
-    this.groupedOptions = optionGroups;
-    // console.log('Grouped Options:', this.groupedOptions);
-  }  
-
   onOptionSelect(optionName: string, value: string) {
     this.selectedOptions[optionName] = value;
     console.log('Selected Options:', this.selectedOptions);
     this.updateSelectedVariant();
-    console.log('Selected Variant:', this.selectedVariant);
   }
 
   updateSelectedVariant(): void {
-    if (!this.product?.variants) return;
+    if (!this.product?.variants || this.product.variants.length === 0) {
+      this.selectedVariant = null;
+      return;
+    }
   
-    // Try to find a variant that matches at least one selected option
+    // Try to find a variant that matches ALL selected options
     this.selectedVariant = this.product.variants.find(variant => {
-      return Object.entries(this.selectedOptions).some(([name, value]) =>
+      if (!variant.optionValues) return false;
+      
+      return Object.entries(this.selectedOptions).every(([name, value]) =>
         variant.optionValues?.[name] === value
       );
-    }) ?? null;
+    }) || null;
+
+    // If no exact match found and we have some options selected, 
+    // try to find variant that matches at least one option
+    if (!this.selectedVariant && Object.keys(this.selectedOptions).length > 0) {
+      this.selectedVariant = this.product.variants.find(variant => {
+        if (!variant.optionValues) return false;
+        
+        return Object.entries(this.selectedOptions).some(([name, value]) =>
+          variant.optionValues?.[name] === value
+        );
+      }) || null;
+    }
+
+    // If still no match, default to first variant
+    if (!this.selectedVariant) {
+      this.selectedVariant = this.product.variants[0] || null;
+    }
   
-    console.log('Selected Options:', this.selectedOptions);
     console.log('Selected Variant:', this.selectedVariant);
-  }      
+  }
 
   getOptionNames(): string[] {
     return Object.keys(this.groupedOptions || {});
   }
 
   addToCart() {
-    if (this.selectedQuantity <= 0) return;
+    if (!this.selectedVariant) {
+      console.error('No variant selected');
+      return;
+    }
 
-    this.cartService.addToCart(this.product, this.selectedVariant!, this.selectedQuantity);
+    if (this.selectedQuantity <= 0) {
+      console.error('Invalid quantity');
+      return;
+    }
+
+    this.cartService.addToCart(this.product, this.selectedVariant, this.selectedQuantity);
   }
 
   get displayPrice(): number {
-    const price = this.selectedVariant?.discountPrice ?? this.selectedVariant?.price ?? 0;
+    if (!this.selectedVariant) return 0;
+    
+    const price = this.selectedVariant.discountPrice ?? this.selectedVariant.price ?? 0;
     return price * this.selectedQuantity;
   }
 
   isInStock(): boolean {
+    if (!this.selectedVariant) return false;
     return this.productService.isInStock(this.product, this.selectedVariant);
   }
 
   trackByFn(index: number, item: any): number {
-    return item.id; // or index if you don't have unique IDs
+    return item.id || index;
   }
 }

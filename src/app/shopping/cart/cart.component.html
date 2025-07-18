@@ -19,72 +19,112 @@
   position="right"
   width="350px"
   (isOpenChange)="!$event && cartClosed.emit()">
+  
+  <!-- Free Shipping Progress Bar -->
   <div class="p-3 border-bottom border-top shadow-lg" [class.d-none]="(cartItems$ | async)?.length === 0">
     <div class="small text-center">
       <ng-container *ngIf="(subtotal$ | async) as currentSubtotal">
-        <ng-container *ngIf="currentSubtotal >= 200; else needMore">
-          You qualify for <strong class="text-secondary">FREE SHIPPING!</strong>
+        <ng-container *ngIf="currentSubtotal >= freeShippingThreshold; else needMore">
+          <span class="text-success">
+            <i class="bi bi-truck"></i>
+            You qualify for <strong>FREE SHIPPING!</strong> 🎉
+          </span>
         </ng-container>
         <ng-template #needMore>
-          Add <strong class="text-success">{{ 200 - currentSubtotal | currency }}</strong> more for <strong class="text-success">FREE SHIPPING</strong>
+          <div class="mb-2">
+            Add <strong class="text-secondary">{{ freeShippingThreshold - currentSubtotal | currency }}</strong> more for <strong class="text-secondary">FREE SHIPPING</strong>
+          </div>
+          <!-- Progress Bar -->
+          <div class="progress" style="height: 4px;">
+            <div class="progress-bar bg-success" [style.width.%]="(currentSubtotal / freeShippingThreshold) * 100"></div>
+          </div>
         </ng-template>
       </ng-container>
     </div>
   </div>
 
+  <!-- Cart Items -->
   <div class="cart-items" [class.empty]="(cartItems$ | async)?.length === 0">
     <ng-container *ngIf="(cartItems$ | async) as items">
       <ng-container *ngIf="items.length > 0; else emptyCart">
-        <div class="cart-item p-3 border-bottom" *ngFor="let item of cartItems$ | async; trackBy: trackByItem">
+        <div class="cart-item p-3 border-bottom" 
+             *ngFor="let item of items; trackBy: trackByItem; let i = index"
+             [class.updating]="isUpdating(item)">
           <div class="d-flex mb-3">
-            <img [src]="item.product.main_image_url || item.product.variants?.[0]?.product_images?.[0]?.image_url || fallbackUrl" 
-                 [alt]="item.product.name" 
-                 width="80" 
-                 class="rounded me-3 object-fit-cover">
+            <!-- Product Image -->
+            <div class="position-relative">
+              <img [src]="getItemImage(item)" 
+                   [alt]="item.product.name" 
+                   width="80" 
+                   height="80"
+                   class="rounded me-3 object-fit-cover"
+                   [class.opacity-50]="isUpdating(item)">
+              <!-- Loading Spinner -->
+              <div class="position-absolute top-50 start-50 translate-middle" 
+                   *ngIf="isUpdating(item)">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+            </div>
+            
             <div class="flex-grow-1">
-              <div class="d-flex justify-content-between">
-                <h6 class="mb-1">{{ item.product.name }}</h6>
-                <button class="btn btn-link text-danger p-0" (click)="removeItem(item)">
+              <!-- Product Name & Remove Button -->
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="mb-1 fw-semibold">{{ item.product.name }}</h6>
+                <button class="btn btn-link text-danger p-0 ms-2" 
+                        (click)="removeItem(item)"
+                        [disabled]="isUpdating(item)"
+                        title="Remove item">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
-              <!-- <small class="text-muted">{{ item.variant }}</small> -->
-              <small class="text-muted d-block mb-2">
-                {{ item.variant.sku }}
-              </small>
-              <!-- <div class="d-flex align-items-center mb-2">
-                <button class="btn btn-sm btn-outline-secondary px-2 py-0" 
-                        (click)="decrementQuantity(item)">
-                  -
-                </button>
-                <span class="px-3">{{ item.quantity }}</span>
-                <button class="btn btn-sm btn-outline-secondary px-2 py-0" 
-                        (click)="incrementQuantity(item)">
-                  +
-                </button>
-              </div> -->
-              <app-quantity-selector
-                [productVariantStock]="item.variant.stock"
-                [showAvailable]="true"
-                (quantityChange)="onQuantityChange($event)"
-                (stockOut)="onStockOut()"
-              ></app-quantity-selector>
-              <!-- <div class="mt-1">
-                <small class="text-muted text-decoration-line-through" *ngIf="item.oldPrice">${{ item.oldPrice }}</small>
-                <strong class="text-danger ms-1">${{ item.price }}</strong>
-              </div> -->
+              
+              <!-- Product Variant Info -->
+              <!-- <small class="text-muted d-block mb-2">
+                <span *ngIf="item.variant.sku">SKU: {{ item.variant.sku }}</span>
+                <span *ngIf="getVariantDescription(item.variant) as variantDesc" class="ms-2">
+                  {{ variantDesc }}
+                </span>
+              </small> -->
+
+              <!-- Stock Warning -->
+              <div class="mb-2" *ngIf="isLowStock(item.variant)">
+                <small class="text-warning">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  Only {{ item.variant.stock }} left in stock
+                </small>
+              </div>
+              
+              <!-- Quantity Selector -->
+              <div class="mb-2">
+                <app-quantity-selector
+                  [productVariantStock]="item.variant.stock"
+                  [showAvailable]="false"
+                  (quantityChange)="updateItemQuantity(item, $event)"
+                  (stockOut)="onStockOut()">
+                </app-quantity-selector>
+              </div>
+              
+              <!-- Price Information -->
               <div class="d-flex justify-content-between align-items-center">
                 <div>
+                  <!-- Original Price (if discounted) -->
                   <small class="text-muted text-decoration-line-through me-2" 
-                         *ngIf="item.variant.discountPrice">
+                         *ngIf="item.variant.discountPrice && item.variant.discountPrice < item.variant.price">
                     {{ item.variant.price | currency }}
                   </small>
+                  <!-- Current Price -->
                   <strong class="text-primary">
-                    {{ (item.variant.discountPrice ?? item.variant.price) | currency }}
+                    {{ getItemPrice(item.variant) | currency }}
                   </strong>
+                  <!-- Savings Badge -->
+                  <span class="badge bg-success ms-1" 
+                        *ngIf="getItemSavings(item) as savings">
+                    Save {{ savings | currency }}
+                  </span>
                 </div>
-                <strong>
-                  {{ ((item.variant.discountPrice ?? item.variant.price) * item.quantity) | currency }}
+                <!-- Item Subtotal -->
+                <strong class="text-end">
+                  {{ getItemSubtotal(item) | currency }}
                 </strong>
               </div>
             </div>
@@ -93,98 +133,75 @@
       </ng-container>
     </ng-container>
     
+    <!-- Empty Cart State -->
     <ng-template #emptyCart>
       <div class="text-center py-5">
-        <i class="bi bi-cart-x text-muted" style="font-size: 2.5rem;"></i>
+        <i class="bi bi-cart-x text-muted display-3"></i>
         <h5 class="mt-3">Your cart is empty</h5>
         <p class="text-muted">Start shopping to add items to your cart</p>
-        <button class="btn btn-primary mt-2" routerLink="/products" (click)="closeSidebar()">
+        <button class="btn btn-primary mt-2" 
+                routerLink="/product/shop" 
+                (click)="closeSidebar()">
+          <i class="bi bi-bag-plus me-2"></i>
           Continue Shopping
         </button>
       </div>
     </ng-template>
   </div>
 
-  <div class="p-3 border-top" [class.d-none]="(cartItems$ | async)?.length === 0">
-    <div class="d-flex justify-content-between fw-bold mb-2">
-      <span>Subtotal:</span>
-      <span>{{ subtotal$ | async | currency }}</span>
+  <!-- Cart Footer -->
+  <div class="p-3 border-top bg-light" [class.d-none]="(cartItems$ | async)?.length === 0">
+    <!-- Cart Summary -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span class="text-muted">Items ({{ (cartItemsQuantity$ | async) || 0 }}):</span>
+        <span>{{ subtotal$ | async | currency }}</span>
+      </div>
+      <div class="d-flex justify-content-between mb-1">
+        <span class="text-muted">Shipping:</span>
+        <span class="text-success" *ngIf="(subtotal$ | async) && (subtotal$ | async)! >= freeShippingThreshold; else shippingCost">
+          FREE
+        </span>
+        <ng-template #shippingCost>
+          <span class="text-muted">Calculated at checkout</span>
+        </ng-template>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Subtotal:</span>
+        <span>{{ subtotal$ | async | currency }}</span>
+      </div>
     </div>
+    
     <small class="text-muted d-block mb-3">
+      <i class="bi bi-info-circle me-1"></i>
       Taxes and shipping calculated at checkout
     </small>
     
+    <!-- Action Buttons -->
     <div class="d-grid gap-2">
-      <button class="btn btn-outline-secondary" (click)="closeSidebar()">
+      <button class="btn btn-outline-primary" 
+              (click)="viewFullCart()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-cart3 me-2"></i>
         View Cart
       </button>
       <button class="btn btn-primary" 
-              [disabled]="(cartItems$ | async)?.length === 0"
-              (click)="closeSidebar()">
+              (click)="proceedToCheckout()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-credit-card me-2"></i>
         Proceed to Checkout
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="d-flex justify-content-center mt-3">
+      <button class="btn btn-link btn-sm text-muted" 
+              (click)="clearCart()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-trash3 me-1"></i>
+        Clear Cart
       </button>
     </div>
   </div>
 </app-sidebar>
-
-<!-- Overlay -->
-<!-- <div class="cart-overlay" *ngIf="isOpen" (click)="closeSidebar()"></div> -->
-
-<!-- Sidebar -->
-<!-- <div class="cart-sidebar d-flex flex-column bg-white shadow-lg" [class.open]="isOpen">
-  <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-    <h5 class="m-0 fw-bold">Shopping Cart</h5>
-    <button class="btn-close" (click)="closeSidebar()"></button>
-  </div>
-
-  <div class="p-3 border-bottom border-top shadow-lg">
-    <div class="small">
-        @if (subtotal >= 200) {
-            You will get <strong class="text-danger">FREE SHIPPING!</strong>
-        } @else {
-            Add <strong class="text-danger">${{(200 - subtotal)}}</strong> more to get <strong class="text-danger">FREE SHIPPING!</strong>
-        }
-    </div>
-  </div>
-
-  <div class="cart-items">
-    <div class="cart-item p-3" *ngFor="let item of cartItems">
-        <div class="d-flex mb-3">
-          <img [src]="item.image" alt="item.name" width="60" class="rounded me-2" />
-          <div class="flex-grow-1">
-            <div class="fw-semibold">{{ item.name }}</div>
-            <small class="text-muted">{{ item.variant }}</small>
-            <div class="d-flex align-items-center mt-1">
-              <button class="btn btn-sm btn-outline-secondary px-2 py-0">-</button>
-              <span class="px-2">{{ item.quantity }}</span>
-              <button class="btn btn-sm btn-outline-secondary px-2 py-0">+</button>
-            </div>
-            <div class="mt-1">
-              <small class="text-muted text-decoration-line-through" *ngIf="item.oldPrice">${{ item.oldPrice }}</small>
-              <strong class="text-danger ms-1">${{ item.price }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-  </div>
-
-  <div class="p-3 border-top">
-    <div class="d-flex justify-content-between fw-bold mb-2">
-      <span>Subtotal:</span>
-      <span>${{ subtotal.toFixed(2) }}</span>
-    </div>
-    <small class="text-muted">Taxes, shipping and discounts codes calculated at checkout</small>
-
-    <div class="form-check my-2">
-      <input class="form-check-input" type="checkbox" id="agree" />
-      <label class="form-check-label small" for="agree">
-        I agree with the terms and conditions.
-      </label>
-    </div>
-
-    <div class="d-grid gap-2 mt-2">
-      <button class="btn btn-outline-secondary">View Cart</button>
-      <button class="btn btn-info text-white">Check Out</button>
-    </div>
-  </div>
-</div> -->

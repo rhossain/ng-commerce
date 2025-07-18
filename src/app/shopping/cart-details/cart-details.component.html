@@ -1,95 +1,246 @@
-<section class="cart-details py-4">
+<div class="mobile-gradient">
+    <div class="overlay"></div>
+</div>
+
+<section class="cart-details">
+    <div class="page-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="page-title">
+                        <fa-icon [icon]="faShoppingCart" class="me-2"></fa-icon>
+                        Shopping Cart
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
+                            <li class="breadcrumb-item active">Cart</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <ng-container *ngIf="(cartItems$ | async) as items">
-                    <ng-container *ngIf="items.length > 0; else emptyCart">
-                        <div class="table-responsive">
-                            <table class="table table-hover cart-table">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Product</th>
-                                        <th scope="col">Price</th>
-                                        <th scope="col">Quantity</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
+            <!-- Cart Items Section -->
+            <div class="col-lg-8">
 
-                                <tbody>
-                                    <tr *ngFor="let item of cartItems$ | async; trackBy: trackByItem">
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img 
-                                                    [src]="item.product.main_image_url || item.product.variants?.[0]?.product_images?.[0]?.image_url || fallbackUrl" 
-                                                    [alt]="item.product.name" 
-                                                    width="80" 
-                                                    class="rounded me-3 object-fit-cover">
-                                                <a
-                                                    [routerLink]="['/product/detail', item.product.id]"
-                                                    href="javascript.void(0)"
-                                                    [title]="item.product.name"
-                                                    class="fw-semibold">
-                                                    {{ item.product.name }}
-                                                </a>
+                <!-- Cart Items List -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <fa-icon [icon]="faShoppingCart" class="me-2"></fa-icon>
+                            Cart Items ({{ (cartItems$ | async)?.length || 0 }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div *ngIf="(cartItems$ | async) as items">
+                            <div *ngIf="items.length === 0" class="text-center py-4">
+                                <i class="bi bi-cart-x text-muted display-3"></i>
+                                <h5 class="mt-3">Your cart is empty</h5>
+                                <p class="text-muted">Start shopping to add items to your cart</p>
+                                <a routerLink="/product/shop" class="btn btn-primary mt-2">
+                                    <i class="bi bi-bag-plus me-2"></i>
+                                    Start Shopping
+                                </a>
+                            </div>
+
+                            <div *ngFor="let item of items; trackBy: trackByCartItem; let last = last"
+                                class="cart-item-detailed">
+                                <div class="row align-items-center">
+                                    <!-- Product Image -->
+                                    <div class="col-2 mb-3">
+                                        <img [src]="getItemImage(item)" [alt]="item.product.name"
+                                            class="img-fluid rounded" [class.opacity-50]="isUpdating(item)">
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div class="col-10 mb-3 text-start">
+                                        <h6 class="mb-1">
+                                            <a [routerLink]="['/product/detail', item.product.id]"
+                                                class="text-decoration-none">
+                                                {{ item.product.name }}
+                                            </a>
+                                        </h6>
+                                        <div class="text-muted small" *ngIf="getVariantDescription(item.variant)">
+                                            {{ getVariantDescription(item.variant) }}
+                                        </div>
+                                        <div class="text-muted small" *ngIf="item.variant.sku">
+                                            SKU: {{ item.variant.sku }}
+                                        </div>
+
+                                        <!-- Stock Status -->
+                                        <div class="mt-1">
+                                            <span class="badge" [class]="getStockBadgeClass(item.variant)">
+                                                {{ getStockStatusText(item.variant) }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Price & Total -->
+                                    <div class="col-6 col-sm-3 mb-3 mb-sm-0  text-start">
+                                        <div class="price-display">
+                                            <div class="current-price fw-bold">
+                                                {{ getItemPrice(item.variant) | currency }}
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center flex-wrap">
-                                                <small 
-                                                    class="text-muted text-decoration-line-through me-2" 
-                                                    *ngIf="item.variant.discountPrice"
-                                                >
+                                            <div *ngIf="item.variant.discountPrice" class="original-price">
+                                                <small class="text-muted text-decoration-line-through">
                                                     {{ item.variant.price | currency }}
                                                 </small>
-                                                <strong class="text-primary">
-                                                    {{ (item.variant.discountPrice ?? item.variant.price) | currency }}
-                                                </strong>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <app-quantity-selector
-                                                    [productVariantStock]="item.variant.stock"
-                                                    [showAvailable]="true"
-                                                    (quantityChange)="onQuantityChange($event)"
-                                                    (stockOut)="onStockOut()"
-                                                ></app-quantity-selector>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <button class="btn btn-sm btn-outline-gray-dark text-danger" (click)="removeItem(item)">
-                                                <fa-icon [icon]="faXmark"></fa-icon>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                        </div>
+                                    </div>
 
-                                <tfoot>
-                                    <tr>
-                                        <td class="text-end">
-                                            <span class="fs-5">Total</span>
-                                        </td>
-                                        <td colspan="3">
-                                            <strong class="fs-5">{{ subtotal$ | async | currency }}</strong>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                    <!-- Subtotal -->
+                                    <div class="col-6 col-sm-3 mb-3 mb-sm-0 text-start">
+                                        <div class="item-subtotal fw-bold">
+                                            {{ calculateItemSubtotal(item) | currency }}
+                                        </div>
+                                        <div *ngIf="getItemSavings(item) as savings" class="savings mb-2">
+                                            <small class="text-success">
+                                                Save {{ savings | currency }}
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quantity Controls -->
+                                    <div class="col-8 col-sm-4 text-start">
+                                        <app-quantity-selector [productVariantStock]="item.variant.stock"
+                                            [showAvailable]="false" (quantityChange)="updateItemQuantity(item, $event)"
+                                            (stockOut)="onStockOut()">
+                                        </app-quantity-selector>
+                                    </div>
+
+                                    <!-- Remove -->
+                                    <div class="col-4 col-sm-2 text-end">
+                                        <button class="btn btn-outline-danger btn-sm" (click)="removeItem(item)"
+                                            [disabled]="isUpdating(item)" title="Remove item">
+                                            <fa-icon [icon]="faTrash"></fa-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                                <hr *ngIf="!last">
+                            </div>
                         </div>
-                    </ng-container>
+                    </div>
+                </div>
 
-                    <ng-template #emptyCart>
-                        <div class="text-center py-5">
-                            <fa-icon [icon]="faBagShopping" class="fs-1 text-muted"></fa-icon>
-                            <h5 class="mt-2">Your cart is empty</h5>
-                            <p class="text-muted">Start shopping to add items to your cart</p>
-                            <button class="btn btn-primary mt-2" routerLink="/shop">
+                <!-- Cart Actions -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-outline-secondary" (click)="clearCart()"
+                                [disabled]="(cartItems$ | async)?.length === 0">
+                                <fa-icon [icon]="faTrash" class="me-2"></fa-icon>
+                                Clear Cart
+                            </button>
+
+                            <button class="btn btn-outline-primary" routerLink="/products">
+                                <fa-icon [icon]="faArrowLeft" class="me-2"></fa-icon>
                                 Continue Shopping
                             </button>
                         </div>
-                    </ng-template>
-                </ng-container>
-                
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="sticky-summary">
+
+                    <!-- Order Summary Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Items Summary -->
+                            <div class="summary-line">
+                                <span>Items ({{ (cartItemsQuantity$ | async) || 0 }})</span>
+                                <span>{{ subtotal$ | async | currency }}</span>
+                            </div>
+
+                            <!-- Shipping Preview -->
+                            <div class="summary-line">
+                                <span>Shipping</span>
+                                <span class="text-muted">Calculated at checkout</span>
+                            </div>
+
+                            <!-- Tax Preview -->
+                            <div class="summary-line">
+                                <span>Tax</span>
+                                <span class="text-muted">Calculated at checkout</span>
+                            </div>
+
+                            <!-- Total Savings -->
+                            <div class="summary-line" *ngIf="totalSavings > 0">
+                                <span class="text-success">
+                                    <fa-icon [icon]="faPercent" class="me-1"></fa-icon>
+                                    Total Savings
+                                </span>
+                                <span class="text-success">-{{ totalSavings | currency }}</span>
+                            </div>
+
+                            <hr>
+
+                            <!-- Subtotal -->
+                            <div class="summary-line summary-total">
+                                <strong>Subtotal</strong>
+                                <strong>{{ subtotal$ | async | currency }}</strong>
+                            </div>
+
+                            <!-- Free Shipping Progress -->
+                            <div class="free-shipping-progress mt-3" *ngIf="(subtotal$ | async) as currentSubtotal">
+                                <ng-container *ngIf="currentSubtotal < freeShippingThreshold">
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar bg-success"
+                                            [style.width.%]="getFreeShippingProgress(currentSubtotal)">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <fa-icon [icon]="faTruck" class="me-1"></fa-icon>
+                                        Add {{ freeShippingThreshold - currentSubtotal | currency }} more for free
+                                        shipping
+                                    </small>
+                                </ng-container>
+                                <ng-container *ngIf="currentSubtotal >= freeShippingThreshold">
+                                    <div class="alert alert-success py-2 mb-0">
+                                        <fa-icon [icon]="faGift" class="me-1"></fa-icon>
+                                        <strong>You qualify for free shipping! 🎉</strong>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security & Trust -->
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <fa-icon [icon]="faShieldAlt" size="2x" class="text-success mb-2"></fa-icon>
+                            <h6>Secure Checkout</h6>
+                            <p class="small text-muted mb-0">
+                                Your information is protected with 256-bit SSL encryption
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" [disabled]="(cartItems$ | async)?.length === 0"
+                            (click)="proceedToCheckout()">
+                            <fa-icon [icon]="faCreditCard" class="me-2"></fa-icon>
+                            Proceed to Checkout
+                        </button>
+
+                        <button class="btn btn-outline-secondary" (click)="saveForLater()"
+                            [disabled]="(cartItems$ | async)?.length === 0">
+                            <fa-icon [icon]="faHeart" class="me-2"></fa-icon>
+                            Save for Later
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -54,39 +54,7 @@
     }
 }
 
-.mobile-gradient {
-    display: none;
-    width: 100%;
-    height: 225px;
-    position: absolute;
-    top: 0;
-    background: rgb(var(--clr-primary-dark));
-    border-radius: 0 0 50% 50%;
-
-    .overlay {
-        width: 100%;
-        height: 100%;
-        // background: radial-gradient(circle, $primary-dark-color 0%, $primary-dark-color 60%, $primary-light-color 100%);
-        border-radius: 0 0 50% 50%;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: 0 0;
-        filter: blur(8px);
-        -webkit-filter: blur(8px);
-    }
-
-    @include media-breakpoint-down(xs) {
-        height: 170px;
-    }
-}
-
 .main-home {
-    .mobile-gradient {
-        @include media-breakpoint-down(md) {
-            display: block;
-        }
-    } 
-    
     .main-content-top-contents {
         padding: 15px 0 20px;
     }
