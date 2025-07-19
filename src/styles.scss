@@ -329,3 +329,40 @@ router-outlet {
         }
     }
 }
+
+// Swiper customizations
+.product-slider {
+  .swiper-button-prev,
+  .swiper-button-next {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    
+    &::after {
+      font-size: 16px;
+      color: #212529;
+    }
+
+    &:hover {
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background: #ccc;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+
+    &.swiper-pagination-bullet-active {
+      background: #007bff;
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+}

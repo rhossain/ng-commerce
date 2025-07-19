@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 import { CartItem } from '../models/cart.model';
 import { ProductModel } from '../models/product.model';
 import { ProductVariant } from '../models/product.model';
-import { ToastrService } from 'ngx-toastr';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
@@ -63,9 +63,18 @@ export class CartService {
 
   private calculateSubtotal(cartItems: CartItem[]): number {
     return cartItems.reduce((total, item) => {
-      const price = item.variant.discountPrice ?? item.variant.price;
+      // ✅ Properly handle optional discountPrice
+      const price = this.getEffectivePrice(item.variant);
       return total + (price * item.quantity);
     }, 0);
+  }
+
+  // ✅ Helper method to get effective price with type safety
+  private getEffectivePrice(variant: ProductVariant): number {
+    if (variant.discountPrice !== null && variant.discountPrice !== undefined) {
+      return variant.discountPrice;
+    }
+    return variant.price;
   }
 
   // ✅ Optimized cart update method with batching
@@ -120,6 +129,12 @@ export class CartService {
   addToCart(product: ProductModel, variant: ProductVariant, quantity: number = 1): void {
     if (quantity <= 0) {
       this.toastr.warning('Invalid quantity', 'Cart Error');
+      return;
+    }
+
+    // ✅ Validate variant has required properties
+    if (!variant || !variant.id || !variant.price) {
+      this.toastr.error('Invalid product variant', 'Cart Error');
       return;
     }
 
@@ -282,11 +297,14 @@ export class CartService {
     return this.cartItemsSubject.value.filter(item => item.product.id === productId);
   }
 
-  // ✅ Calculate savings total
+  // ✅ Calculate savings total with type safety
   getTotalSavings(): number {
     return this.cartItemsSubject.value.reduce((total, item) => {
-      if (item.variant.discountPrice && item.variant.discountPrice < item.variant.price) {
-        const savings = (item.variant.price - item.variant.discountPrice) * item.quantity;
+      const variant = item.variant;
+      if (variant.discountPrice !== null && 
+          variant.discountPrice !== undefined && 
+          variant.discountPrice < variant.price) {
+        const savings = (variant.price - variant.discountPrice) * item.quantity;
         return total + savings;
       }
       return total;
@@ -299,5 +317,58 @@ export class CartService {
       const weight = item.variant.weight || 0;
       return total + (weight * item.quantity);
     }, 0);
+  }
+
+  // ✅ Get cart items with price breakdown
+  getCartItemsWithPriceBreakdown(): Array<CartItem & { 
+    effectivePrice: number; 
+    totalPrice: number; 
+    savings: number; 
+  }> {
+    return this.cartItemsSubject.value.map(item => ({
+      ...item,
+      effectivePrice: this.getEffectivePrice(item.variant),
+      totalPrice: this.getEffectivePrice(item.variant) * item.quantity,
+      savings: this.calculateItemSavings(item)
+    }));
+  }
+
+  // ✅ Calculate savings for individual item
+  private calculateItemSavings(item: CartItem): number {
+    const variant = item.variant;
+    if (variant.discountPrice !== null && 
+        variant.discountPrice !== undefined && 
+        variant.discountPrice < variant.price) {
+      return (variant.price - variant.discountPrice) * item.quantity;
+    }
+    return 0;
+  }
+
+  // ✅ Validate cart items (check stock, prices, etc.)
+  validateCart(): { valid: boolean; issues: string[] } {
+    const issues: string[] = [];
+    const cartItems = this.cartItemsSubject.value;
+
+    cartItems.forEach(item => {
+      // Check if variant exists and has required properties
+      if (!item.variant || !item.variant.id) {
+        issues.push(`Invalid variant for ${item.product.name}`);
+      }
+
+      // Check stock availability
+      if (item.variant && item.quantity > item.variant.stock) {
+        issues.push(`${item.product.name} - Only ${item.variant.stock} available (${item.quantity} in cart)`);
+      }
+
+      // Check if price is valid
+      if (item.variant && (!item.variant.price || item.variant.price <= 0)) {
+        issues.push(`Invalid price for ${item.product.name}`);
+      }
+    });
+
+    return {
+      valid: issues.length === 0,
+      issues
+    };
   }
 }

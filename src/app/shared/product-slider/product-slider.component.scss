@@ -40,6 +40,26 @@
             max-width: 40%;
         }
     }
+
+    &-pricing {
+      .price-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .current-price {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: rgb(var(--clr-secondary-custom));
+        }
+
+        .original-price {
+          font-size: 0.9rem;
+          color: rgb(var(--clr-gray-darker));
+          text-decoration: line-through;
+        }
+      }
+    }
 }
 
 .image-wrapper {

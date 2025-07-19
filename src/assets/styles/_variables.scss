@@ -48,3 +48,7 @@ $gray-darker:       #8890A0;
     --content-bg: rgba(0, 0, 0, 0.7);
     --text-color: #ffffff;
 }
+
+:host {
+    --swiper-theme-color: #F97316;
+}

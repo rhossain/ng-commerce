@@ -10,7 +10,13 @@
             <div class="row">
                 <div class="col-12 offset-0 col-md-12 offset-md-0 col-lg-12 offset-lg-0 col-xl-9 offset-xl-3 main-content-top-wrapper">
                     <div class="main-content-top-contents">
-                        <app-product-slider class="d-block h-100" [productIds]="[13, 14, 15]"></app-product-slider>
+                        <app-product-slider 
+                            [productIds]="[13, 14, 15]"
+                            [showAddToCartButton]="true"
+                            [showPricing]="true"
+                            [showRating]="false"
+                            class="d-block h-100">
+                        </app-product-slider>
                     </div>
                 </div>
             </div>

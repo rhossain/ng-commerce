@@ -5,7 +5,7 @@
   [autoplay]="{ delay: 2500 }"  
   [pagination]="{ clickable: true, dynamicBullets: true }"
   [navigation]="true"
-  class="h-100"
+  class="product-slider h-100"
   >
     <swiper-slide *ngFor="let product of products; let i = index">
         <!-- <div class="product-card p-2 border rounded">
@@ -39,13 +39,56 @@
           </div>
     
           <div class="product-info">
-            <p *ngIf="product.variant?.discountPrice">
-              Exclusive offer <span class="text-danger fw-bold">${{ product.variant?.discountPrice }}</span> off this week
+            <!-- Product Offer -->
+            <p class="mb-0" *ngIf="hasDiscount(product.variant)">
+              Exclusive offer <span class="text-danger fw-bold">{{ getDiscountPercentage(product.variant) }}%</span> off this week
             </p>
-            <h2>{{ product.product.name }}</h2>
-            <a [routerLink]="['/product/detail', product.product.id]" class="btn btn-outline-brand-secondary">
-              Explore Now
-            </a>
+
+            <!-- Product Info -->
+            <h3 class="product-name mb-0">
+              <a [routerLink]="['/product/detail', product.product.id]">
+                {{ product.product.name }}
+              </a>
+            </h3>
+
+            <!-- Pricing -->
+            <div class="product-pricing" *ngIf="showPricing && product.variant">
+              <div class="price-container">
+                <span class="current-price">
+                  {{ formatPrice(getDisplayPrice(product.variant)) }}
+                </span>
+                <span 
+                  *ngIf="hasDiscount(product.variant)" 
+                  class="original-price">
+                  {{ formatPrice(getOriginalPrice(product.variant)) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <div class="product-cart-section" *ngIf="showAddToCartButton">
+              <button 
+                type="button"
+                class="btn btn-primary btn-add-to-cart"
+                [disabled]="!isInStock(product.variant) || isAddingToCart(product.product, product.variant)"
+                (click)="quickAddToCart(product.product, product.variant)">
+                
+                <!-- Loading state -->
+                <span *ngIf="isAddingToCart(product.product, product.variant)" class="d-flex align-items-center">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Adding...
+                </span>
+                
+                <!-- Default state -->
+                <span *ngIf="!isAddingToCart(product.product, product.variant)" class="d-flex align-items-center">
+                  <fa-icon [icon]="faCartPlus" class="me-2"></fa-icon>
+                  {{ isInCart(product.product, product.variant) ? 'Add More' : 'Add to Cart' }}
+                </span>
+              </button>
+            </div>
+            <!-- <a [routerLink]="['/product/detail', product.product.id]" class="btn btn-secondary text-white">
+              Add to Cart
+            </a> -->
           </div>
         </div>
     </swiper-slide>
