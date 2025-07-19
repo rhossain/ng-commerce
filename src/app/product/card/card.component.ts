@@ -10,11 +10,12 @@ import { CartService } from '../../services/cart.service';
 import { ImageCacheService } from '../../services/image-cache.service';
 import { ProductService } from '../../services/product.service';
 import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
+import { UnderDevelopmentDirective } from '../../shared/under-development.directive';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterModule, CommonModule, FontAwesomeModule, StarRatingComponent],
+  imports: [RouterModule, CommonModule, FontAwesomeModule, StarRatingComponent, UnderDevelopmentDirective],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })

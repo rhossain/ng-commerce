@@ -31,26 +31,26 @@
         <button (click)="incrementQuantity()" class="btn-quantity">+</button>
     </div> -->
     <div class="action-icons">
-        <button class="icon-btn wishlist">
+        <button class="icon-btn wishlist" appUnderDevelopment>
             <fa-icon [icon]="faHeart"></fa-icon>
         </button>
-        <button class="icon-btn quick">
+        <button class="icon-btn quick" appUnderDevelopment>
             <fa-icon [icon]="faEye"></fa-icon>
         </button>
-        <button class="icon-btn compare">
+        <button class="icon-btn compare" appUnderDevelopment>
             <fa-icon [icon]="faRightLeft"></fa-icon>
         </button>
     </div>
     <div class="product-details">
       <!-- <h3>{{ product.name }}</h3> -->
-      <a [routerLink]="['/product/detail', product.id]" class="btn btn-outline-brand-secondary">
+      <a [routerLink]="['/product/detail', product.id]" class="w-100 btn btn-outline-brand-secondary">
               {{ product.name }}
     </a>
       <!-- <div class="rating">
         <span>★★★★★</span>
         <span class="reviews">💬 97</span>
       </div> -->
-      <app-star-rating [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
+      <app-star-rating class="d-flex py-2 text-black" [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
        
       <div class="price-section">
         <span class="original-price">${{ product.variants?.[0]?.price }}</span>
