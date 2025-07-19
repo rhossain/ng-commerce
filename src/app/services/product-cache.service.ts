@@ -33,7 +33,7 @@ export class ProductCacheService {
         this.toastr.success('Product cache loaded from local storage.', 'Success');
       } catch {
         this.clearCache();
-        this.toastr.error('Failed to parse cached product data.', 'Error');
+        this.toastr.error('Failed to parse cached product data. Please reload the page.', 'Error');
       }
     } else {
       this.toastr.info('No cached product data found.', 'Info');
@@ -83,7 +83,7 @@ export class ProductCacheService {
         this.toastr.warning('Empty product list received from server.', 'Warning');
       }
     } catch (err) {
-      this.toastr.error('Failed to load product cache', 'Error');
+      this.toastr.error('Failed to load product cache. Please reload the page.', 'Error');
       console.error(err);
     }
   }
@@ -155,7 +155,7 @@ export class ProductCacheService {
     if (paginatedItems.length === 0) {
       this.toastr.warning('No products found for the current filter or page.', 'Warning');
     } else {
-      this.toastr.success(`${paginatedItems.length} products loaded.`, 'Success');
+      // this.toastr.success(`${paginatedItems.length} products loaded.`, 'Success');
     }
 
     return {

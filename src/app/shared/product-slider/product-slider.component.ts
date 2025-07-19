@@ -92,8 +92,8 @@ export class ProductSliderComponent implements OnInit {
         this.loadingImages = Array(this.products.length).fill(true);
       },
       error: (error) => {
-        console.error('Error loading products for slider:', error);
-        this.toastr.error('Failed to load products', 'Error');
+        // console.error('Error loading products for slider:', error);
+        this.toastr.error('Failed to load products. Please reload the page.', 'Error');
       }
     });
   }
