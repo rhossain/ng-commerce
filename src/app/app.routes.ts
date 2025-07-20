@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
-import { ProfileComponent } from './components/profile/profile.component';
+import { LoginComponent } from './auth/login/login.component';
+import { RegisterComponent } from './auth/register/register.component';
+import { ProfileComponent } from './auth/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -26,7 +26,7 @@ export const routes: Routes = [
         path: 'shopping',
         loadChildren: () => import('../app/shopping/shopping.routes')
     },
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }
+    { path: 'auth/login', component: LoginComponent },
+    { path: 'auth/register', component: RegisterComponent },
+    { path: 'auth/profile', component: ProfileComponent, canActivate: [AuthGuard] }
 ];

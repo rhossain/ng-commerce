@@ -8,13 +8,13 @@
           <p>
             Don’t have an account? 
             <span>
-              <a routerLink="/register" href="javascript.void();" class="text-secondary">Create a free account</a>
+              <a routerLink="/auth/register" href="javascript:void(0)" class="text-secondary">Create a free account</a>
             </span>
           </p>
         </div>
 
         <div class="auth-option">
-          <form #loginForm="ngForm" (ngSubmit)="login()" novalidate>
+          <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
             <div class="form-floating mb-3">
               <input 
                 type="email" 
