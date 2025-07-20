@@ -28,11 +28,11 @@
       &:hover {
         .step-circle {
           transform: scale(1.05);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 12px rgba(var(--clr-black), 0.15);
         }
 
         .step-title {
-          color: #007bff;
+          color: rgb(var(--clr-secondary-custom));
         }
       }
     }
@@ -56,8 +56,8 @@
       margin-bottom: 1rem;
       transition: all 0.3s ease;
       border: 3px solid #e9ecef;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: rgb(var(--clr-white));
+      box-shadow: 0 2px 4px rgba(var(--clr-black), 0.1);
 
       .step-icon {
         font-size: 1.5rem;
@@ -67,7 +67,7 @@
       }
 
       .check-icon {
-        color: white;
+        color: rgb(var(--clr-white));
         font-size: 1.2rem;
       }
 
@@ -85,8 +85,8 @@
         justify-content: center;
         font-size: 0.75rem;
         font-weight: 700;
-        border: 2px solid white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        border: 2px solid rgb(var(--clr-white));
+        box-shadow: 0 2px 4px rgba(var(--clr-black), 0.2);
       }
     }
 
@@ -98,7 +98,7 @@
         font-size: 1rem;
         font-weight: 600;
         margin-bottom: 0.25rem;
-        color: #2c3e50;
+        color: rgb(var(--clr-dark));
         transition: all 0.3s ease;
         line-height: 1.2;
       }
@@ -118,7 +118,7 @@
       left: calc(50% + 30px);
       right: calc(-50% + 30px);
       height: 4px;
-      background-color: #e9ecef;
+      background-color: rgb(var(--clr-white));
       transition: all 0.3s ease;
       z-index: 1;
       border-radius: 2px;
@@ -129,7 +129,7 @@
         top: 0;
         left: 0;
         height: 100%;
-        background-color: #28a745;
+        background-color: rgb(var(--clr-green));
         border-radius: 2px;
         transition: width 0.5s ease;
         width: 0;
@@ -150,23 +150,27 @@
     // Step States
     &.completed {
       .step-circle {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: white;
+        background-color: rgb(var(--clr-green));
+        border-color: rgb(var(--clr-green));
+        color: rgb(var(--clr-white));
         box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         
         .step-icon {
           display: none;
+
+          &.check-icon {
+            display: block;
+          }
         }
 
         .step-number {
-          background-color: #1e7e34;
-          border-color: #28a745;
+          background-color: rgb(var(--clr-green-dark));
+          border-color: rgb(var(--clr-green-dark));
         }
       }
 
       .step-title {
-        color: #28a745;
+        color: rgb(var(--clr-green-dark));
         font-weight: 700;
       }
 
@@ -177,25 +181,25 @@
 
     &.active {
       .step-circle {
-        border-color: #007bff;
-        background-color: #007bff;
-        color: white;
+        border-color: rgb(var(--clr-secondary-custom));
+        background-color: rgb(var(--clr-secondary-custom));
+        color: rgb(var(--clr-white));
         box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25), 
                     0 4px 8px rgba(0, 123, 255, 0.3);
         animation: pulse 2s infinite;
 
         .step-icon {
-          color: white;
+          color: rgb(var(--clr-white));
         }
 
         .step-number {
-          background-color: #0056b3;
-          border-color: #007bff;
+          background-color: rgb(var(--clr-secondary-dark));
+          border-color: rgb(var(--clr-secondary-dark));
         }
       }
 
       .step-title {
-        color: #007bff;
+        color: rgb(var(--clr-secondary-dark));
         font-weight: 700;
       }
 
@@ -206,15 +210,15 @@
 
     &.pending {
       .step-circle {
-        border-color: #ced4da;
-        background-color: white;
+        border-color: rgba(var(--clr-dark), 0.2);
+        background-color: rgb(var(--clr-white));
 
         .step-icon {
-          color: #6c757d;
+          color: rgb(var(--clr-gray-darker));
         }
 
         .step-number {
-          background-color: #6c757d;
+          background-color: rgb(var(--clr-gray-darker));
         }
       }
 
@@ -252,16 +256,16 @@
 // Pulse animation for active step
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25), 
-                0 4px 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 0 4px rgba(var(--clr-secondary-dark), 0.25), 
+                0 4px 8px rgba(var(--clr-secondary-dark), 0.3);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(0, 123, 255, 0.15), 
-                0 4px 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 0 8px rgba(var(--clr-secondary-dark), 0.15), 
+                0 4px 8px rgba(var(--clr-secondary-dark), 0.3);
   }
   100% {
-    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.25), 
-                0 4px 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 0 4px rgba(var(--clr-secondary-dark), 0.25), 
+                0 4px 8px rgba(var(--clr-secondary-dark), 0.3);
   }
 }
 
@@ -545,7 +549,7 @@
       &.active .step-circle,
       &.completed .step-circle {
         background-color: #000 !important;
-        color: white !important;
+        color: rgb(var(--clr-white)) !important;
       }
 
       .step-connector {

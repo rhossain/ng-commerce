@@ -231,11 +231,6 @@
   <!-- Accepted Cards -->
   <div class="accepted-cards" *ngIf="selectedPaymentMethod?.id === 'credit_card'">
     <h4>Accepted Cards</h4>
-    <div class="card-brands">
-      <img src="/assets/images/cards/visa.png" alt="Visa" class="card-brand">
-      <img src="/assets/images/cards/mastercard.png" alt="Mastercard" class="card-brand">
-      <img src="/assets/images/cards/amex.png" alt="American Express" class="card-brand">
-      <img src="/assets/images/cards/discover.png" alt="Discover" class="card-brand">
-    </div>
+    <app-cards class="d-flex justify-content-center"></app-cards>
   </div>
 </div>

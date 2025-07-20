@@ -1,12 +1,12 @@
 // Checkout Component Styles
 .checkout-container {
-  padding: 2rem 0;
-  background-color: #f8f9fa;
-  min-height: 100vh;
+  // padding: 2rem 0;
+  // background-color: #f8f9fa;
+  // min-height: 100vh;
 
-  .container {
-    max-width: 1200px;
-  }
+  // .container {
+  //   max-width: 1200px;
+  // }
 }
 
 // Progress Steps
@@ -389,26 +389,29 @@
 
 // Navigation
 .checkout-navigation {
-  border-top: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(var(--clr-dark), 0.2);
   padding-top: 2rem;
   margin-top: 2rem;
 
-  .btn {
-    padding: 0.75rem 2rem;
-    font-weight: 500;
-    border-radius: 0.375rem;
-    transition: all 0.3s ease;
+  // .btn {
+  //   padding: 0.75rem 2rem;
+  //   font-weight: 500;
+  //   border-radius: 0.375rem;
+  //   transition: all 0.3s ease;
 
-    &:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
+  //   &:hover:not(:disabled) {
+  //     transform: translateY(-1px);
+  //     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  //   }
 
-    &.btn-lg {
-      padding: 1rem 3rem;
-      font-size: 1.1rem;
-    }
-  }
+  //   &.btn-lg {
+  //     padding: 1rem 3rem;
+  //     font-size: 1.1rem;
+  //   }
+  // }
 }
 
 // Order Summary

@@ -16,11 +16,12 @@ import { faGoogle, faPaypal } from '@fortawesome/free-brands-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { UserModel } from '../../../models/user.model';
 import { PaymentMethod } from '../checkout-types';
+import { CardsComponent } from "../../../components/cards/cards.component";
 
 @Component({
   selector: 'app-payment-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule],
+  imports: [CommonModule, ReactiveFormsModule, FontAwesomeModule, CardsComponent],
   templateUrl: './payment-form.component.html',
   styleUrl: './payment-form.component.scss'
 })

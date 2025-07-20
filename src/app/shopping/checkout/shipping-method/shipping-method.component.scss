@@ -2,12 +2,12 @@
   h2 {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: rgb(var(--clr-dark));
     margin-bottom: 0.5rem;
   }
 
   .form-description {
-    color: #6c757d;
+    color: rgb(var(--clr-gray-darker));
     margin-bottom: 2rem;
   }
 
@@ -16,7 +16,7 @@
     align-items: center;
     justify-content: center;
     padding: 3rem;
-    color: #6c757d;
+    color: rgb(var(--clr-gray-darker));
 
     fa-icon {
       margin-right: 0.5rem;
@@ -32,25 +32,25 @@
       margin-bottom: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      background: white;
+      background: rgb(var(--clr-white));
       position: relative;
 
       &:hover:not(.disabled) {
-        border-color: #007bff;
+        border-color: rgb(var(--clr-secondary-custom));
         box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
         transform: translateY(-2px);
       }
 
       &.selected {
-        border-color: #28a745;
+        border-color: rgb(var(--clr-green));
         background-color: #f8fff9;
         box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
 
         .method-header {
           .method-info {
             .method-icon-wrapper {
-              background-color: #28a745;
-              color: white;
+              background-color: rgb(var(--clr-green));
+              color: rgb(var(--clr-white));
             }
           }
         }
@@ -59,12 +59,12 @@
       &.disabled {
         opacity: 0.6;
         cursor: not-allowed;
-        background-color: #f8f9fa;
+        background-color: rgb(var(--clr-gray-lighter));
 
         .method-header {
           .method-info {
             .method-icon-wrapper {
-              background-color: #6c757d;
+              background-color: rgb(var(--clr-gray-darker));
             }
           }
         }
@@ -84,8 +84,8 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background-color: #007bff;
-            color: white;
+            background-color: rgb(var(--clr-secondary-custom));
+            color: rgb(var(--clr-white));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,12 +104,12 @@
             .method-name {
               font-size: 1.2rem;
               font-weight: 600;
-              color: #2c3e50;
+              color: rgb(var(--clr-dark));
               margin: 0 0 0.5rem 0;
             }
 
             .method-description {
-              color: #6c757d;
+              color: rgb(var(--clr-gray-darker));
               margin: 0 0 0.5rem 0;
               font-size: 0.95rem;
               line-height: 1.4;
@@ -117,14 +117,14 @@
 
             .delivery-estimate {
               font-size: 0.9rem;
-              color: #495057;
+              color: rgb(var(--clr-dark-lighter));
 
               strong {
-                color: #2c3e50;
+                color: rgb(var(--clr-dark));
               }
 
               .delivery-time {
-                color: #6c757d;
+                color: rgb(var(--clr-gray-darker));
                 font-style: italic;
               }
             }
@@ -143,10 +143,10 @@
             .price {
               font-size: 1.3rem;
               font-weight: 700;
-              color: #2c3e50;
+              color: rgb(var(--clr-dark));
 
               &.free {
-                color: #28a745;
+                color: rgb(var(--clr-green));
                 font-size: 1.1rem;
                 font-weight: 600;
               }
@@ -155,7 +155,7 @@
             .original-price {
               display: block;
               font-size: 0.9rem;
-              color: #6c757d;
+              color: rgb(var(--clr-gray-darker));
               text-decoration: line-through;
               margin-top: 0.25rem;
             }
@@ -165,8 +165,8 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background-color: #28a745;
-            color: white;
+            background-color: rgb(var(--clr-green));
+            color: rgb(var(--clr-white));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -212,13 +212,13 @@
           font-size: 0.9rem;
 
           .feature-label {
-            color: #6c757d;
+            color: rgb(var(--clr-gray-darker));
             margin-right: 0.5rem;
             font-weight: 500;
           }
 
           .feature-value {
-            color: #495057;
+            color: rgb(var(--clr-dark-lighter));
             font-weight: 600;
           }
         }
@@ -226,7 +226,7 @@
 
       .method-restrictions {
         .restrictions-text {
-          color: #6c757d;
+          color: rgb(var(--clr-gray-darker));
           font-style: italic;
           line-height: 1.4;
         }
@@ -236,7 +236,7 @@
     .no-methods {
       text-align: center;
       padding: 3rem 2rem;
-      color: #6c757d;
+      color: rgb(var(--clr-gray-darker));
 
       .no-methods-content {
         .info-icon {
@@ -248,7 +248,7 @@
         h3 {
           font-size: 1.3rem;
           font-weight: 600;
-          color: #495057;
+          color: rgb(var(--clr-dark-lighter));
           margin-bottom: 0.5rem;
         }
 
@@ -266,7 +266,7 @@
     border-top: 1px solid #e9ecef;
 
     .summary-card {
-      background: #f8f9fa;
+      background: rgb(var(--clr-gray-lighter));
       border: 1px solid #e9ecef;
       border-radius: 8px;
       padding: 1.5rem;
@@ -274,7 +274,7 @@
       h4 {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #2c3e50;
+        color: rgb(var(--clr-dark));
         margin-bottom: 1rem;
       }
 
@@ -286,8 +286,8 @@
           width: 50px;
           height: 50px;
           border-radius: 50%;
-          background-color: #28a745;
-          color: white;
+          background-color: rgb(var(--clr-green));
+          color: rgb(var(--clr-white));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -305,19 +305,19 @@
           h5 {
             font-size: 1rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: rgb(var(--clr-dark));
             margin: 0 0 0.25rem 0;
           }
 
           p {
             margin: 0.25rem 0;
-            color: #6c757d;
+            color: rgb(var(--clr-gray-darker));
             font-size: 0.9rem;
 
             &.summary-price {
               font-size: 1.1rem;
               font-weight: 600;
-              color: #28a745;
+              color: rgb(var(--clr-green));
             }
           }
         }

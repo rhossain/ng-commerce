@@ -37,7 +37,7 @@
       background: white;
 
       &:hover:not(.disabled) {
-        border-color: #007bff;
+        border-color: rgb(var(--clr-secondary-custom));
         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
         transform: translateY(-1px);
       }
@@ -71,7 +71,7 @@
 
           fa-icon {
             font-size: 1.5rem;
-            color: #007bff;
+            color: rgb(var(--clr-secondary-custom));
           }
         }
 
@@ -171,7 +171,7 @@
         transition: all 0.3s ease;
 
         &:focus {
-          border-color: #007bff;
+          border-color: rgb(var(--clr-secondary-custom));
           box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
 
@@ -247,8 +247,8 @@
           border: 2px solid #ced4da;
 
           &:checked {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: rgb(var(--clr-secondary-custom));
+            border-color: rgb(var(--clr-secondary-custom));
           }
         }
 
@@ -359,7 +359,7 @@
           &.total-amount {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #007bff;
+            color: rgb(var(--clr-secondary-custom));
           }
         }
       }
@@ -371,8 +371,8 @@
   }
 
   .security-notice {
-    background: #e7f3ff;
-    border: 1px solid #b3d9ff;
+    background: rgba(var(--clr-orange), 0.1);
+    border: 1px solid rgba(var(--clr-orange), 0.4);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 2rem;
@@ -382,7 +382,7 @@
       align-items: flex-start;
 
       .lock-icon {
-        color: #007bff;
+        color: rgb(var(--clr-orange));
         font-size: 1.5rem;
         margin-right: 1rem;
         flex-shrink: 0;
@@ -395,12 +395,12 @@
         h4 {
           font-size: 1rem;
           font-weight: 600;
-          color: #004085;
+          color: rgb(var(--clr-orange));
           margin: 0 0 0.5rem 0;
         }
 
         p {
-          color: #004085;
+          color: rgb(var(--clr-orange));
           font-size: 0.9rem;
           margin: 0;
           line-height: 1.4;
@@ -415,7 +415,7 @@
     h4 {
       font-size: 1rem;
       font-weight: 600;
-      color: #2c3e50;
+      color: rgb(var(--clr-dark));
       margin-bottom: 1rem;
     }
 

@@ -1,9 +1,9 @@
-<div class="checkout-container">
-  <div class="container-fluid">
+<section class="checkout-container py-4">
+  <div class="container">
     <div class="row">
       <div class="col-12">
         <div class="checkout-header">
-          <h1 class="checkout-title">Checkout</h1>
+          <h3 class="checkout-title">Checkout</h3>
           <p class="checkout-subtitle">Complete your order in just a few steps</p>
         </div>
       </div>
@@ -11,7 +11,7 @@
 
     <div class="row">
       <!-- Main Checkout Form -->
-      <div class="col-lg-8">
+      <div class="col-lg-8 mb-4 mb-lg-0">
         <div class="checkout-main">
           
           <!-- Steps Progress -->
@@ -79,7 +79,7 @@
           <div class="checkout-navigation">
             <button 
               type="button" 
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-brand-primary me-2"
               [disabled]="currentStep === 1"
               (click)="currentStep = currentStep - 1">
               Previous
@@ -96,7 +96,7 @@
 
             <button 
               type="button" 
-              class="btn btn-success"
+              class="btn btn-primary"
               *ngIf="currentStep === 4"
               [disabled]="!isOrderValid || isProcessingOrder"
               (click)="processOrder()">
@@ -125,4 +125,4 @@
 
     </div>
   </div>
-</div>
+</section>

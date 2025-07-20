@@ -23,7 +23,7 @@
       }
 
       .item-count {
-        background: #007bff;
+        background: rgb(var(--clr-secondary-custom));
         color: white;
         padding: 0.25rem 0.75rem;
         border-radius: 12px;
@@ -159,7 +159,7 @@
             font-size: 0.9rem;
 
             &:focus {
-              border-color: #007bff;
+              border-color: rgb(var(--clr-secondary-custom));
               box-shadow: none;
             }
 
@@ -284,7 +284,7 @@
           .total-amount {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #007bff;
+            color: rgb(var(--clr-secondary-custom));
           }
         }
       }
@@ -323,7 +323,7 @@
 
         .shipping-icon {
           font-size: 1.5rem;
-          color: #007bff;
+          color: rgb(var(--clr-secondary-custom));
           margin-right: 1rem;
         }
 
@@ -347,19 +347,19 @@
     .security-notice {
       display: flex;
       align-items: center;
-      background: #e7f3ff;
-      border: 1px solid #b3d9ff;
+      background: rgba(var(--clr-orange), 0.1);
+      border: 1px solid rgba(var(--clr-orange), 0.4);
       border-radius: 6px;
       padding: 0.75rem;
 
       .info-icon {
-        color: #007bff;
+        color: rgb(var(--clr-orange));
         margin-right: 0.5rem;
         flex-shrink: 0;
       }
 
       p {
-        color: #004085;
+        color: rgb(var(--clr-orange));
         font-size: 0.85rem;
         margin: 0;
       }
@@ -371,7 +371,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(var(--clr-white), 0.95);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -383,7 +383,7 @@
 
         .processing-spinner {
           font-size: 2rem;
-          color: #007bff;
+          color: rgb(var(--clr-secondary-custom));
           margin-bottom: 1rem;
         }
 
