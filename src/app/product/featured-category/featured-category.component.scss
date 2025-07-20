@@ -171,19 +171,34 @@
     }
 }
 
-.category-list li {
-    cursor: pointer;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
+.category-list {
+    li {
+        position: relative;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
 
-    &.active {
-        background-color: #007bff;
-        color: white;
-        font-weight: bold;
+        a {
+            position: relative;
+            display: block;
+            padding: 6px 16px;
+        }
+
+        &.active {
+            background-color: rgb(var(--clr-secondary-custom));
+            color: rgb(var(--clr-white));
+            font-weight: bold;
+        }
+
+        &:hover:not(.active) {
+            background-color: rgb(var(--clr-gray));
+        }
     }
 
-    &:hover {
-        background-color: #f0f0f0;
+    @include media-breakpoint-down(lg) {
+        display: flex;
+        flex-wrap: wrap;
     }
 }
 

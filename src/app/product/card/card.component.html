@@ -53,10 +53,9 @@
       <app-star-rating class="d-flex py-2 text-black" [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
        
       <div class="price-section">
-        <span class="original-price">${{ product.variants?.[0]?.price }}</span>
-        <!-- <span class="discount">-{{ product.variants?.[0]?.price - product.variants?.[0]?.discountPrice }}</span> -->
+        <div class="original-price">${{ product.variants?.[0]?.price }}</div>
+        <div class="final-price">${{ product.variants?.[0]?.discountPrice }}</div>
       </div>
-      <div class="final-price">${{ product.variants?.[0]?.discountPrice }}</div>
     </div>
     <button class="cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
         <fa-icon [icon]="faCartPlus"></fa-icon>

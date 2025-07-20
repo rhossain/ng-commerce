@@ -3,26 +3,49 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-}
 
-.pagination-controls button {
-    padding: 6px 12px;
-    border: none;
-    background-color: #eee;
-    cursor: pointer;
-}
+    button {
+        font-size: 14px;
+        text-decoration: none;
+        transition: background 250ms;
+        display: inline-block;
+        padding: 0;
+        text-transform: uppercase;
+        margin: 0 3px 6px;
+        height: 38px;
+        min-width: 38px;
+        border-radius: 38px;
+        border: 2px solid rgb(var(--clr-primary-dark));
+        line-height: 36px;
+        color: rgb(var(--clr-primary-dark));
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        background-color: transparent;
+        cursor: pointer;
 
-.pagination-controls button.active,
-.pagination-controls button:disabled {
-    background-color: #007bff;
-    color: white;
-    cursor: default;
-}
+        &:first-child, &:last-child {
+            padding: 0 16px;
+        }
 
-button.active {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
+        &:hover:not(:disabled), &.active {
+            background-color: rgb(var(--clr-primary-light));
+            color: rgb(var(--clr-white));
+            cursor: default;
+        }
+
+        &:hover:not(:disabled) {
+            cursor: pointer;
+        }
+
+        &:disabled {
+            cursor: no-drop;
+            user-select: none;
+
+            &:not(.active) {
+                opacity: 0.6;
+            }
+        }
+    }
 }
 
 .sort-controls {

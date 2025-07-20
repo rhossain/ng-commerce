@@ -1,0 +1,17 @@
+.block-sidebar {
+    $this: block-sidebar !default;
+
+    .#{$this}-title {
+        margin-bottom: 0;
+        padding: 8px 16px;
+        font-size: 18px;
+    }
+
+    .#{$this}-content {
+        padding: 0;
+    }
+}
+
+.filter-chips {
+    padding: 16px;
+}

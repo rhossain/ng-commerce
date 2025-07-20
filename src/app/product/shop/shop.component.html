@@ -1,11 +1,13 @@
 <!-- Shop Section Begin -->
-<section class="com-shop spad">
+<section class="com-shop py-4">
     <div class="container">
         <div class="row">
-            <div class="col-xl-3 col-lg-4">
-                <div class="sidebar">
-                    <div class="sidebar-item">
-                        <h4>Vehicles</h4>
+            <aside class="col-xl-3 col-lg-4 sidebar">
+                <div class="card mb-3 block-sidebar">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Categories</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content">
                         <app-featured-category
                             [categories]="categories"
                             [styleType]="'sidebar'"
@@ -13,14 +15,19 @@
                             (categorySelected)="onCategorySelect($event)">
                         </app-featured-category>
                     </div>
-                    <div class="sidebar-item">
+                </div>
+                <div class="card mb-3 block-sidebar">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Filter Types</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content">
                         <div class="filter-chips">
-                            <button (click)="applyFilter('featured')">Featured</button>
-                            <button (click)="applyFilter('new')">New</button>
-                          </div>
+                            <button class="btn btn-dark me-2" (click)="applyFilter('featured')">Featured</button>
+                            <button class="btn btn-dark" (click)="applyFilter('new')">New</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </aside>
 
             <div class="col-xl-9 col-lg-8">
                 <app-product-list 

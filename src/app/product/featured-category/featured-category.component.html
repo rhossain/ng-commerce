@@ -57,8 +57,10 @@
     </div>
 
     <div *ngSwitchCase="'sidebar'">
-        <ul class="category-list" *ngIf="categories">
-            <li (click)="selectCategory(null)">All</li>
+        <ul class="m-0 p-0 w-100 category-list" *ngIf="categories">
+            <li (click)="selectCategory(null)">
+                <a (click)="selectCategory(null)">All</a>
+            </li>
             @for (category of categories; track $index) {
                 <li [class.active]="category.id === selectedCategoryId">
                     <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
