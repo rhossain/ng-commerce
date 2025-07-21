@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { tap, catchError, map } from 'rxjs/operators';
+import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../environments/environment';
 import { 
@@ -38,6 +38,112 @@ export class OrderService {
   // Order summary for quick access
   private orderSummarySubject = new BehaviorSubject<OrderSummary[]>([]);
   orderSummary$ = this.orderSummarySubject.asObservable();
+
+  // Add this to your OrderService class
+  private mockPromotions: PromotionModel[] = [
+    {
+      id: 1,
+      created_at: Date.now(),
+      code: 'SAVE10',
+      description: '10% off orders over $50',
+      discount_type: 'percentage',
+      discount_value: 10,
+      minimum_order_amount: 50,
+      maximum_discount_amount: 100, // Cap at $100 max discount
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: 1000,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: undefined
+    },
+    {
+      id: 2,
+      created_at: Date.now(),
+      code: 'SAVE20',
+      description: '20% off orders over $100',
+      discount_type: 'percentage',
+      discount_value: 20,
+      minimum_order_amount: 100,
+      maximum_discount_amount: 200, // Cap at $200 max discount
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: 500,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: undefined
+    },
+    {
+      id: 3,
+      created_at: Date.now(),
+      code: 'FREESHIP',
+      description: 'Free shipping on all orders',
+      discount_type: 'free_shipping',
+      discount_value: 0,
+      minimum_order_amount: undefined,
+      maximum_discount_amount: undefined,
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: undefined,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: undefined
+    },
+    {
+      id: 4,
+      created_at: Date.now(),
+      code: 'WELCOME25',
+      description: '$25 off orders over $75',
+      discount_type: 'fixed_amount',
+      discount_value: 25,
+      minimum_order_amount: 75,
+      maximum_discount_amount: undefined,
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: 100,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: undefined
+    },
+    {
+      id: 5,
+      created_at: Date.now(),
+      code: 'VIP50',
+      description: '$50 off orders over $200',
+      discount_type: 'fixed_amount',
+      discount_value: 50,
+      minimum_order_amount: 200,
+      maximum_discount_amount: undefined,
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: 50,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: undefined
+    },
+    {
+      id: 6,
+      created_at: Date.now(),
+      code: 'ELECTRONICS15',
+      description: '15% off electronics category',
+      discount_type: 'percentage',
+      discount_value: 15,
+      minimum_order_amount: 50,
+      maximum_discount_amount: 150,
+      start_date: '2025-01-01',
+      end_date: '2025-12-31',
+      usage_limit: 200,
+      usage_count: 0,
+      is_active: true,
+      applicable_products: undefined,
+      applicable_categories: [1] // Assuming electronics category has ID 1
+    }
+  ];
 
   constructor(
     private http: HttpClient,
@@ -231,40 +337,105 @@ export class OrderService {
   /**
    * Validate promotion code
    */
+  // validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
+  //   const url = `${this.apiUrl}/promotions/validate`;
+  //   return this.http.post<PromotionModel>(url, { code, order_total: orderTotal }).pipe(
+  //     tap(promotion => {
+  //       this.toastr.success(`Promotion "${promotion.code}" applied!`, 'Success');
+  //     }),
+  //     catchError(error => {
+  //       if (error.status === 404) {
+  //         this.toastr.error('Invalid promotion code', 'Error');
+  //       } else if (error.status === 400) {
+  //         this.toastr.error('Promotion code is not applicable to this order', 'Error');
+  //       } else {
+  //         this.toastr.error('Failed to validate promotion code', 'Error');
+  //       }
+  //       return throwError(() => error);
+  //     })
+  //   );
+  // }
   validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
-    const url = `${this.apiUrl}/promotions/validate`;
-    return this.http.post<PromotionModel>(url, { code, order_total: orderTotal }).pipe(
-      tap(promotion => {
-        this.toastr.success(`Promotion "${promotion.code}" applied!`, 'Success');
-      }),
-      catchError(error => {
-        if (error.status === 404) {
-          this.toastr.error('Invalid promotion code', 'Error');
-        } else if (error.status === 400) {
-          this.toastr.error('Promotion code is not applicable to this order', 'Error');
-        } else {
-          this.toastr.error('Failed to validate promotion code', 'Error');
-        }
-        return throwError(() => error);
-      })
+    // Find the promotion (case insensitive)
+    const promotion = this.mockPromotions.find(p => 
+      p.code.toLowerCase() === code.toLowerCase().trim() && p.is_active
     );
+
+    if (!promotion) {
+      // Promotion not found
+      this.toastr.error('Invalid promotion code', 'Error');
+      return throwError(() => ({ status: 404, message: 'Promotion code not found' }));
+    }
+
+    // Check date range
+    const currentDate = new Date().toISOString().split('T')[0];
+    if (currentDate < promotion.start_date || currentDate > promotion.end_date) {
+      this.toastr.error('This promotion is not currently active', 'Error');
+      return throwError(() => ({ 
+        status: 400, 
+        message: 'This promotion is not currently active' 
+      }));
+    }
+
+    // Check minimum order amount
+    if (promotion.minimum_order_amount && orderTotal < promotion.minimum_order_amount) {
+      this.toastr.error(`Minimum order amount of $${promotion.minimum_order_amount} required`, 'Error');
+      return throwError(() => ({ 
+        status: 400, 
+        message: `Minimum order amount of $${promotion.minimum_order_amount} required` 
+      }));
+    }
+
+    // Check usage limit (if any)
+    if (promotion.usage_limit && promotion.usage_count >= promotion.usage_limit) {
+      this.toastr.error('This promotion has reached its usage limit', 'Error');
+      return throwError(() => ({ 
+        status: 400, 
+        message: 'This promotion has reached its usage limit' 
+      }));
+    }
+
+    // Success! Return the promotion
+    this.toastr.success(`Promotion "${promotion.code}" applied!`, 'Success');
+    return of(promotion);
   }
 
-  /**
-   * Calculate discount amount
-   */
-  calculateDiscount(promotion: PromotionModel, orderTotal: number): number {
-    if (promotion.discount_type === 'percentage') {
-      const discount = (orderTotal * promotion.discount_value) / 100;
-      return promotion.maximum_discount_amount 
-        ? Math.min(discount, promotion.maximum_discount_amount)
-        : discount;
-    } else if (promotion.discount_type === 'fixed_amount') {
-      return Math.min(promotion.discount_value, orderTotal);
-    } else if (promotion.discount_type === 'free_shipping') {
-      return 0; // Shipping cost will be set to 0 separately
+  // Optional: Add a method to get all available promotions (for testing/debugging)
+  getAvailablePromotions(): PromotionModel[] {
+    return this.mockPromotions.filter(p => p.is_active);
+  }
+
+  // Optional: Add method to simulate using a promotion (increment usage count)
+  usePromotion(code: string): void {
+    const promotion = this.mockPromotions.find(p => 
+      p.code.toLowerCase() === code.toLowerCase().trim()
+    );
+    
+    if (promotion) {
+      promotion.usage_count++;
+      console.log(`Promotion ${code} used. New usage count: ${promotion.usage_count}`);
     }
-    return 0;
+  }
+
+  // Enhanced calculateDiscount method that works with your PromotionModel
+  calculateDiscount(promotion: PromotionModel, orderTotal: number): number {
+    let discount = 0;
+    
+    if (promotion.discount_type === 'percentage') {
+      discount = (orderTotal * promotion.discount_value) / 100;
+      
+      // Apply maximum discount cap if specified
+      if (promotion.maximum_discount_amount && discount > promotion.maximum_discount_amount) {
+        discount = promotion.maximum_discount_amount;
+      }
+    } else if (promotion.discount_type === 'fixed_amount') {
+      discount = Math.min(promotion.discount_value, orderTotal);
+    } else if (promotion.discount_type === 'free_shipping') {
+      // For free shipping, return 0 (shipping cost will be handled separately)
+      discount = 0;
+    }
+    
+    return Math.round(discount * 100) / 100; // Round to 2 decimal places
   }
 
   /**
