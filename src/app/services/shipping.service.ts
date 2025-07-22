@@ -100,27 +100,35 @@ export class ShippingService {
 
   // ✅ Get user shipping addresses from Xano (with caching)
   getUserShippingAddresses(forceRefresh: boolean = false): Observable<ShippingAddress[]> {
-    // ✅ Return cached data if available and not forcing refresh
+    // ✅ SECURITY CHECK: Ensure user is logged in
+    const currentUserId = this.authService.getUserId();
+    if (!currentUserId) {
+      console.warn('⚠️ No user logged in - clearing addresses');
+      this.userAddressesSubject.next([]);
+      return of([]);
+    }
+
+    // Return cached data if available and not forcing refresh
     if (!forceRefresh && this.userAddressesSubject.value.length > 0 && !this.loadingStates.addresses) {
       return of(this.userAddressesSubject.value);
     }
 
-    // ✅ Prevent multiple simultaneous requests
+    // Prevent multiple simultaneous requests
     if (this.loadingStates.addresses) {
       return this.userAddresses$;
     }
 
     this.loadingStates.addresses = true;
-    console.log('📍 Fetching user shipping addresses...');
+    console.log(`📍 Fetching addresses for user ID: ${currentUserId}...`);
     
     const url = `${this.apiUrl}/${environment.apiEndpoints.shipping.getUserAddresses}`;
     const headers = this.getHttpHeaders();
     
     return this.http.get<ShippingAddress[]>(url, { headers }).pipe(
       tap(response => {
-        console.log('✅ Addresses loaded successfully');
+        console.log('✅ Raw server response:', response);
         
-        // ✅ Handle different Xano response formats
+        // Handle different Xano response formats
         let addresses: ShippingAddress[] = [];
         
         if (Array.isArray(response)) {
@@ -129,8 +137,21 @@ export class ShippingService {
           addresses = (response as any).data || (response as any).addresses || [response];
         }
         
-        // ✅ Process and validate addresses
-        const processedAddresses = addresses.map(addr => ({
+        console.log(`📊 Total addresses from server: ${addresses.length}`);
+        
+        // ✅ CRITICAL SECURITY FIX: Filter by current user
+        const userAddresses = addresses.filter(addr => {
+          const isUserAddress = addr.user_id === currentUserId;
+          if (!isUserAddress) {
+            console.warn(`⚠️ Filtering out address ${addr.id} - belongs to user ${addr.user_id}, not ${currentUserId}`);
+          }
+          return isUserAddress;
+        });
+        
+        console.log(`🔒 Filtered to ${userAddresses.length} addresses for current user ${currentUserId}`);
+        
+        // Process and validate addresses
+        const processedAddresses = userAddresses.map(addr => ({
           id: addr.id,
           created_at: addr.created_at || Date.now(),
           first_name: addr.first_name || '',
@@ -141,24 +162,27 @@ export class ShippingService {
           city: addr.city || '',
           state: addr.state || '',
           zip_code: addr.zip_code || '',
-          country: addr.country || 'US',
+          country: addr.country || 'BD',
           phone: addr.phone || '',
           delivery_instructions: addr.delivery_instructions || '',
           is_validated: addr.is_validated ?? false,
           is_active: addr.is_active ?? false,
-          user_id: addr.user_id || this.authService.getUserId() || 0
+          user_id: addr.user_id || currentUserId
         }));
         
-        // ✅ Sort addresses: active first, then by creation date
+        // Sort addresses: active first, then by creation date
         const sortedAddresses = processedAddresses.sort((a, b) => {
           if (a.is_active && !b.is_active) return -1;
           if (!a.is_active && b.is_active) return 1;
           return (b.created_at || 0) - (a.created_at || 0);
         });
         
+        // ✅ Update the subject with filtered addresses
         this.userAddressesSubject.next(sortedAddresses);
         
-        // ✅ Show toast only for manual refreshes
+        console.log(`✅ Service updated with ${sortedAddresses.length} user addresses`);
+        
+        // Show toast only for manual refreshes
         if (forceRefresh) {
           this.toastr.success(`${sortedAddresses.length} addresses loaded`, 'Addresses');
         }
@@ -291,26 +315,49 @@ export class ShippingService {
   createShippingAddress(address: Omit<ShippingAddress, 'id' | 'created_at' | 'user_id'>): Observable<ShippingAddress> {
     console.log('➕ Creating new shipping address...');
     
+    // ✅ SECURITY CHECK: Ensure user is logged in
+    const currentUserId = this.authService.getUserId();
+    if (!currentUserId) {
+      this.toastr.error('Please log in to create addresses', 'Authentication Required');
+      return throwError(() => new Error('User not authenticated'));
+    }
+    
     const url = `${this.apiUrl}/${environment.apiEndpoints.shipping.createAddress}`;
     const headers = this.getHttpHeaders();
+    console.log('URL: ', url);
     
-    // ✅ Add required fields for Xano
+    // ✅ Ensure all required fields are included with defaults
     const addressData = {
       ...address,
-      user_id: this.authService.getUserId(),
-      created_at: Date.now()
+      user_id: currentUserId, // ✅ Explicitly set current user ID
+      created_at: Date.now(),
+      is_validated: address.is_validated ?? false,
+      is_active: address.is_active ?? false,
+      company: address.company || '',
+      address_line_2: address.address_line_2 || '',
+      delivery_instructions: address.delivery_instructions || '',
+      country: address.country || 'BD'
     };
+    
+    console.log('📤 Sending complete address data:', addressData);
     
     return this.http.post<ShippingAddress>(url, addressData, { headers }).pipe(
       tap(newAddress => {
         console.log('✅ Address created:', newAddress.id);
         
-        // ✅ If this address is set as active, deactivate others
+        // ✅ SECURITY VERIFY: Ensure returned address belongs to current user
+        if (newAddress.user_id !== currentUserId) {
+          console.error('❌ Security violation: Created address belongs to wrong user!');
+          this.toastr.error('Security error - address creation failed', 'Error');
+          return;
+        }
+        
+        // If this address is set as active, deactivate others
         if (newAddress.is_active) {
           this.deactivateOtherAddresses(newAddress.id);
         }
         
-        // ✅ Add to local cache
+        // Add to local cache
         const currentAddresses = this.userAddressesSubject.value;
         this.userAddressesSubject.next([newAddress, ...currentAddresses]);
         
@@ -328,19 +375,54 @@ export class ShippingService {
   updateShippingAddress(addressId: number, address: Partial<ShippingAddress>): Observable<ShippingAddress> {
     console.log('✏️ Updating shipping address:', addressId);
     
+    // ✅ SECURITY CHECK: Ensure user is logged in
+    const currentUserId = this.authService.getUserId();
+    if (!currentUserId) {
+      this.toastr.error('Please log in to update addresses', 'Authentication Required');
+      return throwError(() => new Error('User not authenticated'));
+    }
+    
+    // ✅ SECURITY CHECK: Verify address belongs to current user
+    const existingAddress = this.userAddressesSubject.value.find(addr => addr.id === addressId);
+    if (!existingAddress || existingAddress.user_id !== currentUserId) {
+      this.toastr.error('You can only update your own addresses', 'Security Error');
+      return throwError(() => new Error('Address does not belong to current user'));
+    }
+    
     const url = `${this.apiUrl}/${environment.apiEndpoints.shipping.updateAddress}/${addressId}`;
     const headers = this.getHttpHeaders();
     
-    return this.http.patch<ShippingAddress>(url, address, { headers }).pipe(
+    // Ensure required fields are included in updates
+    const updateData = {
+      ...address,
+      user_id: currentUserId, // ✅ Ensure user_id stays with current user
+      ...(address.is_validated === undefined && { is_validated: false }),
+      ...(address.is_active === undefined && { is_active: false }),
+      ...(address.company === undefined && { company: '' }),
+      ...(address.address_line_2 === undefined && { address_line_2: '' }),
+      ...(address.delivery_instructions === undefined && { delivery_instructions: '' }),
+      ...(address.country === undefined && { country: 'BD' })
+    };
+    
+    console.log('📤 Sending update data:', updateData);
+    
+    return this.http.patch<ShippingAddress>(url, updateData, { headers }).pipe(
       tap(updatedAddress => {
         console.log('✅ Address updated:', updatedAddress.id);
         
-        // ✅ If this address is set as active, deactivate others
+        // ✅ SECURITY VERIFY: Ensure updated address still belongs to current user
+        if (updatedAddress.user_id !== currentUserId) {
+          console.error('❌ Security violation: Updated address belongs to wrong user!');
+          this.toastr.error('Security error - address update failed', 'Error');
+          return;
+        }
+        
+        // If this address is set as active, deactivate others
         if (updatedAddress.is_active) {
           this.deactivateOtherAddresses(updatedAddress.id);
         }
         
-        // ✅ Update local cache
+        // Update local cache
         const currentAddresses = this.userAddressesSubject.value;
         const index = currentAddresses.findIndex(a => a.id === addressId);
         if (index !== -1) {
@@ -625,6 +707,26 @@ export class ShippingService {
     console.log('Free Shipping Threshold:', method.free_shipping_threshold);
     console.log('Qualifies for Free Shipping:', cartTotal >= method.free_shipping_threshold);
     console.log('Final Cost:', this.calculateShippingCost(methodId, cartTotal));
+    console.groupEnd();
+  }
+
+  // Debug current states
+  debugCurrentState(): void {
+    const currentUserId = this.authService.getUserId();
+    const addresses = this.userAddressesSubject.value;
+    
+    console.group('🔍 Shipping Service Debug');
+    console.log('Current User ID:', currentUserId);
+    console.log('Total Addresses in Subject:', addresses.length);
+    console.log('Addresses by User:');
+    
+    const grouped = addresses.reduce((acc: any, addr) => {
+      acc[addr.user_id] = (acc[addr.user_id] || 0) + 1;
+      return acc;
+    }, {});
+    
+    console.table(grouped);
+    console.log('All Addresses:', addresses);
     console.groupEnd();
   }
 }

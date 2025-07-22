@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -43,8 +43,9 @@ export class ShippingFormComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private shippingService: ShippingService,
-    private authService: AuthService
+    public shippingService: ShippingService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
     this.initializeForm();
   }
@@ -53,6 +54,15 @@ export class ShippingFormComponent implements OnInit, OnDestroy {
     this.setupFormSubscriptions();
     this.initializeWithUserData();
     this.checkValidation();
+
+    // ✅ Add this reactive subscription for immediate updates
+    this.shippingService.userAddresses$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(addresses => {
+        console.log('📍 Addresses updated:', addresses.length);
+        this.shippingAddresses = addresses; // Update your component property
+        this.cdr.markForCheck(); // Force change detection
+      });
   }
 
   ngOnDestroy(): void {
@@ -68,9 +78,9 @@ export class ShippingFormComponent implements OnInit, OnDestroy {
       address_line_1: ['', [Validators.required, Validators.minLength(5)]],
       address_line_2: [''],
       city: ['', [Validators.required, Validators.minLength(2)]],
-      state: ['', [Validators.required, Validators.minLength(2)]],
-      zip_code: ['', [Validators.required, Validators.pattern(/^\d{5}(-\d{4})?$/)]],
-      country: ['US', Validators.required],
+      state: [''],
+      zip_code: ['', [Validators.required, Validators.pattern(/^\d{4}(-\d{4})?$/)]],
+      country: ['BD', Validators.required],
       phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]{10,}$/)]],
       delivery_instructions: ['']
     });
@@ -96,7 +106,7 @@ export class ShippingFormComponent implements OnInit, OnDestroy {
         city: this.currentUser.city || '',
         state: this.currentUser.state || '',
         zip_code: this.currentUser.zip_code || '',
-        country: 'US'
+        country: 'BD'
       };
       this.shippingForm.patchValue(userData);
       this.showAddressForm = true;
@@ -139,7 +149,7 @@ export class ShippingFormComponent implements OnInit, OnDestroy {
     this.isEditingAddress = false;
     this.editingAddressId = null;
     this.shippingForm.reset({
-      country: 'US'
+      country: 'BD'
     });
     this.checkValidation();
   }

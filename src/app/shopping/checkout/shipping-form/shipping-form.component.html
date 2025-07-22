@@ -13,7 +13,7 @@
     <h3>Saved Addresses</h3>
     <div class="address-grid">
       <div 
-        *ngFor="let address of shippingAddresses" 
+        *ngFor="let address of shippingService.userAddresses$ | async" 
         class="address-card"
         [class.selected]="selectedAddress?.id === address.id"
         (click)="onAddressSelect(address)">
@@ -159,23 +159,20 @@
         <!-- State -->
         <div class="col-md-4">
           <div class="form-group">
-            <label for="state" class="form-label">State *</label>
+            <label for="state" class="form-label">State</label>
             <select
               id="state"
               class="form-control"
-              formControlName="state"
-              [class.is-invalid]="isFieldInvalid('state')">
+              formControlName="state">
               <option value="">Select state</option>
-              <option value="AL">Alabama</option>
-              <option value="AK">Alaska</option>
-              <option value="AZ">Arizona</option>
-              <option value="AR">Arkansas</option>
-              <option value="CA">California</option>
-              <option value="CO">Colorado</option>
-              <option value="CT">Connecticut</option>
-              <option value="DE">Delaware</option>
-              <option value="FL">Florida</option>
-              <option value="GA">Georgia</option>
+              <option value="BD-A">Barisal</option>
+              <option value="BD-B">Chittagong</option>
+              <option value="BD-C">Dhaka</option>
+              <option value="BD-D">Khulna</option>
+              <option value="BD-H">Mymensingh</option>
+              <option value="BD-E">Rajshahi</option>
+              <option value="BD-F">Rangpur</option>
+              <option value="BD-G">Sylhet</option>
               <!-- Add more states as needed -->
             </select>
             <div class="invalid-feedback">
@@ -194,7 +191,7 @@
               class="form-control"
               formControlName="zip_code"
               [class.is-invalid]="isFieldInvalid('zip_code')"
-              placeholder="12345">
+              placeholder="1234">
             <div class="invalid-feedback">
               {{ getFieldError('zip_code') }}
             </div>
@@ -210,6 +207,7 @@
           class="form-control"
           formControlName="country"
           [class.is-invalid]="isFieldInvalid('country')">
+          <option value="BD">Bangladesh</option>
           <option value="US">United States</option>
           <option value="CA">Canada</option>
           <!-- Add more countries as needed -->
