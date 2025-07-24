@@ -14,7 +14,10 @@ export const environment: EnvironmentConfiguration = {
             getNewProduct: "products/new",
             addReview: "review",
             updateReview: "review",
-            deleteReview: "review"
+            deleteReview: "review",
+            searchProducts: "products/search",
+            searchSuggestions: "products/search-suggestions",
+            popularSearches: "products/popular-searches"
         },
         product_images: {
             getAllImages: "product_images",

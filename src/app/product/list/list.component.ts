@@ -27,6 +27,12 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   skeletonCount = Array(3);
   destroy$ = new Subject<void>();
 
+  // ✅ NEW: Accept external data from search results
+  @Input() externalProducts?: ProductModel[];
+  @Input() externalPagination?: any;
+  @Input() searchQuery?: string;
+
+  // Existing inputs
   @Input() minPrice?: number;
   @Input() maxPrice?: number = 100;
   @Input() categoryId?: number | null;
@@ -62,6 +68,13 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // ✅ Check if we have external data (from search)
+    if (this.externalProducts && this.externalPagination) {
+      this.useExternalData();
+      return;
+    }
+
+    // Original logic for non-search pages
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(async (params) => {
       this.filterType = params['filter'] || null;
       this.currentPage = +params['page'] || 1;
@@ -95,6 +108,13 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    // ✅ Handle external data changes
+    if (changes['externalProducts'] && this.externalProducts) {
+      this.useExternalData();
+      return;
+    }
+
+    // Original logic
     if (changes['minPrice'] || changes['maxPrice'] || changes['categoryId']) {
       this.filtersChanged$.next();
     }
@@ -105,7 +125,27 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
+  // ✅ NEW: Use external data from search results
+  private useExternalData(): void {
+    if (!this.externalProducts || !this.externalPagination) return;
+
+    this.products = this.externalProducts;
+    this.filteredProducts = this.externalProducts;
+    this.currentPage = this.externalPagination.current_page || 1;
+    this.totalPages = this.externalPagination.total_pages || 1;
+    this.perPage = this.externalPagination.per_page || 12;
+    
+    this.productCountChanged.emit(this.filteredProducts.length);
+    this.generatePageNumbers();
+  }
+
   async fetchProducts(): Promise<void> {
+    // ✅ Skip fetching if using external data
+    if (this.externalProducts) {
+      this.useExternalData();
+      return;
+    }
+
     this.loading = true;
     try {
       const res = await this.productCacheService.getPaginatedProducts(
@@ -161,23 +201,57 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
 
   goToPage(page: number | string): void {
     if (typeof page === 'number' && page >= 1 && page <= this.totalPages && page !== this.currentPage) {
-      this.updateQueryParams({ page });
+      // ✅ For search results, handle pagination differently
+      if (this.externalProducts) {
+        this.handleSearchPagination(page);
+      } else {
+        this.updateQueryParams({ page });
+      }
     }
   }
 
+  // ✅ NEW: Handle pagination for search results
+  private handleSearchPagination(page: number): void {
+    // Update URL with search parameters
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('page', page.toString());
+    this.router.navigateByUrl(currentUrl.pathname + currentUrl.search);
+  }
+
   onSortChange(): void {
-    this.navigateWithSort(this.sortBy, this.orderBy);
+    if (this.externalProducts) {
+      this.handleSearchSorting(this.sortBy, this.orderBy);
+    } else {
+      this.navigateWithSort(this.sortBy, this.orderBy);
+    }
   }
 
   toggleOrder(): void {
     this.orderBy = this.orderBy === 'asc' ? 'desc' : 'asc';
-    this.navigateWithSort(this.sortBy, this.orderBy);
+    if (this.externalProducts) {
+      this.handleSearchSorting(this.sortBy, this.orderBy);
+    } else {
+      this.navigateWithSort(this.sortBy, this.orderBy);
+    }
   }
 
   resetSort(): void {
     this.sortBy = 'id';
     this.orderBy = 'asc';
-    this.navigateWithSort(this.sortBy, this.orderBy);
+    if (this.externalProducts) {
+      this.handleSearchSorting(this.sortBy, this.orderBy);
+    } else {
+      this.navigateWithSort(this.sortBy, this.orderBy);
+    }
+  }
+
+  // ✅ NEW: Handle sorting for search results
+  private handleSearchSorting(sortBy: string, orderBy: 'asc' | 'desc'): void {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('sort_by', sortBy);
+    currentUrl.searchParams.set('sort_order', orderBy);
+    currentUrl.searchParams.set('page', '1'); // Reset to first page
+    this.router.navigateByUrl(currentUrl.pathname + currentUrl.search);
   }
 
   navigateWithSort(sortBy: string, orderBy: 'asc' | 'desc'): void {
@@ -196,7 +270,16 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
     const perPage = +(event.target as HTMLSelectElement).value;
     if (perPage > 0) {
       this.perPage = perPage;
-      this.updateQueryParams({ perPage, page: 1 });
+      
+      if (this.externalProducts) {
+        // Handle per-page change for search results
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('per_page', perPage.toString());
+        currentUrl.searchParams.set('page', '1');
+        this.router.navigateByUrl(currentUrl.pathname + currentUrl.search);
+      } else {
+        this.updateQueryParams({ perPage, page: 1 });
+      }
     }
   }
 
@@ -210,5 +293,9 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   clearCart(): void {
     this.cartService.clearCart();
   }
-}
 
+  // ✅ NEW: Helper to check if using external data
+  isUsingExternalData(): boolean {
+    return !!(this.externalProducts && this.externalPagination);
+  }
+}

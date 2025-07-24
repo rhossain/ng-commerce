@@ -19,7 +19,7 @@ interface CategoryWithCount extends ProductCategory {
 })
 export class FeaturedCategoryComponent {
   @Input() styleType: 'default' | 'list' | 'grid' | 'pill' | 'sidebar' = 'default';
-  @Input() selectedCategoryId!: number | null;
+  @Input() selectedCategoryId: number | null = null;;
   @Input() onlyCategoryIds?: number[];
   @Input() categories: ProductCategory[] = [];
 
@@ -34,8 +34,8 @@ export class FeaturedCategoryComponent {
     private productService: ProductService
   ) {}
 
-  selectCategory(id: number | null): void {
-    this.categorySelected.emit(id);
+  selectCategory(categoryId: number | null): void {
+    this.categorySelected.emit(categoryId);
   }
 
   onCategorySelect(categoryId: number): void {

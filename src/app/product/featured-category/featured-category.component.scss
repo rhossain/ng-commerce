@@ -189,6 +189,14 @@
             background-color: rgb(var(--clr-secondary-custom));
             color: rgb(var(--clr-white));
             font-weight: bold;
+
+            a {
+                color: rgb(var(--clr-white));
+                
+                &:hover {
+                    color: rgb(var(--clr-white));
+                }
+            }
         }
 
         &:hover:not(.active) {

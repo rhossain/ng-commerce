@@ -58,14 +58,20 @@
 
     <div *ngSwitchCase="'sidebar'">
         <ul class="m-0 p-0 w-100 category-list" *ngIf="categories">
-            <li (click)="selectCategory(null)">
-                <a (click)="selectCategory(null)">All</a>
+            <!-- All Categories option -->
+            <li class="category-list-item" 
+                [class.active]="selectedCategoryId === null"
+                (click)="selectCategory(null)">
+                <a href="javascript:void(0)">All Categories</a>
             </li>
-            @for (category of categories; track $index) {
-                <li [class.active]="category.id === selectedCategoryId">
-                    <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
-                </li>
-            }
+            
+            <!-- Individual categories -->
+            <li *ngFor="let category of categories" 
+                class="category-list-item"
+                [class.active]="selectedCategoryId === category.id"
+                (click)="selectCategory(category.id)">
+                <a href="javascript:void(0)">{{ category.name }}</a>
+            </li>
         </ul>
     </div>
 </ng-container>

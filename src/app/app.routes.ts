@@ -26,6 +26,19 @@ export const routes: Routes = [
         path: 'shopping',
         loadChildren: () => import('../app/shopping/shopping.routes')
     },
+    {
+        path: 'shop',
+        loadComponent: () => import('../app/product/shop/shop.component'),
+        title: 'Shop & Search'
+    },
+    {
+        path: 'search-results',
+        redirectTo: '/shop'
+    },
+    {
+        path: 'search',
+        redirectTo: '/shop'
+    },
     { path: 'auth/login', component: LoginComponent },
     { path: 'auth/register', component: RegisterComponent },
     { path: 'auth/profile', component: ProfileComponent, canActivate: [AuthGuard] }

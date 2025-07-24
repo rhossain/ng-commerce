@@ -10,7 +10,10 @@ export interface EnvironmentConfiguration {
             getNewProduct: string,
             addReview: string,
             updateReview: string,
-            deleteReview: string
+            deleteReview: string,
+            searchProducts: string,
+            searchSuggestions: string,
+            popularSearches: string
         },
         product_images: {
             getAllImages: string;
