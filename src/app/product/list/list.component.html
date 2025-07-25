@@ -4,7 +4,7 @@
 
 <div *ngIf="(products || filteredProducts) && (products.length || filteredProducts.length) > 0; else noProducts">
     <div class="row align-items-center mb-3">
-        <div class="col-lg-6 col-md-5">
+        <div class="col-9">
             <div class="sort-controls">
                 <label for="sort">Sort by:</label>
                 <select class="form-select" style="width: 150px;" id="sort" [(ngModel)]="sortBy" (change)="onSortChange()">
@@ -20,10 +20,7 @@
                 </button>
             </div>                            
         </div>
-        <div class="col-lg-4 col-md-3">
-            <h6 class="mb-0 text-center"><span>{{ products.length }}</span> Products found</h6>
-        </div>
-        <div class="col-lg-2 col-md-1 text-end">
+        <div class="col-3 text-end">
             <!-- <div class="filter__option">
                 <span class="icon_grid-2x2"></span>
                 <span class="icon_ul"></span>
@@ -57,8 +54,15 @@
         </ng-container>
     </div>
 
-    <div class="row">
-        <div class="col-12">
+    <div class="row align-items-center">
+        <div [ngClass]="totalPages > 1 ? 'col-4' : ''" *ngIf="totalPages > 1">
+            <div class="pagination-info text-left">
+                Showing {{ ((currentPage - 1) * perPage) + 1 }} - 
+                {{ Math.min(currentPage * perPage, totalItemsCount) }} 
+                of {{ totalItemsCount }} products
+            </div>
+        </div>
+        <div [ngClass]="totalPages > 1 ? 'col-8' : 'col-12'">
             <!-- Pagination Controls -->
             <div class="pagination-controls justify-content-end">
                 <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">

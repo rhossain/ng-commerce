@@ -1,8 +1,6 @@
-<!-- Enhanced shop.component.html - Now handles both shop and search -->
 <section class="com-shop py-4">
     <div class="container">
         
-        <!-- ✅ NEW: Page Header with Search Info -->
         <div class="row mb-4" *ngIf="isSearchMode || filterType || minPrice || maxPrice || selectedCategoryId">
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
@@ -28,7 +26,6 @@
         <div class="row">
             <aside class="col-xl-3 col-lg-4 sidebar">
                 
-                <!-- ✅ ENHANCED: Search Box (always visible) -->
                 <div class="card mb-3 block-sidebar">
                     <div class="card-header border-bottom-0 p-0 block-sidebar-header">
                         <h4 class="block-sidebar-title">Search Products</h4>

@@ -18,7 +18,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './shop.component.scss'
 })
 export default class ShopComponent implements OnInit, OnChanges {
-  // Existing properties
   price: number = 100;
   minPrice: number | null = null;
   maxPrice: number | null = null;
@@ -31,7 +30,7 @@ export default class ShopComponent implements OnInit, OnChanges {
   filterType: 'featured' | 'new' | 'best-sell' | 'discounted' | null = null;
   categories: ProductCategory[] = [];
 
-  // ✅ NEW: Search-specific properties
+  // Search-specific properties
   searchQuery: string = '';
   isSearchMode: boolean = false;
   searchResults: any = null;
@@ -40,7 +39,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     private route: ActivatedRoute, 
     private router: Router, 
     private categoryService: CategoryService,
-    private searchService: SearchService // ✅ Add search service
+    private searchService: SearchService
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -49,14 +48,14 @@ export default class ShopComponent implements OnInit, OnChanges {
   
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      // ✅ Check if this is a search request
+      // Check if this is a search request
       this.searchQuery = params['q'] || '';
       this.isSearchMode = !!this.searchQuery;
 
       // Extract all parameters (works for both shop and search)
       this.selectedCategoryId = params['categoryId'] || params['category_id'] ? +(params['categoryId'] || params['category_id']) : null;
       
-      // ✅ Handle both parameter formats for price
+      // Handle both parameter formats for price
       this.minPrice = params['minPrice'] || params['min_price'] ? +(params['minPrice'] || params['min_price']) : null;
       this.maxPrice = params['maxPrice'] || params['max_price'] ? +(params['maxPrice'] || params['max_price']) : null;
       
@@ -65,7 +64,7 @@ export default class ShopComponent implements OnInit, OnChanges {
       this.sortBy = params['sortBy'] || params['sort_by'] || 'id';
       this.orderBy = (params['orderBy'] || params['sort_order']) === 'desc' ? 'desc' : 'asc';
 
-      // ✅ If search mode, perform search
+      // If search mode, perform search
       if (this.isSearchMode) {
         this.performSearch();
       }
@@ -73,7 +72,7 @@ export default class ShopComponent implements OnInit, OnChanges {
 
     this.loadCategories();
 
-    // ✅ Subscribe to search results
+    // Subscribe to search results
     this.searchService.searchResults$.subscribe(results => {
       if (this.isSearchMode) {
         this.searchResults = results;
@@ -81,7 +80,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ NEW: Perform search using SearchService
+  // Perform search using SearchService
   private performSearch(): void {
     const searchRequest: SearchRequest = {
       q: this.searchQuery,
@@ -104,7 +103,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ ENHANCED: Handle both shop and search URL updates
+  // Handle both shop and search URL updates
   private updateUrl(params: { [key: string]: any }): void {
     // Determine the correct parameter names based on mode
     const urlParams: { [key: string]: any } = {};
@@ -133,7 +132,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ UPDATED: Modified existing methods to work with both modes
+  // Modified existing methods to work with both modes
   onPriceChange(): void {
     this.updateUrl({
       'minPrice': this.minPrice,
@@ -142,7 +141,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ NEW: Clear individual price filters
+  // Clear individual price filters
   clearMinPrice(): void {
     this.minPrice = null;
     this.onPriceChange();
@@ -153,14 +152,14 @@ export default class ShopComponent implements OnInit, OnChanges {
     this.onPriceChange();
   }
 
-  // ✅ NEW: Clear entire price range
+  // Clear entire price range
   clearPriceRange(): void {
     this.minPrice = null;
     this.maxPrice = null;
     this.onPriceChange();
   }
 
-  // ✅ NEW: Set quick price ranges
+  // Set quick price ranges
   setQuickPrice(min: number | null, max: number | null): void {
     this.minPrice = min;
     this.maxPrice = max;
@@ -221,7 +220,7 @@ export default class ShopComponent implements OnInit, OnChanges {
   }
 
   applyFilter(filter: string) {
-    // ✅ Clear all other filters when applying Featured/New filter
+    // Clear all other filters when applying Featured/New filter
     this.searchQuery = '';
     this.selectedCategoryId = null;
     this.minPrice = null;
@@ -235,11 +234,10 @@ export default class ShopComponent implements OnInit, OnChanges {
         filter: filter, 
         page: 1 
       }
-      // ✅ Don't use queryParamsHandling: 'merge' - this replaces all params
     });
   }
 
-  // ✅ NEW: Clear search and return to shop mode
+  // Clear search and return to shop mode
   clearSearch(): void {
     this.searchQuery = '';
     this.isSearchMode = false;
@@ -257,7 +255,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ NEW: Clear all filters (including Featured/New)
+  // Clear all filters (including Featured/New)
   clearAllFilters(): void {
     this.searchQuery = '';
     this.isSearchMode = false;
@@ -275,7 +273,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     });
   }
 
-  // ✅ NEW: Get page title based on mode
+  // Get page title based on mode
   getPageTitle(): string {
     if (this.isSearchMode && this.searchQuery) {
       return `Search results for "${this.searchQuery}"`;
@@ -285,13 +283,13 @@ export default class ShopComponent implements OnInit, OnChanges {
       return 'New Products';
     } else if (this.selectedCategoryId) {
       const category = this.categories.find(c => c.id === this.selectedCategoryId);
-      return `${category?.name || 'Category'} Products`;
+      return `${category?.name || 'Category'}`;
     } else {
       return 'All Products';
     }
   }
 
-  // ✅ NEW: Get results count message
+  // Get results count message
   getResultsMessage(): string {
     if (this.isSearchMode && this.searchResults) {
       const total = this.searchResults.pagination?.total_items || 0;
@@ -301,7 +299,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     }
   }
 
-  // ✅ NEW: Get active filters text for display
+  // Get active filters text for display
   getActiveFiltersText(): string {
     const filters: string[] = [];
     
@@ -323,7 +321,7 @@ export default class ShopComponent implements OnInit, OnChanges {
     return filters.length > 0 ? `Filters: ${filters.join(', ')}` : '';
   }
 
-  // ✅ Debug method to check price filter
+  // Debug method to check price filter
   debugPriceFilter(): void {
     console.log('🔍 Debug Price Filter:');
     console.log('- minPrice:', this.minPrice);

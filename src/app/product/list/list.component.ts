@@ -27,6 +27,9 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   skeletonCount = Array(3);
   destroy$ = new Subject<void>();
 
+  // ✅ NEW: Track total items count
+  totalItemsCount = 0;
+
   // ✅ NEW: Accept external data from search results
   @Input() externalProducts?: ProductModel[];
   @Input() externalPagination?: any;
@@ -56,6 +59,8 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
   faArrowUp = faArrowUp;
   faArrowDown = faArrowDown;
   faRotateLeft = faRotateLeft;
+
+  Math = Math;
 
   private filtersChanged$ = new Subject<void>();
 
@@ -135,7 +140,10 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
     this.totalPages = this.externalPagination.total_pages || 1;
     this.perPage = this.externalPagination.per_page || 12;
     
-    this.productCountChanged.emit(this.filteredProducts.length);
+    // ✅ Set total items count from external pagination
+    this.totalItemsCount = this.externalPagination.total_items || this.externalPagination.itemsTotal || this.externalProducts.length;
+    
+    this.productCountChanged.emit(this.totalItemsCount);
     this.generatePageNumbers();
   }
 
@@ -162,7 +170,11 @@ export default class ListComponent implements OnInit, OnChanges, OnDestroy {
       this.filteredProducts = res.items;
       this.currentPage = res.curPage;
       this.totalPages = res.pageTotal;
-      this.productCountChanged.emit(this.filteredProducts.length);
+      
+      // ✅ Set total items count from response
+      this.totalItemsCount = res.itemsTotal;
+      
+      this.productCountChanged.emit(this.totalItemsCount);
       this.generatePageNumbers();
     } catch (err) {
       console.error('Failed to fetch products:', err);
