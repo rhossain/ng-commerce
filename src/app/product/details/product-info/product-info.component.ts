@@ -5,12 +5,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCodeCompare, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { StarRatingComponent } from '../../../shared/star-rating/star-rating.component';
 import { QuantitySelectorComponent } from '../../../shared/quantity-selector/quantity-selector.component';
+import { UnderDevelopmentDirective } from '../../../shared/under-development.directive';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-product-info',
   standalone: true,
-  imports: [CommonModule, StarRatingComponent, QuantitySelectorComponent, RouterModule, FontAwesomeModule],
+  imports: [CommonModule, StarRatingComponent, QuantitySelectorComponent, RouterModule, FontAwesomeModule, UnderDevelopmentDirective],
   templateUrl: './product-info.component.html',
   styleUrls: ['./product-info.component.scss']
 })
@@ -38,6 +39,7 @@ export class ProductInfoComponent {
 
   onOptionSelect(optionName: string, value: string) {
     this.optionSelected.emit({ optionName, optionValue: value });
+    this.toastr.info('This feature is under development.');
   }
 
   onQuantityChange(newQuantity: number) {
