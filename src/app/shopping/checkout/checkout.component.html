@@ -1,13 +1,28 @@
-<section class="checkout-container py-4">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="checkout-header">
-          <h3 class="checkout-title">Checkout</h3>
-          <p class="checkout-subtitle">Complete your order in just a few steps</p>
+<div class="mobile-gradient">
+    <div class="overlay"></div>
+</div>
+
+<section class="checkout-container pb-4 position-relative">
+    <!-- Breadcrumb -->
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb ps-0 py-2">
+                        <li class="breadcrumb-item">
+                            <a href="#" routerLink="/">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Shopping Cart
+                        </li>
+                    </ol>
+                </nav>
+            </div>
         </div>
-      </div>
     </div>
+    <!-- ./Breadcrumb -->
+
+  <div class="container">
 
     <div class="row">
       <!-- Main Checkout Form -->
@@ -87,7 +102,7 @@
             
             <button 
               type="button" 
-              class="btn btn-primary"
+              class="btn btn-primary btn-lg"
               *ngIf="currentStep < 4"
               [disabled]="!stepValidation[currentStep === 1 ? 'shipping' : currentStep === 2 ? 'billing' : 'shippingMethod']"
               (click)="currentStep = currentStep + 1; onStepCompleted(currentStep - 1)">

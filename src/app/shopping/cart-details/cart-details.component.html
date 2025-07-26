@@ -3,24 +3,25 @@
 </div>
 
 <section class="cart-details">
-    <div class="page-header">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="page-title">
-                        <fa-icon [icon]="faShoppingCart" class="me-2"></fa-icon>
-                        Shopping Cart
-                    </h1>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a routerLink="/">Home</a></li>
-                            <li class="breadcrumb-item active">Cart</li>
-                        </ol>
-                    </nav>
-                </div>
+
+    <!-- Breadcrumb -->
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb ps-0 py-2">
+                        <li class="breadcrumb-item">
+                            <a routerLink="/">Home</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Shopping Cart
+                        </li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
+    <!-- ./Breadcrumb -->
 
     <div class="container">
         <div class="row">
@@ -148,7 +149,7 @@
 
             <!-- Order Summary Sidebar -->
             <div class="col-lg-4">
-                <div class="sticky-summary">
+                <div class="sticky-summary mb-4">
 
                     <!-- Order Summary Card -->
                     <div class="card mb-4">
@@ -234,7 +235,7 @@
                             Proceed to Checkout
                         </button>
 
-                        <button class="btn btn-outline-secondary" (click)="saveForLater()"
+                        <button class="btn btn-outline-brand-primary" (click)="saveForLater()"
                             [disabled]="(cartItems$ | async)?.length === 0">
                             <fa-icon [icon]="faHeart" class="me-2"></fa-icon>
                             Save for Later

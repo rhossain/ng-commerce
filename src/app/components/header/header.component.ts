@@ -100,13 +100,26 @@ export class HeaderComponent implements OnInit {
   }
 
   onCategorySelect(categoryId: number | null): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        categoryId: categoryId ?? null,
-        page: 1
-      },
-      queryParamsHandling: 'merge'
-    });
+    // console.log('Category selected in header:', categoryId);
+    
+    // Close the sidebar after selection
+    this.sidebarService.close('navbarId');
+    
+    // Navigate to shop page with category filter
+    if (categoryId) {
+      this.router.navigate(['/shop'], {
+        queryParams: {
+          categoryId: categoryId,
+          page: 1
+        }
+      });
+    } else {
+      // Navigate to shop without category filter (show all products)
+      this.router.navigate(['/shop'], {
+        queryParams: {
+          page: 1
+        }
+      });
+    }
   }
 }

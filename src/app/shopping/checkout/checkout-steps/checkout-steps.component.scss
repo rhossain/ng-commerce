@@ -1,6 +1,14 @@
+@import 'bootstrap-bp.scss';
+
 .checkout-steps {
   margin-bottom: 2rem;
   padding: 1rem 0;
+
+  @include media-breakpoint-down(md) {
+    padding: 1rem 20px;
+    background-color: rgb(var(--clr-white));
+    border-radius: 6px;
+  }
 
   .steps-container {
     display: flex;
@@ -368,8 +376,6 @@
 // Small screens (Mobile - Vertical Layout)
 @media (max-width: 767.98px) {
   .checkout-steps {
-    padding: 0.5rem 0;
-
     .steps-container {
       flex-direction: column;
       align-items: stretch;
@@ -456,9 +462,6 @@
 // Extra small screens
 @media (max-width: 575.98px) {
   .checkout-steps {
-    margin-bottom: 1.5rem;
-    padding: 0;
-
     .step-item {
       margin-bottom: 1.5rem;
 

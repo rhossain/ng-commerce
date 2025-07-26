@@ -89,14 +89,22 @@ export default class HomeComponent implements OnInit, OnDestroy {
     console.log('Category selected in HomeComponent:', categoryId);
     this.selectedCategoryId = categoryId;
     
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: {
-        categoryId: categoryId ?? null,
-        page: 1
-      },
-      queryParamsHandling: 'merge'
-    });
+    // Navigate to shop page with category filter
+    if (categoryId) {
+      this.router.navigate(['/shop'], {
+        queryParams: {
+          categoryId: categoryId,
+          page: 1
+        }
+      });
+    } else {
+      // Navigate to shop without category filter (show all products)
+      this.router.navigate(['/shop'], {
+        queryParams: {
+          page: 1
+        }
+      });
+    }
   }
 
   // Helper method to retry loading data

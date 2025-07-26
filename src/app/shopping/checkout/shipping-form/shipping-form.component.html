@@ -254,7 +254,7 @@
         </button>
         <button 
           type="submit" 
-          class="btn btn-primary"
+          class="btn btn-primary btn-lg"
           [disabled]="!shippingForm.valid || isSavingAddress">
           <fa-icon *ngIf="isSavingAddress" [icon]="faSpinner" class="fa-spin me-2"></fa-icon>
           {{ isSavingAddress ? 'Saving...' : (isEditingAddress ? 'Update Address' : 'Save Address') }}

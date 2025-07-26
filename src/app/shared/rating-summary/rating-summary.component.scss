@@ -1,6 +1,4 @@
-.rating-summary {
-    //   max-width: 600px;
-}
+@import 'bootstrap-bp.scss';
 
 .average-rating {
     display: flex;
@@ -14,6 +12,11 @@
     display: flex;
     justify-content: flex-end;
     margin-top: 0;
+
+    @include media-breakpoint-down(md) {
+        width: 100%;
+        justify-content: flex-start;
+    }
 }
 
 .distribution-row {
@@ -21,6 +24,10 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 4px;
+
+    @include media-breakpoint-down(md) {
+        width: 100%;
+    }
 }
 
 .star-label {
@@ -34,6 +41,10 @@
     overflow: hidden;
     width: 300px;
     height: 16px;
+
+    @include media-breakpoint-down(md) {
+        width: calc(100% - 32px);
+    }
 }
 
 .progress-fill {

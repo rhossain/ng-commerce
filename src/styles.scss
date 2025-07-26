@@ -294,7 +294,7 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
     width: 100%;
     height: 225px;
     position: absolute;
-    top: 0;
+    top: -3px;
     background: rgb(var(--clr-primary-dark));
     border-radius: 0 0 50% 50%;
 
@@ -319,7 +319,7 @@ router-outlet {
     + * {
         @include media-breakpoint-down(md) {
             display: block;
-            padding-top: 48px;
+            padding-top: 60px;
         }
 
         .mobile-gradient {
@@ -445,6 +445,64 @@ router-outlet {
       background: #007bff;
       opacity: 1;
       transform: scale(1.2);
+    }
+  }
+}
+
+.header {
+    app-site-logo {
+        .site-logo .ng {
+            @include media-breakpoint-down(md) {
+                color: rgb(var(--clr-white)) !important;
+            }
+        }
+    }
+}
+
+.breadcrumb {
+  position: relative;
+  z-index: 1;
+
+  &-item {
+    a {
+      color: rgba(var(--clr-dark),0.8);
+      text-decoration: none;
+
+      @include media-breakpoint-down(md) {
+        color: rgba(var(--clr-white),0.8);
+      }
+
+      &:hover {
+        color: rgb(var(--clr-dark));
+
+        @include media-breakpoint-down(md) {
+          color: rgb(var(--clr-white));
+        }
+      }
+    }
+
+    &.active {
+      color: rgb(var(--clr-dark));
+
+      @include media-breakpoint-down(md) {
+        color: rgb(var(--clr-white));
+      }
+    }
+
+    &:not(:last-child)::after {
+      color: rgba(var(--clr-dark), 0.6);
+
+      @include media-breakpoint-down(md) {
+        color: rgba(var(--clr-white),0.6);
+      }
+    }
+  }
+
+  &-item + .breadcrumb-item::before {
+    color: rgba(var(--clr-dark),0.8);
+
+    @include media-breakpoint-down(md) {
+      color: rgba(var(--clr-white),0.8);
     }
   }
 }

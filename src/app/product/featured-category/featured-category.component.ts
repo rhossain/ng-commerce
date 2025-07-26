@@ -20,7 +20,8 @@ export class FeaturedCategoryComponent implements OnInit, OnDestroy {
   @Input() styleType: 'default' | 'list' | 'grid' | 'pill' | 'sidebar' = 'default';
   @Input() selectedCategoryId: number | null = null;
   @Input() onlyCategoryIds?: number[];
-  @Input() categories: ProductCategory[] = []; // ← Add this back
+  @Input() categories: ProductCategory[] = [];
+  @Input() navigationMode: 'query' | 'route' | 'custom' = 'custom'; // Added 'custom' option
 
   @Output() categorySelected = new EventEmitter<number | null>();
 
@@ -58,16 +59,34 @@ export class FeaturedCategoryComponent implements OnInit, OnDestroy {
   }
 
   selectCategory(categoryId: number | null): void {
+    console.log('Category selected:', categoryId);
     this.categorySelected.emit(categoryId);
   }
 
   onCategorySelect(categoryId: number): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { categoryId, page: 1 },
-      queryParamsHandling: 'merge'
-    });
+    console.log('Category clicked:', categoryId, 'Navigation mode:', this.navigationMode);
+    
+    // Always emit the event for parent components to handle
     this.categorySelected.emit(categoryId);
+    
+    // Handle navigation based on mode
+    if (this.navigationMode === 'route') {
+      // Navigate to shop page with category
+      this.router.navigate(['/shop'], {
+        queryParams: { 
+          categoryId, 
+          page: 1 
+        }
+      });
+    } else if (this.navigationMode === 'query') {
+      // Update query params on current route
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { categoryId, page: 1 },
+        queryParamsHandling: 'merge'
+      });
+    }
+    // If navigationMode is 'custom' or not set, let parent handle via event only
   }  
 
   loadCategoriesWithCounts(): void {

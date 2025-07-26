@@ -52,10 +52,20 @@
     @include media-breakpoint-down(md) {
         padding-top: 50px;
     }
+
+    &.main-home {
+        @include media-breakpoint-down(md) {
+            padding-top: 20px;
+        }
+    }
 }
 
 .main-home {
     .main-content-top-contents {
         padding: 15px 0 20px;
+
+        @include media-breakpoint-down(md) {
+            padding: 0;
+        }
     }
 }

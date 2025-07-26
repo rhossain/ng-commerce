@@ -1,3 +1,5 @@
+@import 'bootstrap-bp.scss';
+
 .product {
     $this: product !default;
 
@@ -10,6 +12,10 @@
 
         .out-of-stock {
             color: rgb(var(--clr-red));
+        }
+
+        @include media-breakpoint-down(md) {
+            padding-left: 16px;
         }
     }
 

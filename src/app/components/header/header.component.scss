@@ -78,7 +78,7 @@
         }
 
         &-left {
-            @include media-breakpoint-down(sm) {
+            @include media-breakpoint-down(lg) {
                 width: 100%;
                 min-height: unset;
             }
@@ -144,7 +144,7 @@
 
         @include media-breakpoint-down(md) {
             padding: 10px 16px;
-            background-color:  transparent;
+            background-color: rgb(var(--clr-primary-dark));
             color:  rgb(var(--clr-white));
         }
     }
@@ -212,7 +212,7 @@
 
     @include media-breakpoint-down(md) {
         position: absolute;
-        z-index: 1;
+        z-index: 11;
         width: 100%;
     }
 }
@@ -221,7 +221,13 @@
     .header {
         &-middle-left, &-middle-right {
             background-color: transparent;
-        }            
+        }   
+        
+        &-middle {
+            @include media-breakpoint-down(md) {
+                background-color: rgb(var(--clr-primary-dark));
+            }
+        }
     }
 }
 

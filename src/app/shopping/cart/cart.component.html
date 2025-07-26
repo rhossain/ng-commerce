@@ -1,5 +1,5 @@
 <div class="cart-mini" (click)="toggleCart()">
-    <div class="d-flex cart-mini-anchor" id="cartMini">
+    <div class="d-flex align-items-center cart-mini-anchor" id="cartMini">
         <div class="position-relative d-inline-flex align-items-center justify-content-center cart-mini-mask">
             <div class="position-absolute d-flex align-items-center justify-content-center cart-mini-count">
               {{ cartItemsQuantity$ | async }}
@@ -22,7 +22,7 @@
   
   <!-- Free Shipping Progress Bar -->
   <div class="p-3 border-bottom border-top shadow-lg" [class.d-none]="(cartItems$ | async)?.length === 0">
-    <div class="small text-center">
+    <div class="small text-center text-dark">
       <ng-container *ngIf="(subtotal$ | async) as currentSubtotal">
         <ng-container *ngIf="currentSubtotal >= freeShippingThreshold; else needMore">
           <span class="text-success">

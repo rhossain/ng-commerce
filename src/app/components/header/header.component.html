@@ -36,8 +36,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <div class="d-flex flex-row justify-content-between w-100 header-middle-inner">
-                        <div class="d-flex align-items-center justify-content-between justify-content-md-start header-middle-left">
+                    <div class="d-flex flex-row justify-content-between w-100 flex-md-wrap flex-lg-nowrap header-middle-inner">
+                        <div class="d-flex align-items-center justify-content-between justify-content-md-center justify-content-lg-start pb-md-2 pb-lg-0 header-middle-left">
                             <!-- <button class="navbar-toggler d-inline-block d-md-none" type="button"
                                 data-bs-toggle="collapse-side" data-bs-target=".header-bottom" data-target-2=".header"
                                 data-target-3=".main-content" aria-controls="navbarSupportedContent"
@@ -54,16 +54,17 @@
                             <button class="d-inline-block d-md-none navbar-toggler" type="button" (click)="toggleNavbarSidebar()">
                                 <fa-icon [icon]="faBarsStaggered"></fa-icon>
                             </button>
-                            <a class="d-inline-block d-md-none">
-                                <!-- <h1 class="mb-0 d-block logo-text">ng<span>C</span>ommerce</h1> -->
-                                <h1 class="mb-0 d-block logo-text logo-text-white">ng<span>C</span>ommerce</h1>
+                            <a class="d-inline-block d-md-none" routerLink="/">
+                                <app-site-logo></app-site-logo>
                             </a>
-                            <a class="navbar-brand d-none d-md-inline-block" href="#">
+                            <a class="navbar-brand d-none d-md-inline-block" routerLink="/">
                                 <app-site-logo></app-site-logo>
                                 <!-- <h1 class="mb-0 d-none d-md-block logo-text">ng<span>C</span>ommerce</h1> -->
                             </a>
-                            <div class="d-flex d-md-none justify-content-center align-items-center search-box-icon" (click)="toggleSearchSidebar()">
-                                <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
+                            <div class="d-flex align-items-center d-md-none justify-content-center align-items-center">
+                                <fa-icon (click)="toggleSearchSidebar()" [icon]="faMagnifyingGlass" class="search-box-icon"></fa-icon>
+                                <div class="mx-3 bg-gray-light divider-v">[invisible]</div>
+                                <app-cart (cartClosed)="onSidebarClosed()"></app-cart>
                             </div>
                         </div>
                         <div class="d-none d-md-flex align-items-center justify-content-center header-middle-center">
@@ -118,6 +119,7 @@
         <app-featured-category
             [categories]="categories"
             [styleType]="'list'"
+            [navigationMode]="'custom'"
             (categorySelected)="onCategorySelect($event)">
         </app-featured-category>
     </div>

@@ -20,7 +20,7 @@
 
     &-icon {
         position: relative;
-        z-index: 2;
+        z-index: 5;
         background: rgb(var(--clr-secondary-custom));
         border-radius: 100%;
         border: 2px solid rgb(var(--clr-secondary-light));
@@ -36,6 +36,26 @@
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     }
 
+    &-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(var(--clr-black), 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px); /* Safari support */
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 3;
+    }
+
+    .#{$this}-btn:checked + .#{$this}-overlay {
+        opacity: 1;
+        visibility: visible;
+    }
+
     .hamburger {
         width: 24px;
         height: 2px;
@@ -46,7 +66,7 @@
         left: 50%;
         margin-left: -11.5px;
         margin-top: -0.5px;
-        transition: transform 200ms;
+        transition: all 0.3s ease;
 
         &-1 {
             transform: translate3d(0, -8px, 0);
@@ -59,6 +79,23 @@
         &-3 {
             transform: translate3d(0, 8px, 0);
         }
+    }
+
+    .#{$this}-btn:checked ~ .#{$this}-icon .hamburger {
+        margin-left: -13px;
+    }
+
+    .#{$this}-btn:checked ~ .#{$this}-icon .hamburger-1 {
+        transform: rotate(45deg) translate(0px, -2px);
+    }
+
+    .#{$this}-btn:checked ~ .#{$this}-icon .hamburger-2 {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    .#{$this}-btn:checked ~ .#{$this}-icon .hamburger-3 {
+        transform: rotate(-45deg) translate(2px, 0px);
     }
 
     .#{$this}-btn:checked + .#{$this}-icon {
@@ -113,6 +150,8 @@
     }
 
     &-list {
+        position: static;
+        z-index: 3;
         display: block;
         margin: 0;
         padding: 0;
@@ -164,12 +203,12 @@
                     pointer-events: none;
                     opacity: 0;
                     transition: opacity 0.3s;
-                    color: rgb(var(--clr-secondary-light));
+                    color: rgb(var(--clr-secondary-custom));
                     font-weight: bold;
                     text-align: center;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    text-shadow: 0 3.36px 5.896px rgb(var(--clr-black)), 0 0px 1px rgb(var(--clr-white));
+                    // text-shadow: 0 3.36px 5.896px rgb(var(--clr-white)), 0 0px 1px rgb(var(--clr-white));
                 }
 
                 .#{$this}-list-icon {
