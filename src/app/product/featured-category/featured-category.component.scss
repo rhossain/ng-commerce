@@ -342,3 +342,38 @@
         }
     }
 }
+
+.loading-container {
+    min-height: 100px;
+}
+
+.error-container {
+    margin: 1rem 0;
+}
+
+.no-categories {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// .category-grid {
+//     display: grid;
+//     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+//     gap: 1rem;
+// }
+
+// .category-item {
+//     cursor: pointer;
+//     transition: transform 0.2s;
+// }
+
+// .category-item:hover {
+//     transform: translateY(-2px);
+// }
+
+.spinner-border {
+    width: 1.5rem;
+    height: 1.5rem;
+}

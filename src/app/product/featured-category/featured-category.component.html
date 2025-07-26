@@ -1,7 +1,26 @@
-<ng-container [ngSwitch]="styleType">
+<!-- Loading state -->
+<div *ngIf="isLoading" class="loading-container">
+    <div class="d-flex justify-content-center align-items-center p-4">
+        <div class="loader-circle-1" role="status">
+            <span class="visually-hidden">Loading categories...</span>
+        </div>
+        <span class="ms-2">Loading categories...</span>
+    </div>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error && !isLoading" class="error-container">
+    <div class="alert alert-warning d-flex justify-content-between align-items-center gap-2">
+        <span>{{ error }}</span>
+        <button class="btn btn-sm btn-outline-primary" (click)="retry()">Retry</button>
+    </div>
+</div>
+
+<!-- Main content - only show when not loading and no error -->
+<ng-container *ngIf="!isLoading && !error" [ngSwitch]="styleType">
     <div *ngSwitchCase="'default'" class="default-style">
-        <ul *ngIf="categories">
-            @for (category of categories; track $index) {
+        <ul *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
+            @for (category of displayCategories; track category.id) {
                 <li [class.active]="category.id === selectedCategoryId">
                     <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
                 </li>
@@ -10,9 +29,11 @@
     </div>
 
     <div *ngSwitchCase="'list'" class="list-style">
-        <ul *ngIf="categories">
-            @for (category of categories; track $index) {
-                <li class="d-flex align-items-center" [class.active]="category.id === selectedCategoryId" (click)="onCategorySelect(category.id)">
+        <ul *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
+            @for (category of displayCategories; track category.id) {
+                <li class="d-flex align-items-center" 
+                    [class.active]="category.id === selectedCategoryId" 
+                    (click)="onCategorySelect(category.id)">
                     <div class="category-img">
                         <img [src]="category.image || fallbackImg" [alt]="category.name" />
                         <div class="d-flex align-items-center justify-content-center product-count">
@@ -26,10 +47,12 @@
     </div>
 
     <div *ngSwitchCase="'grid'" class="grid-style">
-        <div class="category-grid">
-            @for (category of categories; track $index) {
+        <div class="category-grid" *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
+            @for (category of displayCategories; track category.id) {
                 <div class="category-item">
-                    <div class="category-image" [ngStyle]="{'background-image': 'url(' + category.image + ')'}"></div>
+                    <div class="category-image" 
+                         [ngStyle]="{'background-image': 'url(' + (category.image || fallbackImg) + ')'}">
+                    </div>
                     <div class="category-info">
                         <h3>
                             <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
@@ -39,16 +62,15 @@
                             <a class="btn-icon-2" (click)="onCategorySelect(category.id)">View More</a>
                         </div>
                     </div>
-                    <!-- <img [src]="category.image" [alt]="category.name" /> -->
                 </div>
             }
         </div>
     </div>
 
     <div *ngSwitchCase="'pill'" class="pill-style">
-        <ul *ngIf="categories">
-            <li (click)="selectCategory(null)">All</li>
-            @for (category of categories; track $index) {
+        <ul *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
+            <li (click)="selectCategory(null)" [class.active]="selectedCategoryId === null">All</li>
+            @for (category of displayCategories; track category.id) {
                 <li [class.active]="category.id === selectedCategoryId">
                     <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
                 </li>
@@ -57,7 +79,7 @@
     </div>
 
     <div *ngSwitchCase="'sidebar'">
-        <ul class="m-0 p-0 w-100 category-list" *ngIf="categories">
+        <ul class="m-0 p-0 w-100 category-list" *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
             <!-- All Categories option -->
             <li class="category-list-item" 
                 [class.active]="selectedCategoryId === null"
@@ -66,7 +88,7 @@
             </li>
             
             <!-- Individual categories -->
-            <li *ngFor="let category of categories" 
+            <li *ngFor="let category of displayCategories; trackBy: trackByFn" 
                 class="category-list-item"
                 [class.active]="selectedCategoryId === category.id"
                 (click)="selectCategory(category.id)">
@@ -75,3 +97,10 @@
         </ul>
     </div>
 </ng-container>
+
+<!-- No categories template -->
+<ng-template #noCategories>
+    <div class="no-categories">
+        <p class="text-muted text-center p-4">No categories available</p>
+    </div>
+</ng-template>

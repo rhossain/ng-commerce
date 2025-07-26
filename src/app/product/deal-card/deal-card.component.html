@@ -1,12 +1,30 @@
-<ng-container *ngFor="let product of products">
-    <div class="deal-card">
-        <div class="overlay">
-            
+<!-- Loading state -->
+<div *ngIf="isLoading" class="deal-card loading-state">
+    <div class="d-flex justify-content-center align-items-center p-4">
+        <div class="loader-circle-1" role="status">
+            <span class="visually-hidden">Loading deal...</span>
         </div>
+        <span class="ms-2">Loading deal...</span>
+    </div>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error && !isLoading" class="deal-card error-state">
+    <div class="alert alert-warning d-flex justify-content-between align-items-center gap-2">
+        <span>{{ error }}</span>
+        <button class="btn btn-sm btn-outline-primary" (click)="retry()">Retry</button>
+    </div>
+</div>
+
+<!-- Active deals -->
+<ng-container *ngIf="!isLoading && !error && products && products.length > 0">
+    <div *ngFor="let product of products; trackBy: trackByFn" class="deal-card">
+        <div class="overlay"></div>
         <div class="details">
             <div class="image">
                 <img [src]="product.main_image_url || product.variants?.[0]?.product_images?.[0]?.image_url"
-                alt="{{ product.name }}" />
+                     [alt]="product.name"
+                     (error)="onImageError($event)" />
             </div>
             <div class="content">
                 <h2 class="name">{{ product.name }}</h2>
@@ -33,9 +51,23 @@
                         class="badge text-bg-danger d-flex align-items-center justify-content-center fs-6">
                         -{{ discount }}%
                     </span>          
-                    <button class="btn btn-outline-secondary" (click)="addToCart(product)">Add to Cart</button>                                  
+                    <button class="btn btn-outline-secondary" 
+                            (click)="addToCart(product)"
+                            [disabled]="!product.variants?.[0]">
+                        Add to Cart
+                    </button>                                  
                 </div>
             </div>
         </div>
     </div>
 </ng-container>
+
+<!-- No products state -->
+<div *ngIf="!isLoading && !error && products && products.length === 0" class="deal-card no-products-state">
+    <div class="details">
+        <div class="content text-center p-4">
+            <h3 class="text-muted">No Products Available</h3>
+            <p class="text-muted">This deal doesn't have any products currently available.</p>
+        </div>
+    </div>
+</div>

@@ -13,7 +13,10 @@
                             <ul class="py-1 py-md-0 position-absolute float-start dropdown-menu dropdown-categories"
                                 aria-labelledby="navbarDropdownMenuLink">
                                 <li class="d-flex dropdown dropdown-item" *ngIf="categories.length === 0">
-                                    Loading Categories..
+                                    <div class="d-flex align-items-center gap-2" role="status">
+                                        <span class="loader-circle-1"></span>
+                                        <span>Loading categories...</span>
+                                    </div>
                                 </li>
                                 @for (c of getVisibleCategories(); track c.id) {
                                     <li class="d-flex dropdown dropdown-item" [ngClass]="'dropdown-item--' + c.name">
@@ -30,7 +33,7 @@
                                     <a 
                                         class="d-flex align-items-center justify-content-between w-100 dropdown-link" 
                                         href="javascript:void(0)"
-                                        *ngIf="categories.length > initialVisibleCount" (click)="toggleShowAll()">
+                                        *ngIf="categories.length > initialVisibleCount" (click)="toggleShowAll($event)">
                                         {{ showAll ? 'Show Less' : 'Show More' }}
                                         <fa-icon *ngIf="!showAll" [icon]="faPlus"></fa-icon>
                                         <fa-icon *ngIf="showAll" [icon]="faMinus"></fa-icon>

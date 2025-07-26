@@ -46,7 +46,11 @@ export class NavbarComponent implements OnInit {
     return this.showAll ? this.categories : this.categories.slice(0, this.initialVisibleCount);
   }
   
-  toggleShowAll() {
+  toggleShowAll(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
     this.showAll = !this.showAll;
   }
 }
