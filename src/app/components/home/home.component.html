@@ -24,43 +24,6 @@
     </div>
     <!-- ./Slider section -->
 
-    <!-- Featured category - Grid -->
-    <div class="mb-5">
-        <div class="container">
-            <app-featured-category
-                [categories]="categories"
-                [styleType]="'grid'"
-                [onlyCategoryIds]="[1, 3, 9, 2, 4, 5]"
-                [navigationMode]="'custom'"
-                (categorySelected)="onCategorySelect($event)">
-            </app-featured-category>
-        </div>
-    </div>
-    <!-- ./Featured category - Grid -->
-
-    <!-- Featured category - Grid -->
-    <div class="mb-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 col-xl-6">
-                    <app-deal-card 
-                        [productIds]="[5]"
-                        [dealEndTime]="'2025-06-30T23:59:59'">
-                    </app-deal-card>
-                </div>
-
-                <div class="col-12 col-xl-6">
-                    <app-deal-card 
-                        [productIds]="[6]"
-                        [dealEndTime]="'2025-06-27T23:59:59'">
-                    </app-deal-card>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    <!-- ./Featured category - Grid -->
-
     <!-- Featured product - slider -->
     <div class="pb-5">
         <div class="container">
@@ -113,42 +76,46 @@
             </ul>
             <div [ngbNavOutlet]="nav" class="mt-2"></div>
             </div>
-            
-            <!-- <mdb-tabs>
-                <mdb-tab title="Featured">
-                    <app-product-showcase
-                        [layout]="'slider'"
-                        [filterType]="'featured'"
-                        [limit]="8"
-                        [showViewAll]="true"
-                    ></app-product-showcase>
-                </mdb-tab>
-                <mdb-tab title="New Arrivals">
-                    <app-product-showcase
-                        [layout]="'slider'"
-                        [filterType]="'new'"
-                        [limit]="8"
-                        [showViewAll]="true"
-                    ></app-product-showcase>
-                </mdb-tab>
-                <mdb-tab title="Best Sells">
-                    <app-product-showcase
-                        [layout]="'slider'"
-                        [filterType]="'best-sell'"
-                        [limit]="10"
-                    ></app-product-showcase>
-                </mdb-tab>
-                <mdb-tab title="Discounted">
-                    <app-product-showcase
-                        [layout]="'slider'"
-                        [filterType]="'discounted'"
-                        [limit]="10"
-                    ></app-product-showcase>
-                </mdb-tab>
-            </mdb-tabs> -->
         </div>
     </div>
     <!-- Featured product - slider -->
+
+    <!-- Featured category - Grid -->
+    <div class="mb-5">
+        <div class="container">
+            <app-featured-category
+                [categories]="categories"
+                [styleType]="'grid'"
+                [onlyCategoryIds]="[1, 3, 9, 2, 4, 5]"
+                [navigationMode]="'custom'"
+                (categorySelected)="onCategorySelect($event)">
+            </app-featured-category>
+        </div>
+    </div>
+    <!-- ./Featured category - Grid -->
+
+    <!-- Featured deal -->
+    <div class="mb-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-xl-6">
+                    <app-deal-card 
+                        [productIds]="[5]"
+                        [dealEndTime]="'2025-06-30T23:59:59'">
+                    </app-deal-card>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <app-deal-card 
+                        [productIds]="[6]"
+                        [dealEndTime]="'2025-06-27T23:59:59'">
+                    </app-deal-card>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- ./Featured deal -->
 
 </main>
 <!-- ./Main content -->

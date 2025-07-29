@@ -183,6 +183,13 @@ export class FeaturedCategoryComponent implements OnInit, OnDestroy {
     });
   }
 
+  getCategorySlug(categoryName: string): string {
+    return categoryName.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .trim();
+  }
+
   // Get the categories to display
   get displayCategories(): CategoryWithCount[] {
     return this.localCategories;

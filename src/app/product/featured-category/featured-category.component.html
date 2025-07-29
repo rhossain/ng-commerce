@@ -49,11 +49,12 @@
     <div *ngSwitchCase="'grid'" class="grid-style">
         <div class="category-grid" *ngIf="displayCategories && displayCategories.length > 0; else noCategories">
             @for (category of displayCategories; track category.id) {
-                <div class="category-item">
-                    <div class="category-image" 
-                         [ngStyle]="{'background-image': 'url(' + (category.image || fallbackImg) + ')'}">
+                <div class="category-item" [attr.data-category]="getCategorySlug(category.name)">
+                    <div class="category-image d-flex align-items-center">
+                         <img [src]="(category.image || fallbackImg)" width="40" />
                     </div>
                     <div class="category-info">
+                        <!-- <img [src]="(category.image || fallbackImg)" width="40" /> -->
                         <h3>
                             <a (click)="onCategorySelect(category.id)">{{ category.name }}</a>
                         </h3>

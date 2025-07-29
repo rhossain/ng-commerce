@@ -506,3 +506,68 @@ router-outlet {
     }
   }
 }
+
+.header-home {
+    .navbar-categories {
+        .dropdown {
+            &-toggle {
+                @include media-breakpoint-up(xl) {
+                    pointer-events: none;
+                    user-select: none;
+                    cursor: default;
+                }
+            }
+
+            &-item {
+                &.more-menu {
+                    &.opened {
+                        @include media-breakpoint-up(xl) {
+                            border-top: 1px solid rgba(var(--clr-gray-dark), 0.5);
+                        }
+                    }
+
+                    @include media-breakpoint-up(xl) {
+                        display: flex !important;
+                    }
+                }
+
+                &.nav-hide {
+                    @include media-breakpoint-up(xl) {
+                        visibility: hidden;
+                        height: 0px;
+                    }
+                }
+            }
+
+            >.dropdown-menu {
+                @include media-breakpoint-up(xl) {
+                    top: 61px;
+                    opacity: 1 !important;
+                    transform: scale(1, 1);
+                    z-index: 2;
+                }
+
+                @include media-breakpoint-up(md) {
+                    top: 41px;
+                }
+            }
+        }
+
+        .dropdown-toggle+.dropdown-menu {
+            @include media-breakpoint-up(lg) {
+                opacity: 1;
+                transform: scale(1, 1);
+                z-index: 1100;
+            }
+        }
+
+        .dropdown-categories-modern {
+          &:not(.show) {
+            @include media-breakpoint-up(xl) {
+                display: block;
+                animation: dropdownSlideIn 0.3s ease-out;
+            }
+          }
+        }
+    }
+}
