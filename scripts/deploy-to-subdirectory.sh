@@ -69,25 +69,44 @@ if [ "$FILE_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-# Save current branch name and get absolute path to build directory
+# Save current branch name and prepare for branch switching
 CURRENT_BRANCH=$(git branch --show-current)
-ABSOLUTE_BUILD_DIR="$(pwd)/$BUILD_DIR"
 echo "📋 Current branch: $CURRENT_BRANCH"
-echo "📍 Absolute build path: $ABSOLUTE_BUILD_DIR"
 
-# Verify the absolute build directory exists before switching branches
-if [ ! -d "$ABSOLUTE_BUILD_DIR" ]; then
-    echo "❌ Build directory not found at: $ABSOLUTE_BUILD_DIR"
+# Create a temporary directory to store build files
+TEMP_DIR=$(mktemp -d)
+echo "📦 Creating temporary directory: $TEMP_DIR"
+
+# Copy build files to temporary directory BEFORE switching branches
+echo "📁 Copying build files to temporary directory..."
+if [ -d "$BUILD_DIR" ]; then
+    cp -r "$BUILD_DIR"/* "$TEMP_DIR/"
+    # Also copy any hidden files
+    cp -r "$BUILD_DIR"/.[^.]* "$TEMP_DIR/" 2>/dev/null || true
+    echo "✅ Build files copied to temporary directory"
+    
+    # Verify files were copied
+    if [ ! -f "$TEMP_DIR/index.html" ]; then
+        echo "❌ Failed to copy files to temporary directory"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+    
+    echo "📊 Files in temporary directory: $(find "$TEMP_DIR" -type f | wc -l | tr -d ' ')"
+else
+    echo "❌ Source directory '$BUILD_DIR' not found!"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
-# Switch to release branch
-echo "📦 Switching to release branch..."
+# Now switch to release branch
+echo "🔄 Switching to release branch..."
 if git rev-parse --verify release >/dev/null 2>&1; then
     # Release branch exists, switch to it
     git checkout release
     if [ $? -ne 0 ]; then
         echo "❌ Failed to checkout release branch"
+        rm -rf "$TEMP_DIR"
         exit 1
     fi
 else
@@ -96,6 +115,7 @@ else
     git checkout --orphan release
     if [ $? -ne 0 ]; then
         echo "❌ Failed to create release branch"
+        rm -rf "$TEMP_DIR"
         exit 1
     fi
 fi
@@ -104,22 +124,24 @@ fi
 echo "🧹 Cleaning release branch..."
 find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} + 2>/dev/null
 
-# Copy built files to release branch using absolute path
-echo "📁 Copying files from build directory to release branch..."
-echo "📍 Source: $ABSOLUTE_BUILD_DIR"
+# Copy files from temporary directory to release branch
+echo "📁 Copying files from temporary directory to release branch..."
+echo "📍 Source: $TEMP_DIR"
 echo "📍 Target: $(pwd)"
 
-# Verify source directory exists (using absolute path)
-if [ -d "$ABSOLUTE_BUILD_DIR" ]; then
-    # Copy all files from the absolute build directory
-    cp -r "$ABSOLUTE_BUILD_DIR"/* . 2>/dev/null
+if [ -d "$TEMP_DIR" ] && [ -f "$TEMP_DIR/index.html" ]; then
+    # Copy all files from temporary directory
+    cp -r "$TEMP_DIR"/* . 2>/dev/null
     # Also copy any hidden files
-    cp -r "$ABSOLUTE_BUILD_DIR"/.[^.]* . 2>/dev/null || true
-    echo "✅ Copy completed using absolute path"
+    cp -r "$TEMP_DIR"/.[^.]* . 2>/dev/null || true
+    echo "✅ Files copied from temporary directory to release branch"
+    
+    # Clean up temporary directory
+    rm -rf "$TEMP_DIR"
+    echo "🧹 Temporary directory cleaned up"
 else
-    echo "❌ Source directory '$ABSOLUTE_BUILD_DIR' not found!"
-    echo "🔍 Available directories:"
-    ls -la "$(dirname "$ABSOLUTE_BUILD_DIR")" 2>/dev/null || echo "Parent directory not accessible"
+    echo "❌ Temporary directory or files not found!"
+    rm -rf "$TEMP_DIR"
     git checkout "$CURRENT_BRANCH"
     exit 1
 fi
