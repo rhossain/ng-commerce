@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { ProductModel, ProductResponse } from '../models/product.model';
+import { ProductModel, ProductResponse, ProductReview, ProductVariant } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -38,5 +38,41 @@ export class ProductService {
     console.log('Final product API URL:', url);
     // console.log(url);
     return this.http.get<ProductResponse>(url);
+  }
+
+  getFeaturedProducts(): Observable<ProductResponse> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.getFeaturedProduct}`;
+    return this.http.get<ProductResponse>(url);
+  }
+
+  getNewProducts(): Observable<ProductResponse> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.getNewProduct}`;
+    return this.http.get<ProductResponse>(url);
+  }
+
+  getAverageRating(reviews: ProductReview[] | undefined): number {
+    if (!reviews || reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / reviews.length;
+  }
+
+  submitReview(reviewPayload: any): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.addReview}`;
+    return this.http.post(url, reviewPayload);
+  }
+
+  updateReview(reviewId: number, updatedReview: any): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.updateReview}/${reviewId}`;
+    return this.http.patch(url, updatedReview);
+  }
+
+  deleteReview(reviewId: number): Observable<any> {
+    const url = `${this.apiUrl}/${environment.apiEndpoints.product.deleteReview}/${reviewId}`;
+    return this.http.delete(url);
+  }
+
+  isInStock(product: ProductModel, variant?: ProductVariant | null): boolean {
+    const targetVariant = variant || product.variants?.[0];
+    return targetVariant ? targetVariant.stock > 0 : false;
   }
 }

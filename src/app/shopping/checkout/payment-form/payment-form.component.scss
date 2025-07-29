@@ -1,0 +1,539 @@
+.payment-form {
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-description {
+    color: #6c757d;
+    margin-bottom: 2rem;
+  }
+
+  .payment-methods {
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+
+    .methods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .method-option {
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+
+      &:hover:not(.disabled) {
+        border-color: rgb(var(--clr-secondary-custom));
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+        transform: translateY(-1px);
+      }
+
+      &.selected {
+        border-color: #28a745;
+        background-color: #f8fff9;
+        box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
+      }
+
+      &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background-color: #f8f9fa;
+      }
+
+      .method-content {
+        display: flex;
+        align-items: center;
+
+        .method-icon {
+          width: 50px;
+          height: 50px;
+          border-radius: 8px;
+          background: #f8f9fa;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 1rem;
+          flex-shrink: 0;
+
+          fa-icon {
+            font-size: 1.5rem;
+            color: rgb(var(--clr-secondary-custom));
+          }
+        }
+
+        .method-details {
+          flex: 1;
+
+          h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 0.25rem 0;
+          }
+
+          p {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+            line-height: 1.3;
+          }
+        }
+
+        .selection-indicator {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background-color: #28a745;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+
+          fa-icon {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+
+  .card-form {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    animation: slideDown 0.3s ease-out;
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+
+      h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+      }
+
+      .security-badges {
+        display: flex;
+        align-items: center;
+        color: #28a745;
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        .security-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+
+        .info-icon {
+          margin-left: 0.5rem;
+          color: #6c757d;
+          font-size: 0.8rem;
+          cursor: help;
+        }
+      }
+
+      .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+
+        &:focus {
+          border-color: rgb(var(--clr-secondary-custom));
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        &.is-invalid {
+          border-color: #dc3545;
+
+          &:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+          }
+        }
+
+        &::placeholder {
+          color: #adb5bd;
+        }
+      }
+
+      .card-input-wrapper {
+        position: relative;
+
+        .card-type-icon {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+
+          .card-brand-icon {
+            width: 30px;
+            height: auto;
+          }
+        }
+      }
+
+      .cvv-input-wrapper {
+        position: relative;
+
+        .cvv-toggle-btn {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #6c757d;
+          cursor: pointer;
+          padding: 0.25rem;
+
+          &:hover {
+            color: #495057;
+          }
+        }
+      }
+
+      .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #dc3545;
+      }
+    }
+
+    .form-options {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #dee2e6;
+
+      .form-check {
+        .form-check-input {
+          width: 1.1rem;
+          height: 1.1rem;
+          margin-right: 0.75rem;
+          border: 2px solid #ced4da;
+
+          &:checked {
+            background-color: rgb(var(--clr-secondary-custom));
+            border-color: rgb(var(--clr-secondary-custom));
+          }
+        }
+
+        .form-check-label {
+          font-size: 0.95rem;
+          color: #495057;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .digital-wallet-info {
+    margin-bottom: 2rem;
+    animation: slideDown 0.3s ease-out;
+
+    .wallet-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      color: white;
+      display: flex;
+      align-items: center;
+
+      .wallet-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 2rem;
+        flex-shrink: 0;
+
+        fa-icon {
+          font-size: 2rem;
+        }
+      }
+
+      .wallet-content {
+        flex: 1;
+
+        h3 {
+          font-size: 1.4rem;
+          font-weight: 600;
+          margin: 0 0 0.5rem 0;
+        }
+
+        p {
+          opacity: 0.9;
+          margin: 0 0 1rem 0;
+          line-height: 1.4;
+        }
+
+        .wallet-amount {
+          font-size: 1.2rem;
+          margin-bottom: 1rem;
+        }
+
+        .wallet-instructions {
+          opacity: 0.8;
+
+          p {
+            font-size: 0.9rem;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .payment-summary {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+
+    .summary-header {
+      margin-bottom: 1rem;
+
+      h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+      }
+    }
+
+    .summary-content {
+      .summary-line,
+      .payment-method-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+
+        .label {
+          color: #6c757d;
+          font-size: 0.95rem;
+        }
+
+        .value {
+          font-weight: 500;
+          color: #2c3e50;
+
+          &.total-amount {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: rgb(var(--clr-secondary-custom));
+          }
+        }
+      }
+
+      .payment-method-line:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .security-notice {
+    background: rgba(var(--clr-orange), 0.1);
+    border: 1px solid rgba(var(--clr-orange), 0.4);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+
+    .security-content {
+      display: flex;
+      align-items: flex-start;
+
+      .lock-icon {
+        color: rgb(var(--clr-orange));
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .security-text {
+        flex: 1;
+
+        h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: rgb(var(--clr-orange));
+          margin: 0 0 0.5rem 0;
+        }
+
+        p {
+          color: rgb(var(--clr-orange));
+          font-size: 0.9rem;
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+    }
+  }
+
+  .accepted-cards {
+    text-align: center;
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: rgb(var(--clr-dark));
+      margin-bottom: 1rem;
+    }
+
+    .card-brands {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+
+      .card-brand {
+        height: 30px;
+        width: auto;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 767.98px) {
+  .payment-form {
+    .payment-methods {
+      .methods-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .method-option {
+        .method-content {
+          .method-icon {
+            width: 40px;
+            height: 40px;
+
+            fa-icon {
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
+    }
+
+    .card-form {
+      padding: 1.5rem;
+
+      .form-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+
+    .digital-wallet-info {
+      .wallet-card {
+        flex-direction: column;
+        text-align: center;
+
+        .wallet-icon {
+          margin-right: 0;
+          margin-bottom: 1rem;
+        }
+      }
+    }
+
+    .security-notice {
+      .security-content {
+        .lock-icon {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 575.98px) {
+  .payment-form {
+    .card-form {
+      padding: 1rem;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
+
+    .payment-summary,
+    .security-notice {
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
+
+    .accepted-cards {
+      .card-brands {
+        gap: 0.5rem;
+
+        .card-brand {
+          height: 25px;
+        }
+      }
+    }
+  }
+}
+
+// Animation
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Add isApplePayAvailable method stub
+.payment-form {
+  // This would be implemented in the component
+  // isApplePayAvailable() would check if Apple Pay is available
+}

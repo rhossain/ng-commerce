@@ -1,3 +1,5 @@
+import { UserModel } from "./user.model";
+
 export interface ProductModel {
     id: number;
     created_at: any;
@@ -9,9 +11,10 @@ export interface ProductModel {
     stock_quantity: number;
     isNewArrival: boolean;
     isFeatured: boolean;
-    featuredImage?: string;
+    main_image_url?: string;
     options?: ProductOption[];
     variants?: ProductVariant[];
+    reviews?: ProductReview[];
     brand?: string;
     category_id: number;
 }
@@ -60,4 +63,14 @@ export interface ProductResponse {
     itemsTotal: number;
     pageTotal: number;
     items: ProductModel[];
+}
+
+export interface ProductReview {
+  id: number;
+  created_at: number;
+  rating: number;
+  review_text: string;
+  user_id: number;
+  product_id: number;
+  user?: UserModel;
 }

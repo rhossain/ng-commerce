@@ -1,61 +1,374 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { ProductModel, ProductVariant } from '../models/product.model';
 import { CartItem } from '../models/cart.model';
+import { ProductModel } from '../models/product.model';
+import { ProductVariant } from '../models/product.model';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class CartService {
-  private cartKey = 'cart';
+  private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
+  cartItems$ = this.cartItemsSubject.asObservable();
+
   private cartSubject = new BehaviorSubject<number>(0);
-  cart$: Observable<number> = this.cartSubject.asObservable();
+  cart$ = this.cartSubject.asObservable();
 
-  constructor(private toastrService: ToastrService) { }
+  private subtotalSubject = new BehaviorSubject<number>(0);
+  subtotal$ = this.subtotalSubject.asObservable().pipe(
+    debounceTime(100), // ✅ Debounce to prevent excessive shipping calculations
+    distinctUntilChanged()
+  );
 
-  private saveCart(cart: CartItem[]):void {
-    localStorage.setItem(this.cartKey, JSON.stringify(cart));
+  // ✅ Performance optimizations
+  private isUpdating = false;
+  private pendingUpdates: (() => void)[] = [];
+
+  constructor(
+    private toastr: ToastrService
+  ) {
+    this.loadCartFromStorage();
+    
+    // ✅ Setup automatic shipping service updates when subtotal changes
+    this.subtotal$.subscribe(subtotal => {
+      // Only update shipping service if available and subtotal changed
+      if (typeof window !== 'undefined' && (window as any).shippingService) {
+        (window as any).shippingService.updateCartTotal(subtotal);
+      }
+    });
   }
 
-  getCart(): CartItem[] {
-    const cartData = localStorage.getItem(this.cartKey);
-    const cart: CartItem[] = cartData ? JSON.parse(cartData) : [];
-    this.cartSubject.next(cart.length);
-    return cart;
-  }  
-
-  addToCart(product: ProductModel, variant: ProductVariant): void {
-    const cart = this.getCart();
-  
-    const existingItem = cart.find(
-      (item) =>
-        item.product.id === product.id && item.variant.id === variant.id
-    );
-  
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.push({ product, variant, quantity: 1 });
+  private loadCartFromStorage(): void {
+    try {
+      const storedCart = localStorage.getItem('cart');
+      if (storedCart) {
+        const cartItems: CartItem[] = JSON.parse(storedCart);
+        this.cartItemsSubject.next(cartItems);
+        this.updateCartMetrics();
+      }
+    } catch (error) {
+      console.error('Error loading cart from storage:', error);
+      this.clearCart();
     }
-  
-    this.saveCart(cart);
-    this.cartSubject.next(cart.length);
-    this.toastrService.success(`Added ${product.name} to cart`, `Cart updated`);
-  }  
+  }
 
-  clearCart():void {
-    this.saveCart([]);
+  private saveCartToStorage(cartItems: CartItem[]): void {
+    try {
+      localStorage.setItem('cart', JSON.stringify(cartItems));
+    } catch (error) {
+      console.error('Error saving cart to storage:', error);
+      this.toastr.error('Failed to save cart changes', 'Storage Error');
+    }
+  }
+
+  private calculateSubtotal(cartItems: CartItem[]): number {
+    return cartItems.reduce((total, item) => {
+      // ✅ Properly handle optional discountPrice
+      const price = this.getEffectivePrice(item.variant);
+      return total + (price * item.quantity);
+    }, 0);
+  }
+
+  // ✅ Helper method to get effective price with type safety
+  private getEffectivePrice(variant: ProductVariant): number {
+    if (variant.discountPrice !== null && variant.discountPrice !== undefined) {
+      return variant.discountPrice;
+    }
+    return variant.price;
+  }
+
+  // ✅ Optimized cart update method with batching
+  private updateCartMetrics(): void {
+    if (this.isUpdating) {
+      // Queue the update if one is already in progress
+      this.pendingUpdates.push(() => this.updateCartMetrics());
+      return;
+    }
+
+    this.isUpdating = true;
+
+    const cartItems = this.cartItemsSubject.value;
+    
+    // Calculate metrics
+    const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = this.calculateSubtotal(cartItems);
+
+    // Update subjects
+    this.cartSubject.next(totalQuantity);
+    this.subtotalSubject.next(subtotal);
+
+    // Save to storage
+    this.saveCartToStorage(cartItems);
+
+    // Process any pending updates
+    this.isUpdating = false;
+    if (this.pendingUpdates.length > 0) {
+      const nextUpdate = this.pendingUpdates.shift();
+      if (nextUpdate) {
+        setTimeout(nextUpdate, 0);
+      }
+    }
+  }
+
+  // ✅ PUBLIC METHOD: Get cart (for backward compatibility)
+  getCart(): void {
+    // This method exists for compatibility but cart is auto-loaded in constructor
+    this.updateCartMetrics();
+  }
+
+  // ✅ Get current cart summary (for performance critical operations)
+  getCartSummary(): { itemCount: number; subtotal: number; items: CartItem[] } {
+    const items = this.cartItemsSubject.value;
+    return {
+      itemCount: this.cartSubject.value,
+      subtotal: this.subtotalSubject.value,
+      items: [...items] // Return copy to prevent external mutations
+    };
+  }
+
+  addToCart(product: ProductModel, variant: ProductVariant, quantity: number = 1): void {
+    if (quantity <= 0) {
+      this.toastr.warning('Invalid quantity', 'Cart Error');
+      return;
+    }
+
+    // ✅ Validate variant has required properties
+    if (!variant || !variant.id || !variant.price) {
+      this.toastr.error('Invalid product variant', 'Cart Error');
+      return;
+    }
+
+    const cartItems = [...this.cartItemsSubject.value];
+    const existingItem = cartItems.find(item => 
+      item.product.id === product.id && item.variant.id === variant.id
+    );
+
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      this.toastr.info('Quantity updated in cart', 'Cart Updated');
+    } else {
+      cartItems.push({ product, variant, quantity });
+      this.toastr.success('Item added to cart', 'Cart Updated');
+    }
+
+    this.cartItemsSubject.next(cartItems);
+    this.updateCartMetrics();
+  }
+
+  updateQuantity(productId: number, variantId: number, newQuantity: number): void {
+    if (newQuantity < 0) {
+      this.toastr.warning('Invalid quantity', 'Cart Error');
+      return;
+    }
+
+    const cartItems = [...this.cartItemsSubject.value];
+    const item = cartItems.find(ci => ci.product.id === productId && ci.variant.id === variantId);
+
+    if (!item) {
+      this.toastr.warning('Item not found in cart', 'Cart Error');
+      return;
+    }
+
+    if (newQuantity === 0) {
+      this.removeFromCart(productId, variantId);
+      return;
+    }
+
+    item.quantity = newQuantity;
+    this.toastr.info('Quantity updated in cart', 'Cart Updated');
+
+    this.cartItemsSubject.next(cartItems);
+    this.updateCartMetrics();
   }
 
   removeFromCart(productId: number, variantId: number): void {
-    const updatedCart = this.getCart().filter(
-      (item: CartItem) =>
-        !(item.product.id === productId && item.variant.id === variantId)
+    let cartItems = [...this.cartItemsSubject.value];
+    const initialLength = cartItems.length;
+    
+    cartItems = cartItems.filter(item => 
+      !(item.product.id === productId && item.variant.id === variantId)
     );
-  
-    this.saveCart(updatedCart);
-    this.cartSubject.next(updatedCart.length);
-    this.toastrService.info(`Item removed from cart`, `Cart updated`);
-  }  
+
+    if (cartItems.length === initialLength) {
+      this.toastr.warning('Item not found in cart', 'Cart Error');
+      return;
+    }
+
+    this.toastr.warning('Item removed from cart', 'Cart Updated');
+    this.cartItemsSubject.next(cartItems);
+    this.updateCartMetrics();
+  }
+
+  clearCart(): void {
+    this.cartItemsSubject.next([]);
+    this.cartSubject.next(0);
+    this.subtotalSubject.next(0);
+    localStorage.removeItem('cart');
+    this.toastr.info('Cart cleared', 'Cart Updated');
+  }
+
+  // ✅ Get item quantity by product and variant
+  getItemQuantity(productId: number, variantId: number): number {
+    const item = this.cartItemsSubject.value.find(item =>
+      item.product.id === productId && item.variant.id === variantId
+    );
+    return item ? item.quantity : 0;
+  }
+
+  // ✅ Check if item exists in cart
+  isInCart(productId: number, variantId: number): boolean {
+    return this.cartItemsSubject.value.some(item =>
+      item.product.id === productId && item.variant.id === variantId
+    );
+  }
+
+  // ✅ Get cart item count
+  getItemCount(): number {
+    return this.cartSubject.value;
+  }
+
+  // ✅ Get cart subtotal
+  getSubtotal(): number {
+    return this.subtotalSubject.value;
+  }
+
+  // ✅ Check if cart is empty
+  isEmpty(): boolean {
+    return this.cartItemsSubject.value.length === 0;
+  }
+
+  // ✅ Get unique product count (different from total quantity)
+  getUniqueProductCount(): number {
+    return this.cartItemsSubject.value.length;
+  }
+
+  // ✅ Batch update multiple items (for performance)
+  batchUpdateCart(updates: Array<{ productId: number; variantId: number; quantity: number }>): void {
+    const cartItems = [...this.cartItemsSubject.value];
+    let hasChanges = false;
+
+    updates.forEach(update => {
+      const item = cartItems.find(ci => 
+        ci.product.id === update.productId && ci.variant.id === update.variantId
+      );
+      
+      if (item && item.quantity !== update.quantity) {
+        if (update.quantity <= 0) {
+          const index = cartItems.indexOf(item);
+          cartItems.splice(index, 1);
+        } else {
+          item.quantity = update.quantity;
+        }
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      this.cartItemsSubject.next(cartItems);
+      this.updateCartMetrics();
+      this.toastr.success('Cart updated', 'Success');
+    }
+  }
+
+  // ✅ Force refresh cart (useful for debugging or manual refresh)
+  refreshCart(): void {
+    this.loadCartFromStorage();
+  }
+
+  // ✅ Get cart total value
+  getTotalValue(): number {
+    return this.subtotalSubject.value;
+  }
+
+  // ✅ Get cart items count by category
+  getItemCountByCategory(categoryId: number): number {
+    return this.cartItemsSubject.value
+      .filter(item => item.product.category_id === categoryId)
+      .reduce((sum, item) => sum + item.quantity, 0);
+  }
+
+  // ✅ Check if product has variants in cart
+  hasProductInCart(productId: number): boolean {
+    return this.cartItemsSubject.value.some(item => item.product.id === productId);
+  }
+
+  // ✅ Get all variants of a product in cart
+  getProductVariantsInCart(productId: number): CartItem[] {
+    return this.cartItemsSubject.value.filter(item => item.product.id === productId);
+  }
+
+  // ✅ Calculate savings total with type safety
+  getTotalSavings(): number {
+    return this.cartItemsSubject.value.reduce((total, item) => {
+      const variant = item.variant;
+      if (variant.discountPrice !== null && 
+          variant.discountPrice !== undefined && 
+          variant.discountPrice < variant.price) {
+        const savings = (variant.price - variant.discountPrice) * item.quantity;
+        return total + savings;
+      }
+      return total;
+    }, 0);
+  }
+
+  // ✅ Get cart weight total (if variants have weight)
+  getTotalWeight(): number {
+    return this.cartItemsSubject.value.reduce((total, item) => {
+      const weight = item.variant.weight || 0;
+      return total + (weight * item.quantity);
+    }, 0);
+  }
+
+  // ✅ Get cart items with price breakdown
+  getCartItemsWithPriceBreakdown(): Array<CartItem & { 
+    effectivePrice: number; 
+    totalPrice: number; 
+    savings: number; 
+  }> {
+    return this.cartItemsSubject.value.map(item => ({
+      ...item,
+      effectivePrice: this.getEffectivePrice(item.variant),
+      totalPrice: this.getEffectivePrice(item.variant) * item.quantity,
+      savings: this.calculateItemSavings(item)
+    }));
+  }
+
+  // ✅ Calculate savings for individual item
+  private calculateItemSavings(item: CartItem): number {
+    const variant = item.variant;
+    if (variant.discountPrice !== null && 
+        variant.discountPrice !== undefined && 
+        variant.discountPrice < variant.price) {
+      return (variant.price - variant.discountPrice) * item.quantity;
+    }
+    return 0;
+  }
+
+  // ✅ Validate cart items (check stock, prices, etc.)
+  validateCart(): { valid: boolean; issues: string[] } {
+    const issues: string[] = [];
+    const cartItems = this.cartItemsSubject.value;
+
+    cartItems.forEach(item => {
+      // Check if variant exists and has required properties
+      if (!item.variant || !item.variant.id) {
+        issues.push(`Invalid variant for ${item.product.name}`);
+      }
+
+      // Check stock availability
+      if (item.variant && item.quantity > item.variant.stock) {
+        issues.push(`${item.product.name} - Only ${item.variant.stock} available (${item.quantity} in cart)`);
+      }
+
+      // Check if price is valid
+      if (item.variant && (!item.variant.price || item.variant.price <= 0)) {
+        issues.push(`Invalid price for ${item.product.name}`);
+      }
+    });
+
+    return {
+      valid: issues.length === 0,
+      issues
+    };
+  }
 }

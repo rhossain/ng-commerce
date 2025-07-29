@@ -13,6 +13,17 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes),
     provideAnimations(),
-    provideToastr()
+    provideToastr({
+      positionClass: 'toast-bottom-right',
+      timeOut: 3000,
+      closeButton: true,
+      progressBar: true,
+      progressAnimation: 'increasing',
+      tapToDismiss: true,
+      preventDuplicates: true,
+      maxOpened: 3,
+      autoDismiss: true,
+      newestOnTop: true
+    })
   ]
 };

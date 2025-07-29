@@ -1,0 +1,225 @@
+@import 'bootstrap-bp.scss';
+
+.product {
+    $this: product !default;
+
+    &-info {
+        padding: 16px 16px 16px 0;
+
+        .in-stock {
+            color: rgb(var(--clr-green));
+        }
+
+        .out-of-stock {
+            color: rgb(var(--clr-red));
+        }
+
+        @include media-breakpoint-down(md) {
+            padding-left: 16px;
+        }
+    }
+
+    &-title {
+        &--name {
+            font-size: 20px;
+        }
+
+        &--availability {
+            font-size: 16px;
+        }
+    }
+
+    &-price {
+        &--current {
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        &--original {
+            color: rgb(var(--clr-gray-darker));
+            font-size: 16px;
+            text-decoration: line-through;
+        }
+    }
+
+    &-color, &-size {
+        ul {
+            li {
+                position: relative;
+                margin-right: 5px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+            }
+        }
+    }
+
+    &-color {
+        &--unavailable {
+            cursor: no-drop;
+
+            &::before, &::after {
+                // content: "";
+                display: block;
+                position: absolute;                
+                left: 22px;
+                top: 0;
+                width: 1px;
+                height: 100%;
+                background: rgb(var(--clr-red));
+                z-index: 1;
+            }
+
+            &::before {                
+                transform: scale(1.2) rotate(45deg);
+            }
+
+            &::after {
+                transform: scale(1.2) rotate(-45deg);                
+            }
+
+            label {
+                user-select: none;
+                pointer-events: none;
+            }
+
+            img {
+                -webkit-filter: blur(.8px) grayscale(100%);
+                filter: blur(.8px) grayscale(100%);
+            }
+        }            
+    }
+
+    &-quantity {
+        &--counter {
+            width: auto;
+
+            input {
+                width: 50px;
+                background-color: rgba(var(--clr-gray), 0.7);
+                border: 0;
+
+                &:focus {
+                    outline: 0;
+                    box-shadow: none;
+                }
+            }
+
+            .btn {
+                min-width: 37px;
+                background-color: rgb(var(--clr-gray));
+                font-size: 12px;
+
+                &-minus {
+                    border-radius: 4px 0 0 4px;
+                }
+
+                &-plus {
+                    border-radius: 0 4px 4px 0;
+                }
+
+                &:focus {
+                    outline: 0;
+                    box-shadow: none;
+                }
+            }
+        }
+
+        &--info {
+            font-size: 12px;
+            color: rgb(var(--clr-gray-dark));
+        }
+    }
+    
+    &-actions {
+        .btn {
+            margin-right: 5px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+
+    &-desc {
+        &--header {
+            i {
+                font-size: 15px;
+            }
+        }
+    }
+
+    &-review {
+        &--rating {
+            &-total {
+
+            }
+
+            &-details {
+                span {
+                    width: 35px;
+                }
+
+                .progress {
+                    width: calc(100% - 35px);
+                    background-color: rgba(var(--clr-gray-dark), 0.7);
+                }
+            }
+        }
+
+        &--customer-reviews {
+            .flags-box--item {
+                &::before {
+                    top: 3px;
+                }
+            }
+        }
+    }
+}
+
+.custom-radios {
+  
+  div {
+    display: inline-block;
+  }
+
+  input[type="radio"] {
+    display: none;
+
+    + label {
+      color: #333;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+
+      span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        margin: -1px 4px 0 0;
+        vertical-align: middle;
+        cursor: pointer;
+        border-radius: 50%;
+        border: 2px solid #FFFFFF;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
+        background-repeat: no-repeat;
+        background-position: center;
+        text-align: center;
+        line-height: 44px;
+    
+        img {
+            max-width: 16px;
+            opacity: 0;
+            transition: all .3s ease;
+        }
+      }
+    }
+
+    &:checked + label span img {
+      opacity: 1;
+    }
+  }
+}

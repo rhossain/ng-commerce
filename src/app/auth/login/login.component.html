@@ -1,0 +1,62 @@
+
+<div class="mobile-gradient">
+    <div class="overlay"></div>
+</div>
+
+<div class="container py-5 position-relative">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8">
+      <div class="auth-wrapper">
+        <div class="auth-top text-center mb-30">
+          <h3 class="auth-title">Sign In to <span class="mb-0 d-none d-md-block logo-text">ng<span>C</span>ommerce</span></h3>
+          <p>
+            Don’t have an account? 
+            <span>
+              <a routerLink="/auth/register" href="javascript:void(0)" class="text-secondary">Create a free account</a>
+            </span>
+          </p>
+        </div>
+
+        <div class="auth-option">
+          <form #loginForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+            <div class="form-floating mb-3">
+              <input 
+                type="email" 
+                [(ngModel)]="userEmail" 
+                #userEmailInput="ngModel" 
+                id="userEmail" 
+                name="userEmail" 
+                placeholder="Email" 
+                class="form-control"
+                [ngClass]="{ 'is-invalid': userEmailInput.invalid && userEmailInput.touched }" 
+                required />
+              <label for="userEmail">Email</label>
+            </div>
+            <!-- <div class="form-floating mb-3">
+              <input type="email" class="form-control" id="userEmail" [(ngModel)]="userEmail" name="userEmail" placeholder="name@example.com"  required>
+              <label for="userEmail">Email address</label>
+            </div> -->
+            <div class="form-floating mb-3">
+              <input 
+                type="password" 
+                [(ngModel)]="userPassword" 
+                #userPasswordInput="ngModel" 
+                id="userPassword" 
+                name="userPassword" 
+                placeholder="Password" 
+                class="form-control"
+                [ngClass]="{ 'is-invalid': userPasswordInput.invalid && userPasswordInput.touched }" 
+                required />
+              <label for="userPassword">Password</label>
+            </div>
+            <!-- <div class="form-floating">
+              <input type="password" class="form-control" id="userPassword" [(ngModel)]="userPassword" name="userPassword" placeholder="Password"  required>
+              <label for="userPassword">Password</label>
+            </div> -->
+            <button class="btn btn-lg btn-dark w-100 mt-3" type="submit" [disabled]="loginForm.invalid">Login</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
