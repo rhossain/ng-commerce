@@ -1,0 +1,12 @@
+{
+  "deployedAt": "2025-07-29T18:40:02Z",
+  "deployedFrom": "development",
+  "subdirectory": "demo/ngcommerce",
+  "baseHref": "/demo/ngcommerce/",
+  "environment": "production",
+  "buildOutput": "dist/ng-commerce/browser",
+  "projectDirectory": "ng-commerce",
+  "deployedBy": "bs1071@BS1071s-MacBook-Pro.local",
+  "nodeVersion": "v20.19.3",
+  "angularVersion": "unknown"
+}
