@@ -69,9 +69,17 @@ if [ "$FILE_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-# Save current branch name
+# Save current branch name and get absolute path to build directory
 CURRENT_BRANCH=$(git branch --show-current)
+ABSOLUTE_BUILD_DIR="$(pwd)/$BUILD_DIR"
 echo "📋 Current branch: $CURRENT_BRANCH"
+echo "📍 Absolute build path: $ABSOLUTE_BUILD_DIR"
+
+# Verify the absolute build directory exists before switching branches
+if [ ! -d "$ABSOLUTE_BUILD_DIR" ]; then
+    echo "❌ Build directory not found at: $ABSOLUTE_BUILD_DIR"
+    exit 1
+fi
 
 # Switch to release branch
 echo "📦 Switching to release branch..."
@@ -96,19 +104,22 @@ fi
 echo "🧹 Cleaning release branch..."
 find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} + 2>/dev/null
 
-# Copy built files to release branch
-echo "📁 Copying files from $BUILD_DIR to release branch..."
-echo "📍 Source: $BUILD_DIR"
+# Copy built files to release branch using absolute path
+echo "📁 Copying files from build directory to release branch..."
+echo "📍 Source: $ABSOLUTE_BUILD_DIR"
 echo "📍 Target: $(pwd)"
 
-# Simple, reliable copy method
-if [ -d "$BUILD_DIR" ]; then
-    cp -r "$BUILD_DIR"/* . 2>/dev/null
+# Verify source directory exists (using absolute path)
+if [ -d "$ABSOLUTE_BUILD_DIR" ]; then
+    # Copy all files from the absolute build directory
+    cp -r "$ABSOLUTE_BUILD_DIR"/* . 2>/dev/null
     # Also copy any hidden files
-    cp -r "$BUILD_DIR"/.[^.]* . 2>/dev/null || true
-    echo "✅ Copy completed"
+    cp -r "$ABSOLUTE_BUILD_DIR"/.[^.]* . 2>/dev/null || true
+    echo "✅ Copy completed using absolute path"
 else
-    echo "❌ Source directory '$BUILD_DIR' not found!"
+    echo "❌ Source directory '$ABSOLUTE_BUILD_DIR' not found!"
+    echo "🔍 Available directories:"
+    ls -la "$(dirname "$ABSOLUTE_BUILD_DIR")" 2>/dev/null || echo "Parent directory not accessible"
     git checkout "$CURRENT_BRANCH"
     exit 1
 fi
