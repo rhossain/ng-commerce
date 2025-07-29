@@ -3,7 +3,7 @@
 echo "🚀 Deploying Angular app to demo/ngcommerce..."
 
 # Configuration
-SOURCE_BRANCH="main"
+SOURCE_BRANCH="development"
 RELEASE_BRANCH="release"
 SUBDIRECTORY="demo/ngcommerce"
 
