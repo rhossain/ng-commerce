@@ -246,6 +246,12 @@ echo "⬆️ Pushing to release branch..."
 git push origin release
 PUSH_EXIT_CODE=$?
 
+# Check if push was actually successful despite error code
+echo "🔍 Verifying push status..."
+git fetch origin release --quiet 2>/dev/null
+LOCAL_COMMIT=$(git rev-parse release)
+REMOTE_COMMIT=$(git rev-parse origin/release 2>/dev/null)
+
 # Always return to original branch
 echo "🔄 Returning to $CURRENT_BRANCH branch..."
 git checkout "$CURRENT_BRANCH"
@@ -256,8 +262,27 @@ if [ $? -ne 0 ]; then
     echo "💡 Manually run: git checkout $CURRENT_BRANCH"
 fi
 
-# Check push results and show appropriate message
-if [ $PUSH_EXIT_CODE -eq 0 ]; then
+# Determine if push was actually successful
+if [ "$LOCAL_COMMIT" = "$REMOTE_COMMIT" ] && [ ! -z "$REMOTE_COMMIT" ]; then
+    # Push was successful (commits match)
+    echo ""
+    echo "🎉 Deployment completed successfully!"
+    echo "✅ Files pushed to release branch (despite network timeout warning)"
+    echo "🌐 Ready for Hostinger deployment!"
+    echo ""
+    echo "📋 Next steps for Hostinger setup:"
+    echo "1. Go to Hostinger Control Panel → Advanced → Git"
+    echo "2. Create repository with these settings:"
+    echo "   - Repository URL: $(git config --get remote.origin.url)"
+    echo "   - Branch: release"
+    echo "   - Repository Path: /public_html/$SUBDIRECTORY"
+    echo "   - Auto Deploy: Enable"
+    echo "3. Your app will be available at: https://rshossain.com/$SUBDIRECTORY/"
+    echo ""
+    echo "🔍 Debug info saved in deployment-info.json"
+    echo "💡 Note: HTTP 408 errors during push are common with large files but don't affect success"
+elif [ $PUSH_EXIT_CODE -eq 0 ]; then
+    # Git reported success
     echo ""
     echo "🎉 Deployment completed successfully!"
     echo "✅ Files pushed to release branch"
@@ -270,16 +295,22 @@ if [ $PUSH_EXIT_CODE -eq 0 ]; then
     echo "   - Branch: release"
     echo "   - Repository Path: /public_html/$SUBDIRECTORY"
     echo "   - Auto Deploy: Enable"
-    echo "3. Your app will be available at: https://yourdomain.com/$SUBDIRECTORY/"
+    echo "3. Your app will be available at: https://rshossain.com/$SUBDIRECTORY/"
     echo ""
     echo "🔍 Debug info saved in deployment-info.json"
 else
+    # Actual push failure
     echo ""
     echo "❌ Failed to push to release branch (exit code: $PUSH_EXIT_CODE)"
-    echo "🔍 Possible issues:"
-    echo "   - Check your git credentials"
-    echo "   - Verify network connection"
-    echo "   - Ensure you have push access to the repository"
-    echo "   - Try: git push origin release --verbose"
+    echo "🔍 Troubleshooting steps:"
+    echo "   1. Check network connection: ping github.com"
+    echo "   2. Verify git credentials: git config --list | grep user"
+    echo "   3. Try manual push: git checkout release && git push origin release --verbose"
+    echo "   4. Check repository access: git remote -v"
+    echo ""
+    echo "💡 Common solutions:"
+    echo "   - Large files: git config http.postBuffer 524288000"
+    echo "   - Timeout issues: git config http.lowSpeedLimit 0"
+    echo "   - Network issues: Try again in a few minutes"
     exit 1
 fi
