@@ -1,0 +1,1 @@
+import{Tb as p,_a as o,wb as c,xb as a}from"./chunk-JUZ672IX.js";import"./chunk-4CLCTAJ7.js";var e=class n{static \u0275fac=function(t){return new(t||n)};static \u0275cmp=o({type:n,selectors:[["app-contact"]],decls:2,vars:0,template:function(t,i){t&1&&(c(0,"p"),p(1,"contact works!"),a())},encapsulation:2})};export{e as default};
