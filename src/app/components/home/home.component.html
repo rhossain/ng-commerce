@@ -1,5 +1,44 @@
+<!-- Loading State -->
+<div *ngIf="shouldShowLoading()" class="home-loading">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+              <span class="visually-hidden">Loading homepage...</span>
+            </div>
+            <h5 class="text-muted">Loading homepage...</h5>
+            <p class="text-muted">Please wait while we load the content</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="shouldShowError()" class="home-error">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+          <div>
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ error }}
+          </div>
+          <button class="btn btn-outline-primary" (click)="retry()">
+            <i class="bi bi-arrow-clockwise me-1"></i>
+            Retry
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Main content -->
-<main role="main" class="main-content" [ngClass]="(routeUtils.isCurrentRoute('/home') | async) ? 'main-home' : ''">
+<main *ngIf="shouldShowComponents()" role="main" class="main-content" [ngClass]="(routeUtils.isCurrentRoute('/home') | async) ? 'main-home' : ''">
     <div class="mobile-gradient">
         <div class="overlay"></div>
     </div>
@@ -11,7 +50,8 @@
                 <div class="col-12 offset-0 col-md-12 offset-md-0 col-lg-12 offset-lg-0 col-xl-9 offset-xl-3 main-content-top-wrapper">
                     <div class="main-content-top-contents">
                         <app-product-slider 
-                            [productIds]="[13, 14, 15]"
+                            *ngIf="showSlider"
+                            [productIds]="[14, 17, 24]"
                             [showAddToCartButton]="true"
                             [showPricing]="true"
                             [showRating]="false"
@@ -112,10 +152,36 @@
                     </app-deal-card>
                 </div>
             </div>
-            
         </div>
     </div>
     <!-- ./Featured deal -->
 
 </main>
 <!-- ./Main content -->
+
+<!-- Debug Panel (only in development) -->
+<div class="debug-panel d-none" *ngIf="!shouldShowLoading()">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="card mt-3">
+          <div class="card-header">
+            <h6 class="mb-0">Debug Information</h6>
+          </div>
+          <div class="card-body">
+            <p><strong>Cache Status:</strong> {{ getCacheStatus() }}</p>
+            <p><strong>Cache Loaded:</strong> {{ cacheLoaded ? 'Yes' : 'No' }}</p>
+            <p><strong>Categories Count:</strong> {{ categories.length }}</p>
+            <p><strong>Show Slider:</strong> {{ showSlider ? 'Yes' : 'No' }}</p>
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="refreshCache()">
+              Refresh Cache
+            </button>
+            <button class="btn btn-sm btn-outline-info" (click)="logCacheStats()">
+              Log Cache Stats
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

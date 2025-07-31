@@ -211,7 +211,7 @@
 
             &-menu {
                 left: -17px;
-                top: 45px;
+                top: 42px;
                 width: calc(100% + 33px);
                 border-radius: 0;
 
@@ -543,7 +543,6 @@
     min-width: 320px;
     max-width: 100%;
     overflow: hidden;
-    margin-top: 8px;
     border: 1px solid rgba(226, 232, 240, 0.8);
     transition: all 0.3s ease;
     position: absolute;
@@ -605,7 +604,7 @@
 }
 
 .dropdown-search {
-    padding: 16px 20px 12px;
+    padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
 }
 

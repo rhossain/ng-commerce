@@ -1,11 +1,8 @@
 <swiper-container 
-  [slidesPerView]="1"           
-  [spaceBetween]="20"           
-  [loop]="true"                 
-  [autoplay]="{ delay: 2500 }"  
   [pagination]="{ clickable: true, dynamicBullets: true }"
   [navigation]="true"
   class="product-slider h-100"
+  *ngIf="shouldShowSlider()"
   >
     <swiper-slide *ngFor="let product of products; let i = index">
         <!-- <div class="product-card p-2 border rounded">
@@ -92,4 +89,21 @@
           </div>
         </div>
     </swiper-slide>
+
+    <!-- Navigation elements -->
+    <!-- <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-pagination"></div> -->
 </swiper-container>
+
+<!-- Loading state -->
+<div *ngIf="shouldShowLoading()" class="loading-placeholder">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- Empty state -->
+<div *ngIf="shouldShowEmpty()" class="empty-placeholder">
+  <p>No products to display</p>
+</div>

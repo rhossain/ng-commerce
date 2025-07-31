@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, Input, OnInit, AfterViewChecked, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { ProductModel, ProductVariant } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
@@ -11,6 +11,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { ToastrService } from 'ngx-toastr';
 import { ProductUtils } from '../../utils/product-utils';
+import { ProductCacheService } from '../../services/product-cache.service';
 
 @Component({
   selector: 'app-product-slider',
@@ -20,11 +21,13 @@ import { ProductUtils } from '../../utils/product-utils';
   styleUrl: './product-slider.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ProductSliderComponent implements OnInit {
+export class ProductSliderComponent implements OnInit, AfterViewChecked {
   @Input() productIds: number[] = [];
   @Input() showAddToCartButton: boolean = true;
   @Input() showPricing: boolean = true;
   @Input() showRating: boolean = false;
+
+  private swiperInitialized = false;
   
   products: { product: ProductModel; variant: ProductVariant | null }[] = [];
   loadingImages: boolean[] = [];
@@ -35,67 +38,82 @@ export class ProductSliderComponent implements OnInit {
   faHeart = faHeart;
 
   sliderConfig: SwiperOptions = {
-    slidesPerView: 1,
+    slidesPerView: 1,  // Always show 1 slide
     spaceBetween: 20,
     loop: true,
-    autoplay: { delay: 3000 },
-    allowTouchMove: true,
+    autoplay: { 
+      delay: 3000,
+      pauseOnMouseEnter: true
+    },
     pagination: {
-      el: '.swiper-pagination',
+      clickable: true,
+      dynamicBullets: true
     },
     navigation: {
       nextEl: '.swiper-button-next',
       prevEl: '.swiper-button-prev',
+      disabledClass: 'swiper-button-disabled'
     },
-    scrollbar: {
-      el: '.swiper-scrollbar',
-    },
-    breakpoints: {
-      640: {
-        slidesPerView: 2,
-        spaceBetween: 20,
-      },
-      768: {
-        slidesPerView: 3,
-        spaceBetween: 30,
-      },
-      1024: {
-        slidesPerView: 4,
-        spaceBetween: 40,
-      },
-    },
+    // Remove all breakpoints
+    breakpoints: undefined
   };
 
   constructor(
     private productService: ProductService,
+    private productCacheService: ProductCacheService,
     private cartService: CartService,
     private cartIntegrationService: CartIntegrationService,
     private toastr: ToastrService
   ) {}
   
-  ngOnInit(): void {
-    this.loadProducts();
+  async ngOnInit(): Promise<void> {
+    await this.loadProducts();
   }
 
-  loadProducts(): void {
+  ngAfterViewChecked(): void {
+    if (this.products.length > 0 && !this.swiperInitialized) {
+      this.initializeSwiper();
+    }
+  }
+
+  private initializeSwiper(): void {
+    const swiperEl = document.querySelector('swiper-container');
+    if (swiperEl && !this.swiperInitialized) {
+      // Clear any existing Swiper instance
+      if ((swiperEl as any).swiper) {
+        (swiperEl as any).swiper.destroy();
+      }
+      
+      // Apply simplified configuration
+      Object.assign(swiperEl, this.sliderConfig);
+      
+      // Initialize if needed
+      if ((swiperEl as any).initialize) {
+        (swiperEl as any).initialize();
+      }
+      
+      this.swiperInitialized = true;
+    }
+  }
+
+  async loadProducts(): Promise<void> {
     if (!this.productIds?.length) return;
     
-    const requests = this.productIds.map(id => this.productService.getProduct(id));
-    forkJoin(requests).subscribe({
-      next: (products) => {
-        this.products = products.map(p => {
-          const firstVariant = p.variants?.[0] || null;
-          return { product: p, variant: firstVariant };
-        });
+    try {
+      await this.productCacheService.ensureCache();
+      
+      this.products = this.productIds.map(id => {
+        const product = this.productCacheService.getProductsSync().find(p => p.id === id);
+        const firstVariant = product?.variants?.[0] || null;
+        return { product: product!, variant: firstVariant };
+      }).filter(item => item.product);
 
-        // Initialize all loading states to true
-        this.loadingImages = Array(this.products.length).fill(true);
-      },
-      error: (error) => {
-        // console.error('Error loading products for slider:', error);
-        this.toastr.error('Failed to load products. Please reload the page.', 'Error');
-      }
-    });
+      this.loadingImages = Array(this.products.length).fill(true);
+      this.swiperInitialized = false; // Reset flag to trigger reinitialization
+    } catch (error) {
+      console.error('Error loading products for slider:', error);
+      this.toastr.error('Failed to load products. Please reload the page.', 'Error');
+    }
   }
 
   /**
