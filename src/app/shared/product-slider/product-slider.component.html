@@ -5,16 +5,6 @@
   *ngIf="shouldShowSlider()"
   >
     <swiper-slide *ngFor="let product of products; let i = index">
-        <!-- <div class="product-card p-2 border rounded">
-          <img
-            [src]="product.main_image_url"
-            [alt]="product.name"
-            class="img-fluid product-image mb-2"
-          />
-          <h6 class="mb-1">{{ product.name }}</h6>
-          <small class="text-muted">{{ product.brand }}</small>
-        </div> -->
-
         <div class="product-card h-100">
           <!-- Image wrapper -->
           <div class="image-wrapper position-relative">
@@ -37,8 +27,8 @@
     
           <div class="product-info">
             <!-- Product Offer -->
-            <p class="mb-0" *ngIf="hasDiscount(product.variant)">
-              Exclusive offer <span class="text-danger fw-bold">{{ getDiscountPercentage(product.variant) }}%</span> off this week
+            <p class="mb-0" *ngIf="pricingService.hasValidDiscount(product.variant)">
+              Exclusive offer <span class="text-danger fw-bold">{{ pricingService.getDiscountPercentage(product.variant) }}%</span> off this week
             </p>
 
             <!-- Product Info -->
@@ -51,14 +41,22 @@
             <!-- Pricing -->
             <div class="product-pricing" *ngIf="showPricing && product.variant">
               <div class="price-container">
-                <span class="current-price">
-                  {{ formatPrice(getDisplayPrice(product.variant)) }}
-                </span>
-                <span 
-                  *ngIf="hasDiscount(product.variant)" 
-                  class="original-price">
-                  {{ formatPrice(getOriginalPrice(product.variant)) }}
-                </span>
+                <!-- Show discounted price and original price if discount exists -->
+                <ng-container *ngIf="pricingService.getDiscountPrice(product.variant) as discountPrice; else noDiscountPrice">
+                  <span class="current-price">
+                    {{ pricingService.formatPrice(discountPrice) }}
+                  </span>
+                  <span class="original-price">
+                    {{ pricingService.formatPrice(pricingService.getOriginalPrice(product.variant)) }}
+                  </span>
+                </ng-container>
+                
+                <!-- Show only original price if no discount -->
+                <ng-template #noDiscountPrice>
+                  <span class="current-price">
+                    {{ pricingService.formatPrice(pricingService.getOriginalPrice(product.variant)) }}
+                  </span>
+                </ng-template>
               </div>
             </div>
 
@@ -83,17 +81,9 @@
                 </span>
               </button>
             </div>
-            <!-- <a [routerLink]="['/product/detail', product.product.id]" class="btn btn-secondary text-white">
-              Add to Cart
-            </a> -->
           </div>
         </div>
     </swiper-slide>
-
-    <!-- Navigation elements -->
-    <!-- <div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
-    <div class="swiper-pagination"></div> -->
 </swiper-container>
 
 <!-- Loading state -->

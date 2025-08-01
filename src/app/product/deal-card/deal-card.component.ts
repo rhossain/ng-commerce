@@ -4,6 +4,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ProductModel, ProductVariant } from '../../models/product.model';
 import { ProductCacheService } from '../../services/product-cache.service';
 import { CartService } from '../../services/cart.service';
+import { PricingService } from '../../services/pricing.service';
 
 @Component({
   selector: 'app-deal-card',
@@ -26,7 +27,8 @@ export class DealCardComponent implements OnInit, OnDestroy {
 
   constructor(
     private productCacheService: ProductCacheService,
-    private cartService: CartService
+    private cartService: CartService,
+    public pricingService: PricingService
   ) {}
   
   ngOnInit() {
@@ -110,9 +112,8 @@ export class DealCardComponent implements OnInit, OnDestroy {
     // Note: Timer continues running even after deal expires for display purposes
   }
 
-  getDiscountPercent(price?: number, discountPrice?: number): number | null {
-    if (price == null || discountPrice == null || discountPrice >= price) return null;
-    return Math.round(((price - discountPrice) / price) * 100);
+  getDiscountPercent(product: ProductModel): number | null {
+    return this.pricingService.getDiscountPercentage(product.variants?.[0]) || null;
   }
 
   addToCart(product: ProductModel) {

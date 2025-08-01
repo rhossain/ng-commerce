@@ -6,6 +6,7 @@ import { faBagShopping } from '@fortawesome/free-solid-svg-icons';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CartService } from '../../services/cart.service';
+import { PricingService } from '../../services/pricing.service'; // ← Add this import
 import { SidebarService } from '../../services/sidebar.service';
 import { SidebarComponent } from "../../components/sidebar/sidebar.component";
 import { CartItem } from '../../models/cart.model';
@@ -51,7 +52,8 @@ export class CartComponent implements OnInit, OnDestroy {
     private sidebarService: SidebarService,
     private router: Router,
     private toastr: ToastrService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public pricingService: PricingService // ← Add this injection (make it public)
   ) {
     // ✅ Initialize subjects and observables in constructor
     this.destroy$ = new Subject<void>();
@@ -229,40 +231,51 @@ export class CartComponent implements OnInit, OnDestroy {
       .join(', ');
   }
 
+  /**
+   * Get item price using PricingService (effective price)
+   * @deprecated Use pricingService.getEffectivePrice() directly in template
+   */
   getItemPrice(variant: ProductVariant): number {
-    return variant.discountPrice || variant.price;
+    return this.pricingService.getEffectivePrice(variant);
   }
 
+  /**
+   * Get item subtotal using PricingService
+   */
   getItemSubtotal(item: CartItem): number {
-    const price = this.getItemPrice(item.variant);
-    return price * item.quantity;
+    const effectivePrice = this.pricingService.getEffectivePrice(item.variant);
+    return effectivePrice * item.quantity;
   }
 
+  /**
+   * Get item savings using PricingService
+   */
   getItemSavings(item: CartItem): number {
-    if (!item.variant.discountPrice || item.variant.discountPrice >= item.variant.price) {
-      return 0;
-    }
-    
-    const originalTotal = item.variant.price * item.quantity;
-    const discountedTotal = item.variant.discountPrice * item.quantity;
-    
-    return originalTotal - discountedTotal;
+    const pricingInfo = this.pricingService.getVariantPricingInfo(item.variant);
+    return pricingInfo.savings * item.quantity;
   }
 
+  /**
+   * Check if variant is low stock
+   */
   isLowStock(variant: ProductVariant): boolean {
     return variant.stock <= 5 && variant.stock > 0;
   }
 
+  /**
+   * Check if item is being updated
+   */
   isUpdating(item: CartItem): boolean {
     const itemKey = `${item.product.id}-${item.variant.id}`;
     return this.updatingItems.has(itemKey);
   }
 
+  /**
+   * Format currency using PricingService
+   * @deprecated Use pricingService.formatPrice() directly in template
+   */
   formatCurrency(amount: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
+    return this.pricingService.formatPrice(amount);
   }
 
   // ✅ Free shipping calculation
@@ -276,5 +289,48 @@ export class CartComponent implements OnInit, OnDestroy {
 
   qualifiesForFreeShipping(subtotal: number): boolean {
     return subtotal >= this.freeShippingThreshold;
+  }
+
+  /**
+   * Check if item has valid discount using PricingService
+   */
+  itemHasDiscount(variant: ProductVariant): boolean {
+    return this.pricingService.hasValidDiscount(variant);
+  }
+
+  /**
+   * Get discount percentage for item using PricingService
+   */
+  getItemDiscountPercentage(variant: ProductVariant): number {
+    return this.pricingService.getDiscountPercentage(variant);
+  }
+
+  /**
+   * Get cart total savings
+   */
+  getTotalSavings(): number {
+    return this.cartService.getTotalSavings();
+  }
+
+  /**
+   * Get cart summary with detailed pricing
+   */
+  getCartSummary(): {
+    itemCount: number;
+    subtotal: number;
+    totalSavings: number;
+    originalSubtotal: number;
+  } {
+    const itemCount = this.cartService.getItemCount();
+    const subtotal = this.cartService.getSubtotal();
+    const totalSavings = this.getTotalSavings();
+    const originalSubtotal = subtotal + totalSavings;
+
+    return {
+      itemCount,
+      subtotal,
+      totalSavings,
+      originalSubtotal
+    };
   }
 }

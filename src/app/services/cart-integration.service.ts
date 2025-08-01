@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { CartService } from './cart.service';
+import { PricingService } from './pricing.service'; // ← Add this import
 import { ProductModel, ProductVariant } from '../models/product.model';
+import { CartItem } from '../models/cart.model'; // ← Add this import
 import { ProductUtils } from '../utils/product-utils';
 
 export interface AddToCartOptions {
@@ -17,6 +19,31 @@ export interface CartValidationResult {
   maxAllowedQuantity?: number;
 }
 
+export interface ItemPricingDetails {
+  hasDiscount: boolean;
+  originalPrice: number;
+  effectivePrice: number;
+  totalPrice: number;
+  savings: number;
+  discountPercentage: number;
+}
+
+export interface CartTotalDetails {
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  totalSavings: number;
+  originalSubtotal: number;
+}
+
+export interface FreeShippingDetails {
+  qualifies: boolean;
+  currentTotal: number;
+  amountNeeded: number;
+  progress: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,7 +57,8 @@ export class CartIntegrationService {
 
   constructor(
     private cartService: CartService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pricingService: PricingService // ← Add this injection
   ) {}
 
   /**
@@ -133,7 +161,7 @@ export class CartIntegrationService {
   }
 
   /**
-   * Add multiple items to cart
+   * Add multiple items to cart with pricing validation
    */
   async addMultipleToCart(
     items: Array<{ product: ProductModel; variant: ProductVariant | null; quantity?: number }>
@@ -294,7 +322,7 @@ export class CartIntegrationService {
   }
 
   /**
-   * Get cart statistics
+   * Get cart statistics with proper pricing using PricingService
    */
   getCartStats(): {
     itemCount: number;
@@ -306,9 +334,114 @@ export class CartIntegrationService {
     return {
       itemCount: this.cartService.getItemCount(),
       uniqueProducts: this.cartService.getUniqueProductCount(),
-      subtotal: this.cartService.getSubtotal(),
-      totalSavings: this.cartService.getTotalSavings(),
+      subtotal: this.cartService.getSubtotal(), // Now uses effective prices
+      totalSavings: this.cartService.getTotalSavings(), // Now uses PricingService
       isEmpty: this.cartService.isEmpty()
+    };
+  }
+
+  /**
+   * Calculate cart total with effective pricing
+   */
+  calculateCartTotal(shippingCost: number = 0, taxRate: number = 0): CartTotalDetails {
+    const cartItems = this.cartService.getCartItemsWithPriceBreakdown();
+    
+    // Calculate totals using effective prices - avoiding arrow function context issues
+    let subtotal = 0;
+    let totalSavings = 0;
+    
+    for (const item of cartItems) {
+      subtotal += item.totalPrice;
+      totalSavings += item.savings;
+    }
+    
+    const originalSubtotal = subtotal + totalSavings;
+    const tax = subtotal * taxRate;
+    const total = subtotal + shippingCost + tax;
+
+    return {
+      subtotal,
+      shipping: shippingCost,
+      tax,
+      total,
+      totalSavings,
+      originalSubtotal
+    };
+  }
+
+  /**
+   * Get item pricing details using PricingService
+   */
+  getItemPricingDetails(variant: ProductVariant | null, quantity: number = 1): ItemPricingDetails {
+    const pricingInfo = this.pricingService.getVariantPricingInfo(variant);
+    
+    return {
+      hasDiscount: pricingInfo.hasDiscount,
+      originalPrice: pricingInfo.originalPrice,
+      effectivePrice: pricingInfo.effectivePrice,
+      totalPrice: pricingInfo.effectivePrice * quantity,
+      savings: pricingInfo.savings * quantity,
+      discountPercentage: pricingInfo.discountPercentage
+    };
+  }
+
+  /**
+   * Check if cart qualifies for free shipping
+   */
+  qualifiesForFreeShipping(threshold: number = 200): FreeShippingDetails {
+    const currentTotal = this.cartService.getSubtotal();
+    const qualifies = currentTotal >= threshold;
+    const amountNeeded = Math.max(0, threshold - currentTotal);
+    const progress = Math.min(100, (currentTotal / threshold) * 100);
+
+    return {
+      qualifies,
+      currentTotal,
+      amountNeeded,
+      progress
+    };
+  }
+
+  /**
+   * Get detailed cart summary
+   */
+  getDetailedCartSummary(): {
+    items: Array<{
+      product: ProductModel;
+      variant: ProductVariant;
+      quantity: number;
+      pricing: ItemPricingDetails;
+    }>;
+    totals: CartTotalDetails;
+    freeShipping: FreeShippingDetails;
+  } {
+    // Get cart items through public method
+    const cartItems = this.cartService.getCurrentCartItems();
+    
+    // Use for loop to avoid arrow function context issues
+    const items: Array<{
+      product: ProductModel;
+      variant: ProductVariant;
+      quantity: number;
+      pricing: ItemPricingDetails;
+    }> = [];
+    
+    for (const item of cartItems) {
+      items.push({
+        product: item.product,
+        variant: item.variant,
+        quantity: item.quantity,
+        pricing: this.getItemPricingDetails(item.variant, item.quantity)
+      });
+    }
+
+    const totals = this.calculateCartTotal();
+    const freeShipping = this.qualifiesForFreeShipping();
+
+    return {
+      items,
+      totals,
+      freeShipping
     };
   }
 }

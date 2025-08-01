@@ -3,6 +3,7 @@ import { Component, Input, OnInit, AfterViewChecked, CUSTOM_ELEMENTS_SCHEMA } fr
 import { forkJoin } from 'rxjs';
 import { ProductModel, ProductVariant } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+import { PricingService } from '../../services/pricing.service'; // ← Add this import
 import { CartService } from '../../services/cart.service';
 import { CartIntegrationService } from '../../services/cart-integration.service';
 import { SwiperOptions } from 'swiper/types';
@@ -63,7 +64,8 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
     private productCacheService: ProductCacheService,
     private cartService: CartService,
     private cartIntegrationService: CartIntegrationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    public pricingService: PricingService // ← Add this injection (make it public)
   ) {}
   
   async ngOnInit(): Promise<void> {
@@ -160,32 +162,35 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * Get display price (discount price if available, otherwise regular price)
+   * Get display price using PricingService (effective price)
+   * @deprecated Use pricingService.getEffectivePrice() directly in template
    */
   getDisplayPrice(variant: ProductVariant | null): number {
-    return ProductUtils.getEffectivePrice(variant);
+    return this.pricingService.getEffectivePrice(variant);
   }
 
   /**
-   * Get original price (for showing crossed out price)
+   * Get original price using PricingService
+   * @deprecated Use pricingService.getOriginalPrice() directly in template
    */
   getOriginalPrice(variant: ProductVariant | null): number {
-    if (!variant) return 0;
-    return variant.price;
+    return this.pricingService.getOriginalPrice(variant);
   }
 
   /**
-   * Check if product has discount
+   * Check if product has discount using PricingService
+   * @deprecated Use pricingService.hasValidDiscount() directly in template
    */
   hasDiscount(variant: ProductVariant | null): boolean {
-    return ProductUtils.hasValidDiscount(variant);
+    return this.pricingService.hasValidDiscount(variant);
   }
 
   /**
-   * Get discount percentage
+   * Get discount percentage using PricingService
+   * @deprecated Use pricingService.getDiscountPercentage() directly in template
    */
   getDiscountPercentage(variant: ProductVariant | null): number {
-    return ProductUtils.getDiscountPercentage(variant);
+    return this.pricingService.getDiscountPercentage(variant);
   }
 
   /**
@@ -274,10 +279,11 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * Format price for display
+   * Format price for display using PricingService
+   * @deprecated Use pricingService.formatPrice() directly in template
    */
   formatPrice(price: number): string {
-    return ProductUtils.formatPrice(price);
+    return this.pricingService.formatPrice(price);
   }
 
   /**
@@ -359,7 +365,7 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
   }
 
   /**
-   * Get product badge text
+   * Get product badge text - updated to use PricingService
    */
   getProductBadges(product: ProductModel, variant: ProductVariant | null): Array<{
     text: string;
@@ -368,9 +374,9 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
   }> {
     return [
       {
-        text: `-${this.getDiscountPercentage(variant)}%`,
+        text: `-${this.pricingService.getDiscountPercentage(variant)}%`,
         class: 'badge-discount',
-        show: this.hasDiscount(variant)
+        show: this.pricingService.hasValidDiscount(variant)
       },
       {
         text: 'New',

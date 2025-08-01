@@ -17,18 +17,20 @@
   <!-- Product price -->
   <div class="d-flex align-items-center">
     <div *ngIf="selectedVariant" class="d-flex align-items-center product-price">
-      <span class="d-flex align-items-center" *ngIf="selectedVariant.discountPrice && selectedVariant.discountPrice < selectedVariant.price; else regularPrice">
-        <span class="product-price--current">
-          {{ selectedVariant.discountPrice | currency }}
-        </span>
-        <span class="ps-2 product-price--original">
-          {{ selectedVariant.price | currency }}
-        </span>
+    <!-- Show discounted price and original price if discount exists -->
+    <span class="d-flex align-items-center" *ngIf="pricingService.getDiscountPrice(selectedVariant) as discountPrice; else regularPrice">
+      <span class="product-price--current">
+        {{ discountPrice | currency }}
       </span>
-      <ng-template #regularPrice>
-        <strong>{{ selectedVariant.price | currency }}</strong>
-      </ng-template>
-    </div>
+      <span class="ps-2 product-price--original">
+        {{ pricingService.getOriginalPrice(selectedVariant) | currency }}
+      </span>
+    </span>
+    <!-- Show only original price if no discount -->
+    <ng-template #regularPrice>
+      <strong>{{ pricingService.getOriginalPrice(selectedVariant) | currency }}</strong>
+    </ng-template>
+  </div>
 
     <!-- Fallback price display if no variant selected -->
     <div *ngIf="!selectedVariant && product" class="d-flex align-items-center product-price">

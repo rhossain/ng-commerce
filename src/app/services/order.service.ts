@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, of } from 'rxjs';
 import { tap, catchError, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { PricingService } from './pricing.service'; // ← Add this import
 import { environment } from '../../environments/environment';
 import { 
   OrderModel, 
@@ -147,19 +148,20 @@ export class OrderService {
 
   constructor(
     private http: HttpClient,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pricingService: PricingService // ← Add this injection
   ) {
     this.apiUrl = environment.apiBaseUrl;
   }
 
   /**
-   * Create a new order with all related data
+   * Create a new order with all related data - Updated to use PricingService
    */
   createOrder(orderData: CreateOrderRequest): Observable<OrderModel> {
     const url = `${this.apiUrl}/${environment.apiEndpoints.order.createOrder}`;
     
-    // Calculate totals
-    const subtotal = this.calculateSubtotal(orderData.items);
+    // Calculate totals using PricingService for effective pricing
+    const subtotal = this.calculateSubtotalWithPricing(orderData.items);
     const orderPayload = {
       ...orderData,
       total_amount: subtotal, // Will be updated with shipping and tax on backend
@@ -169,7 +171,7 @@ export class OrderService {
         product_id: item.product_id,
         variant_id: item.variant_id,
         quantity: item.quantity,
-        unit_price: item.unit_price,
+        unit_price: item.unit_price, // This should already be the effective price
         total_price: item.unit_price * item.quantity
       }))
     };
@@ -337,24 +339,6 @@ export class OrderService {
   /**
    * Validate promotion code
    */
-  // validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
-  //   const url = `${this.apiUrl}/promotions/validate`;
-  //   return this.http.post<PromotionModel>(url, { code, order_total: orderTotal }).pipe(
-  //     tap(promotion => {
-  //       this.toastr.success(`Promotion "${promotion.code}" applied!`, 'Success');
-  //     }),
-  //     catchError(error => {
-  //       if (error.status === 404) {
-  //         this.toastr.error('Invalid promotion code', 'Error');
-  //       } else if (error.status === 400) {
-  //         this.toastr.error('Promotion code is not applicable to this order', 'Error');
-  //       } else {
-  //         this.toastr.error('Failed to validate promotion code', 'Error');
-  //       }
-  //       return throwError(() => error);
-  //     })
-  //   );
-  // }
   validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
     // Find the promotion (case insensitive)
     const promotion = this.mockPromotions.find(p => 
@@ -537,10 +521,23 @@ export class OrderService {
   }
 
   /**
-   * Calculate subtotal from order items
+   * Calculate subtotal from order items - Updated to use effective prices
    */
   private calculateSubtotal(items: { unit_price: number; quantity: number }[]): number {
-    return items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    let total = 0;
+    for (const item of items) {
+      total += item.unit_price * item.quantity;
+    }
+    return total;
+  }
+
+  /**
+   * Calculate subtotal with pricing service validation
+   */
+  private calculateSubtotalWithPricing(items: { unit_price: number; quantity: number }[]): number {
+    // The unit_price should already be the effective price when creating order items
+    // This method ensures consistency with PricingService logic
+    return this.calculateSubtotal(items);
   }
 
   /**

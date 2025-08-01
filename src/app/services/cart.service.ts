@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
+import { PricingService } from './pricing.service'; // ← Add this import
 import { CartItem } from '../models/cart.model';
 import { ProductModel } from '../models/product.model';
 import { ProductVariant } from '../models/product.model';
@@ -25,7 +26,8 @@ export class CartService {
   private pendingUpdates: (() => void)[] = [];
 
   constructor(
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pricingService: PricingService // ← Add this injection
   ) {
     this.loadCartFromStorage();
     
@@ -63,18 +65,10 @@ export class CartService {
 
   private calculateSubtotal(cartItems: CartItem[]): number {
     return cartItems.reduce((total, item) => {
-      // ✅ Properly handle optional discountPrice
-      const price = this.getEffectivePrice(item.variant);
+      // ✅ Use PricingService to get effective price
+      const price = this.pricingService.getEffectivePrice(item.variant);
       return total + (price * item.quantity);
     }, 0);
-  }
-
-  // ✅ Helper method to get effective price with type safety
-  private getEffectivePrice(variant: ProductVariant): number {
-    if (variant.discountPrice !== null && variant.discountPrice !== undefined) {
-      return variant.discountPrice;
-    }
-    return variant.price;
   }
 
   // ✅ Optimized cart update method with batching
@@ -124,6 +118,11 @@ export class CartService {
       subtotal: this.subtotalSubject.value,
       items: [...items] // Return copy to prevent external mutations
     };
+  }
+
+  // ✅ Get current cart items (public method for accessing cart items)
+  getCurrentCartItems(): CartItem[] {
+    return [...this.cartItemsSubject.value];
   }
 
   addToCart(product: ProductModel, variant: ProductVariant, quantity: number = 1): void {
@@ -297,17 +296,11 @@ export class CartService {
     return this.cartItemsSubject.value.filter(item => item.product.id === productId);
   }
 
-  // ✅ Calculate savings total with type safety
+  // ✅ Calculate savings total using PricingService
   getTotalSavings(): number {
     return this.cartItemsSubject.value.reduce((total, item) => {
-      const variant = item.variant;
-      if (variant.discountPrice !== null && 
-          variant.discountPrice !== undefined && 
-          variant.discountPrice < variant.price) {
-        const savings = (variant.price - variant.discountPrice) * item.quantity;
-        return total + savings;
-      }
-      return total;
+      const savings = this.pricingService.getVariantPricingInfo(item.variant).savings;
+      return total + (savings * item.quantity);
     }, 0);
   }
 
@@ -319,29 +312,21 @@ export class CartService {
     }, 0);
   }
 
-  // ✅ Get cart items with price breakdown
+  // ✅ Get cart items with price breakdown using PricingService
   getCartItemsWithPriceBreakdown(): Array<CartItem & { 
     effectivePrice: number; 
     totalPrice: number; 
     savings: number; 
   }> {
-    return this.cartItemsSubject.value.map(item => ({
-      ...item,
-      effectivePrice: this.getEffectivePrice(item.variant),
-      totalPrice: this.getEffectivePrice(item.variant) * item.quantity,
-      savings: this.calculateItemSavings(item)
-    }));
-  }
-
-  // ✅ Calculate savings for individual item
-  private calculateItemSavings(item: CartItem): number {
-    const variant = item.variant;
-    if (variant.discountPrice !== null && 
-        variant.discountPrice !== undefined && 
-        variant.discountPrice < variant.price) {
-      return (variant.price - variant.discountPrice) * item.quantity;
-    }
-    return 0;
+    return this.cartItemsSubject.value.map(item => {
+      const pricingInfo = this.pricingService.getVariantPricingInfo(item.variant);
+      return {
+        ...item,
+        effectivePrice: pricingInfo.effectivePrice,
+        totalPrice: pricingInfo.effectivePrice * item.quantity,
+        savings: pricingInfo.savings * item.quantity
+      };
+    });
   }
 
   // ✅ Validate cart items (check stock, prices, etc.)
@@ -369,6 +354,44 @@ export class CartService {
     return {
       valid: issues.length === 0,
       issues
+    };
+  }
+
+  // ✅ Get item effective price using PricingService
+  getItemEffectivePrice(variant: ProductVariant): number {
+    return this.pricingService.getEffectivePrice(variant);
+  }
+
+  // ✅ Get item savings using PricingService
+  getItemSavings(item: CartItem): number {
+    const pricingInfo = this.pricingService.getVariantPricingInfo(item.variant);
+    return pricingInfo.savings * item.quantity;
+  }
+
+  // ✅ Check if item has discount using PricingService
+  itemHasDiscount(variant: ProductVariant): boolean {
+    return this.pricingService.hasValidDiscount(variant);
+  }
+
+  // ✅ Calculate cart total with shipping and tax (updated to use effective prices)
+  calculateCartTotal(shippingCost: number = 0, taxRate: number = 0): {
+    subtotal: number;
+    shipping: number;
+    tax: number;
+    total: number;
+    totalSavings: number;
+  } {
+    const subtotal = this.getSubtotal(); // Already uses effective prices
+    const tax = subtotal * taxRate;
+    const total = subtotal + shippingCost + tax;
+    const totalSavings = this.getTotalSavings();
+
+    return {
+      subtotal,
+      shipping: shippingCost,
+      tax,
+      total,
+      totalSavings
     };
   }
 }

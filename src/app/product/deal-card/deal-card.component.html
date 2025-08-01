@@ -29,12 +29,12 @@
             <div class="content">
                 <h2 class="name">{{ product.name }}</h2>
                 <p class="price">
-                    <ng-container *ngIf="product.variants?.[0]?.discountPrice; else regular">
-                        <span class="discounted">${{ product.variants?.[0]?.discountPrice }}</span>
-                        <span class="original">${{ product.variants?.[0]?.price }}</span>
+                    <ng-container *ngIf="pricingService.getDiscountPrice(product.variants?.[0]) as discountPrice; else regularPrice">
+                        <span class="discounted">${{ discountPrice }}</span>
+                        <span class="original">${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</span>
                     </ng-container>
-                    <ng-template #regular>
-                        <span>${{ product.variants?.[0]?.price }}</span>
+                    <ng-template #regularPrice>
+                        <span>${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</span>
                     </ng-template>
                 </p>
 
@@ -47,7 +47,7 @@
 
                 <div class="actions">
                     <span 
-                        *ngIf="getDiscountPercent(product.variants?.[0]?.price, product.variants?.[0]?.discountPrice) as discount" 
+                        *ngIf="pricingService.getDiscountPercentage(product.variants?.[0]) as discount" 
                         class="badge text-bg-danger d-flex align-items-center justify-content-center fs-6">
                         -{{ discount }}%
                     </span>          

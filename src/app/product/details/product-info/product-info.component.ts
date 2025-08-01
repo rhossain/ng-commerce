@@ -7,6 +7,7 @@ import { StarRatingComponent } from '../../../shared/star-rating/star-rating.com
 import { QuantitySelectorComponent } from '../../../shared/quantity-selector/quantity-selector.component';
 import { UnderDevelopmentDirective } from '../../../shared/under-development.directive';
 import { ToastrService } from 'ngx-toastr';
+import { PricingService } from '../../../services/pricing.service';
 
 @Component({
   selector: 'app-product-info',
@@ -34,7 +35,8 @@ export class ProductInfoComponent {
   faHeart = faHeart;
 
   constructor(
-      private toastr: ToastrService
+      private toastr: ToastrService,
+      public pricingService: PricingService
   ) {}
 
   onOptionSelect(optionName: string, value: string) {

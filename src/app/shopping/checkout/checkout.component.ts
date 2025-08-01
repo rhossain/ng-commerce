@@ -16,6 +16,7 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { ShippingService } from '../../services/shipping.service';
+import { PricingService } from '../../services/pricing.service'; // ← Add this import
 
 // Models
 import { CartItem } from '../../models/cart.model';
@@ -147,7 +148,8 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private authService: AuthService,
     private orderService: OrderService,
-    private shippingService: ShippingService
+    private shippingService: ShippingService,
+    private pricingService: PricingService // ← Add this injection
   ) {}
 
   ngOnInit(): void {
@@ -326,12 +328,12 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
       // Create shipping address if new
       let shippingAddressId = this.selectedShippingAddress?.id;
       
-      // Prepare order items
+      // Prepare order items using PricingService for effective pricing
       const orderItems: OrderItemRequest[] = this.cartItems.map(item => ({
         product_id: item.product.id,
         variant_id: item.variant.id,
         quantity: item.quantity,
-        unit_price: item.variant.discountPrice ?? item.variant.price
+        unit_price: this.pricingService.getEffectivePrice(item.variant) // ← Use PricingService
       }));
 
       // Create order request
@@ -398,11 +400,12 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private calculateTotals(): void {
-    // Calculate cart subtotal
-    this.cartSubtotal = this.cartItems.reduce((total, item) => {
-      const price = item.variant.discountPrice ?? item.variant.price;
-      return total + (price * item.quantity);
-    }, 0);
+    // Calculate cart subtotal using PricingService for consistent pricing
+    this.cartSubtotal = 0;
+    for (const item of this.cartItems) {
+      const effectivePrice = this.pricingService.getEffectivePrice(item.variant);
+      this.cartSubtotal += effectivePrice * item.quantity;
+    }
 
     // Calculate tax (8% tax rate)
     const taxRate = 0.08;
@@ -437,5 +440,38 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
       discountAmount: this.discountAmount,
       orderTotal: this.orderTotal
     };
+  }
+
+  /**
+   * Get cart items with pricing details for display
+   */
+  getCartItemsWithPricing() {
+    return this.cartItems.map(item => ({
+      ...item,
+      effectivePrice: this.pricingService.getEffectivePrice(item.variant),
+      hasDiscount: this.pricingService.hasValidDiscount(item.variant),
+      originalPrice: this.pricingService.getOriginalPrice(item.variant),
+      discountPrice: this.pricingService.getDiscountPrice(item.variant),
+      savings: this.pricingService.getVariantPricingInfo(item.variant).savings * item.quantity
+    }));
+  }
+
+  /**
+   * Get total savings from all cart items
+   */
+  getTotalCartSavings(): number {
+    let totalSavings = 0;
+    for (const item of this.cartItems) {
+      const pricingInfo = this.pricingService.getVariantPricingInfo(item.variant);
+      totalSavings += pricingInfo.savings * item.quantity;
+    }
+    return totalSavings;
+  }
+
+  /**
+   * Check if cart has any discounted items
+   */
+  hasDiscountedItems(): boolean {
+    return this.cartItems.some(item => this.pricingService.hasValidDiscount(item.variant));
   }
 }

@@ -11,6 +11,7 @@ import { ImageCacheService } from '../../services/image-cache.service';
 import { ProductService } from '../../services/product.service';
 import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 import { UnderDevelopmentDirective } from '../../shared/under-development.directive';
+import { PricingService } from '../../services/pricing.service';
 
 @Component({
   selector: 'app-product-card',
@@ -42,7 +43,8 @@ export class CardComponent implements AfterViewInit {
     private cartService: CartService,
     private toastr: ToastrService,
     private productService: ProductService,
-    private imageCacheService: ImageCacheService
+    private imageCacheService: ImageCacheService,
+    public pricingService: PricingService
   ) {}
 
   ngAfterViewInit() {
@@ -52,9 +54,7 @@ export class CardComponent implements AfterViewInit {
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach(entry => {
-            // console.log('Intersection entry:', entry);
             if (entry.isIntersecting) {
-              // console.log('Card in view — loading image...');
               this.loadImageWithFallback();
               observer.unobserve(entry.target);
             }
@@ -82,7 +82,6 @@ export class CardComponent implements AfterViewInit {
   
     const timeout = setTimeout(() => {
       if (!didLoad) {
-        // console.warn('Image load timed out — using fallback');
         this.imageUrl = fallbackUrl;
         this.imageVisible = true;
       }
@@ -125,7 +124,6 @@ export class CardComponent implements AfterViewInit {
       }
 
       await this.cartService.addToCart(this.product, selectedVariant, this.quantity);
-      // this.toastr.success(`${this.product.name} added to cart`, 'Success');
       this.quantity = 1; // Reset quantity after adding
     } catch (error) {
       this.toastr.error('Failed to add item to cart', 'Error');

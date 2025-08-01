@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ProductModel, ProductResponse, ProductVariant } from '../models/product.model';
 import { ProductService } from './product.service';
+import { PricingService } from './pricing.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
@@ -34,7 +35,8 @@ export class ProductCacheService {
 
   constructor(
     private productService: ProductService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private pricingService: PricingService
   ) {
     console.log('ProductCacheService initialized');
     this.loadCacheFromStorage();
@@ -210,9 +212,8 @@ export class ProductCacheService {
         filtered = this.sortByTotalSold(filtered);
         break;
       case 'discounted':
-        filtered = filtered.filter(p =>
-          p.variants?.some(v => (v.discountPrice ?? 0) < (v.price ?? 0))
-        );
+        // Use PricingService to filter products with valid discounts
+        filtered = this.pricingService.filterDiscountedProducts(filtered);
         break;
     }
 
@@ -220,18 +221,13 @@ export class ProductCacheService {
       filtered = filtered.filter(p => p.category_id === categoryId);
     }
 
-    if (minPrice != null) {
-      filtered = filtered.filter(p => {
-        const minVariantPrice = Math.min(...(p.variants?.map(v => v.price) || [Infinity]));
-        return minVariantPrice >= minPrice;
-      });
-    }
-
-    if (maxPrice != null) {
-      filtered = filtered.filter(p => {
-        const maxVariantPrice = Math.max(...(p.variants?.map(v => v.price) || [0]));
-        return maxVariantPrice <= maxPrice;
-      });
+    if (minPrice != null || maxPrice != null) {
+      // Use PricingService for price filtering with effective prices
+      filtered = this.pricingService.filterByPriceRange(
+        filtered, 
+        minPrice ?? 0, 
+        maxPrice ?? Infinity
+      );
     }
 
     filtered = filtered.sort((a, b) => {
@@ -291,11 +287,9 @@ export class ProductCacheService {
   }
 
   getProductsByPrice(min: number, max: number): ProductModel[] {
-    const filtered = this.cachedProducts.filter((product) => {
-      return product.variants?.some(
-        (variant) => (variant.price ?? 0) >= min && (variant.price ?? 0) <= max
-      );
-    });
+    // Use PricingService for filtering by effective prices
+    const filtered = this.pricingService.filterByPriceRange(this.cachedProducts, min, max);
+    
     if (filtered.length === 0) {
       this.toastr.info('No products found in this price range.', 'Info');
     } else {
@@ -348,6 +342,13 @@ export class ProductCacheService {
     this.toastr.info('Product cache has been cleared.', 'Info');
   }
 
+  // Get discounted products using PricingService
+  getDiscountedProducts(): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => this.pricingService.filterDiscountedProducts(products))
+    );
+  }
+
   // Public method to check if cache is loaded
   isCacheLoaded(): boolean {
     return this.cachedProducts.length > 0;
@@ -389,15 +390,6 @@ export class ProductCacheService {
     );
   }
 
-  // Get discounted products
-  getDiscountedProducts(): Observable<ProductModel[]> {
-    return this.getAllProducts().pipe(
-      map(products => products.filter(p => 
-        p.variants?.some(v => (v.discountPrice ?? 0) < (v.price ?? 0))
-      ))
-    );
-  }
-
   // Search products by name or description
   searchProducts(query: string): Observable<ProductModel[]> {
     const lowerQuery = query.toLowerCase();
@@ -417,19 +409,18 @@ export class ProductCacheService {
     );
   }
 
-  // Get product statistics
+  // Get product statistics with pricing service integration
   getProductStatistics() {
     const products = this.cachedProducts;
     const totalProducts = products.length;
     const featuredCount = products.filter(p => p.isFeatured).length;
     const newArrivalsCount = products.filter(p => p.isNewArrival).length;
     const inStockCount = products.filter(p => this.isInStock(p)).length;
-    const discountedCount = products.filter(p => 
-      p.variants?.some(v => (v.discountPrice ?? 0) < (v.price ?? 0))
-    ).length;
+    const discountedCount = this.pricingService.filterDiscountedProducts(products).length;
 
+    // Use effective prices for statistics
     const prices = products.flatMap(p => 
-      p.variants?.map(v => v.discountPrice ?? v.price) || []
+      p.variants?.map(v => this.pricingService.getEffectivePrice(v)) || []
     ).filter(price => price > 0);
 
     const avgPrice = prices.length > 0 ? prices.reduce((sum, price) => sum + price, 0) / prices.length : 0;
@@ -488,5 +479,158 @@ export class ProductCacheService {
       console.error('Cache integrity check failed with error:', error);
       return false;
     }
+  }
+
+  // Sort products by price using effective prices
+  sortProductsByPrice(products: ProductModel[] = this.cachedProducts, ascending: boolean = true): ProductModel[] {
+    return this.pricingService.sortByPrice(products, ascending);
+  }
+
+  // Sort products by discount percentage
+  sortProductsByDiscount(products: ProductModel[] = this.cachedProducts): ProductModel[] {
+    return this.pricingService.sortByDiscountPercentage(products);
+  }
+
+  // Get products in a specific price range
+  getProductsInPriceRange(min: number, max: number): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => this.pricingService.filterByPriceRange(products, min, max))
+    );
+  }
+
+  // Get price range for all products
+  getOverallPriceRange(): { min: number; max: number; hasRange: boolean } {
+    const products = this.cachedProducts;
+    if (!products.length) {
+      return { min: 0, max: 0, hasRange: false };
+    }
+
+    const allPrices = products.flatMap(product => 
+      product.variants?.map(variant => this.pricingService.getEffectivePrice(variant)) || []
+    ).filter(price => price > 0);
+
+    if (!allPrices.length) {
+      return { min: 0, max: 0, hasRange: false };
+    }
+
+    const min = Math.min(...allPrices);
+    const max = Math.max(...allPrices);
+
+    return { min, max, hasRange: min !== max };
+  }
+
+  // Get products by brand
+  getProductsByBrand(brand: string): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => products.filter(p => 
+        p.brand?.toLowerCase() === brand.toLowerCase()
+      ))
+    );
+  }
+
+  // Get all unique brands
+  getAllBrands(): string[] {
+    const brands = this.cachedProducts
+      .map(p => p.brand)
+      .filter((brand): brand is string => !!brand);
+    
+    return [...new Set(brands)].sort();
+  }
+
+  // Get products with specific stock level
+  getProductsByStockLevel(minStock: number = 1): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => products.filter(p => 
+        p.variants?.some(variant => variant.stock >= minStock) ?? false
+      ))
+    );
+  }
+
+  // Get low stock products
+  getLowStockProducts(threshold: number = 10): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => products.filter(p => 
+        p.variants?.some(variant => variant.stock > 0 && variant.stock <= threshold) ?? false
+      ))
+    );
+  }
+
+  // Get out of stock products
+  getOutOfStockProducts(): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => products.filter(p => !this.isInStock(p)))
+    );
+  }
+
+  // Advanced search with multiple filters
+  advancedSearch(filters: {
+    query?: string;
+    categoryId?: number;
+    brandName?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    inStockOnly?: boolean;
+    discountedOnly?: boolean;
+    featured?: boolean;
+    newArrival?: boolean;
+  }): Observable<ProductModel[]> {
+    return this.getAllProducts().pipe(
+      map(products => {
+        let filtered = [...products];
+
+        // Text search
+        if (filters.query) {
+          const lowerQuery = filters.query.toLowerCase();
+          filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(lowerQuery) ||
+            p.description?.toLowerCase().includes(lowerQuery) ||
+            p.brand?.toLowerCase().includes(lowerQuery)
+          );
+        }
+
+        // Category filter
+        if (filters.categoryId) {
+          filtered = filtered.filter(p => p.category_id === filters.categoryId);
+        }
+
+        // Brand filter
+        if (filters.brandName) {
+          filtered = filtered.filter(p => 
+            p.brand?.toLowerCase() === filters.brandName?.toLowerCase()
+          );
+        }
+
+        // Price range filter using effective prices
+        if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+          filtered = this.pricingService.filterByPriceRange(
+            filtered,
+            filters.minPrice ?? 0,
+            filters.maxPrice ?? Infinity
+          );
+        }
+
+        // Stock filter
+        if (filters.inStockOnly) {
+          filtered = filtered.filter(p => this.isInStock(p));
+        }
+
+        // Discount filter
+        if (filters.discountedOnly) {
+          filtered = this.pricingService.filterDiscountedProducts(filtered);
+        }
+
+        // Featured filter
+        if (filters.featured) {
+          filtered = filtered.filter(p => p.isFeatured);
+        }
+
+        // New arrival filter
+        if (filters.newArrival) {
+          filtered = filtered.filter(p => p.isNewArrival);
+        }
+
+        return filtered;
+      })
+    );
   }
 }

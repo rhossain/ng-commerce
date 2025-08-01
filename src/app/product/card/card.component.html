@@ -53,9 +53,17 @@
       <app-star-rating class="d-flex py-2 text-black" [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
        
       <div class="price-section">
-        <div class="original-price">${{ product.variants?.[0]?.price }}</div>
-        <div class="final-price">${{ product.variants?.[0]?.discountPrice }}</div>
-      </div>
+            <!-- Show discounted price and original price if discount exists -->
+            <ng-container *ngIf="pricingService.getDiscountPrice(product.variants?.[0]) as discountPrice; else noDiscountPrice">
+                <div class="final-price">${{ discountPrice }}</div>
+                <div class="original-price">${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</div>
+            </ng-container>
+            
+            <!-- Show only original price if no discount -->
+            <ng-template #noDiscountPrice>
+                <div class="final-price">${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</div>
+            </ng-template>
+        </div>
     </div>
     <button class="cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
         <fa-icon [icon]="faCartPlus"></fa-icon>
