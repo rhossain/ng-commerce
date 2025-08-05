@@ -1,4 +1,4 @@
-<!-- navbar.component.html -->
+<!-- navbar.component.html - Fixed navigation links -->
 <div class="row">
     <div class="col-12 col-md-4 col-xl-3">
         <div class="d-flex align-items-center justify-content-start header-bottom-left">
@@ -12,105 +12,31 @@
                                 (click)="onDropdownToggle($event)">
                                 <span class="d-flex align-items-center gap-2">
                                     Categories 
-                                    <div class="total-products" *ngIf="getTotalProductCount() > 0">
-                                        {{ getTotalProductCount() | number }} Products
-                                    </div>
                                 </span>
                                 <fa-icon [icon]="faListUl"></fa-icon>
                             </a>
                             
-                            <!-- Modern Category Dropdown -->
-                            <div class="dropdown-menu dropdown-categories-modern" 
+                            <!-- Enhanced Category Dropdown using FeaturedCategoryComponent -->
+                            <div class="dropdown-menu dropdown-categories-enhanced" 
                                  [class.show]="isDropdownOpen"
                                  aria-labelledby="navbarDropdownMenuLink">
                                 
-                                <!-- Header -->
-                                <!-- <div class="dropdown-header-modern">
-                                    <div class="dropdown-title">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M3 7V5a2 2 0 012-2h14a2 2 0 012 2v2"></path>
-                                            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7"></path>
-                                            <line x1="13" y1="5" x2="11" y2="5"></line>
-                                        </svg>
-                                        <span>Product Categories</span>
-                                    </div>
-                                    <div class="total-products" *ngIf="getTotalProductCount() > 0">
-                                        {{ getTotalProductCount() | number }} Products
-                                    </div>
-                                </div> -->
-
-                                <!-- Search Box -->
-                                <div class="dropdown-search" *ngIf="categories.length > 6">
-                                    <input 
-                                        type="text" 
-                                        class="search-input-dropdown" 
-                                        placeholder="Search categories..."
-                                        [(ngModel)]="searchTerm"
-                                        (input)="onSearchChange()">
-                                </div>
-
-                                <!-- Loading State -->
-                                <div class="category-loading" *ngIf="categories.length === 0">
-                                    <div class="loading-item">
-                                        <div class="loading-icon"></div>
-                                        <span>Loading categories...</span>
-                                    </div>
-                                </div>
-
-                                <!-- Category List -->
-                                <ul class="category-list-modern" *ngIf="categories.length > 0">
-                                    <li class="category-item-modern" 
-                                        *ngFor="let category of getFilteredCategories(); trackBy: trackByCategory; let i = index"
-                                        [style.animation-delay]="i * 30 + 'ms'"
-                                        [attr.data-category]="getCategorySlug(category.name)">
-                                        
-                                        <a [routerLink]="['/product/shop']" 
-                                           [queryParams]="{ categoryId: category.id }"
-                                           class="category-link-modern"
-                                           [title]="category.name"
-                                           (click)="closeDropdown()">
-                                            
-                                            <div class="category-icon-modern" [attr.data-category-slug]="getCategorySlug(category.name)">
-                                                <img [src]="category.image" 
-                                                     [alt]="category.name" 
-                                                     class="category-image"
-                                                     (error)="onImageError($event)"
-                                                     loading="lazy" />
-                                            </div>
-                                            
-                                            <div class="category-content-modern">
-                                                <div class="category-info-modern">
-                                                    <span class="category-name-modern">{{ category.name }}</span>
-                                                    <span class="category-count-modern" *ngIf="category.productCount">
-                                                        {{ category.productCount | number }} items
-                                                    </span>
-                                                </div>
-                                                <svg class="category-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <polyline points="9,18 15,12 9,6"></polyline>
-                                                </svg>
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
-
-                                <!-- Show More/Less Toggle -->
-                                <div class="dropdown-footer" *ngIf="categories.length > initialVisibleCount && !searchTerm">
-                                    <button class="show-toggle-modern" (click)="toggleShowAll($event)">
-                                        <span>{{ showAll ? 'Show Less' : 'Show All (' + categories.length + ')' }}</span>
-                                        <svg class="toggle-chevron" [class.rotated]="showAll" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <polyline points="6,9 12,15 18,9"></polyline>
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <!-- No Results -->
-                                <div class="no-results" *ngIf="searchTerm && getFilteredCategories().length === 0">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="11" cy="11" r="8"></circle>
-                                        <path d="m21 21-4.35-4.35"></path>
-                                    </svg>
-                                    <span>No categories found for "{{ searchTerm }}"</span>
-                                </div>
+                                <app-featured-category
+                                    [styleType]="'list'"
+                                    [categories]="categories"
+                                    [navigationMode]="'custom'"
+                                    [showHeader]="false"
+                                    [headerTitle]="'Browse Categories'"
+                                    [showSearch]="true"
+                                    [searchPlaceholder]="'Find categories...'"
+                                    [showAllOption]="true"
+                                    [showProductCount]="true"
+                                    [searchThreshold]="5"
+                                    [initialVisibleCount]="4"
+                                    [showToggleButton]="true"
+                                    [autoExpandOnMobile]="true"
+                                    (categorySelected)="onCategorySelected($event)">
+                                </app-featured-category>
                             </div>
                         </li>
                     </ul>
@@ -124,17 +50,25 @@
                 <nav class="navbar navbar-expand-md p-0">
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav me-auto">
-                            <li class="nav-item active">
-                                <a class="text-uppercase nav-link" appUnderDevelopment>Flash Deals</a>
+                            <li class="nav-item">
+                                <a class="text-uppercase nav-link appUnderDevelopment" 
+                                   (click)="navigateToFlashDeals()"
+                                   style="cursor: pointer;">Flash Deals</a>
                             </li>
                             <li class="nav-item">
-                                <a class="text-uppercase nav-link" appUnderDevelopment>New Arrivals</a>
+                                <a class="text-uppercase nav-link appUnderDevelopment" 
+                                   (click)="navigateToNewArrivals()"
+                                   style="cursor: pointer;">New Arrivals</a>
                             </li>
                             <li class="nav-item">
-                                <a class="text-uppercase nav-link" appUnderDevelopment>About Us</a>
+                                <a class="text-uppercase nav-link appUnderDevelopment" 
+                                   (click)="navigateToAbout()"
+                                   style="cursor: pointer;">About Us</a>
                             </li>
                             <li class="nav-item">
-                                <a class="text-uppercase nav-link" appUnderDevelopment>Contact Us</a>
+                                <a class="text-uppercase nav-link appUnderDevelopment" 
+                                   (click)="navigateToContact()"
+                                   style="cursor: pointer;">Contact Us</a>
                             </li>
                         </ul>
                     </div>

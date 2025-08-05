@@ -59,3 +59,23 @@
         width: 250px;
     }
 }
+
+// Sidebar integration for mobile navigation
+.sidebar-mobile-nav {
+  .sidebar-header {
+    display: none; // Hide default sidebar header since featured-category has its own
+  }
+  
+  .sidebar-content {
+    padding: 0 !important; // Remove default padding to let featured-category handle it
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  app-featured-category {
+    height: 100%;
+    display: flex;
+    flex: 1;
+  }
+}

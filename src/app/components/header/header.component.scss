@@ -262,3 +262,344 @@
         }
     }
 }
+
+// Header specific styles
+.header {
+  // .navbar-toggler {
+  //   background: none;
+  //   border: none;
+  //   padding: 0.5rem;
+  //   font-size: 1.2rem;
+  //   color: #333;
+  //   cursor: pointer;
+  //   transition: all 0.2s ease;
+    
+  //   &:hover {
+  //     color: #667eea;
+  //     transform: scale(1.1);
+  //   }
+    
+  //   &:focus {
+  //     outline: none;
+  //     box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  //     border-radius: 4px;
+  //   }
+  // }
+  
+  // .search-box-icon {
+  //   padding: 0.5rem;
+  //   font-size: 1.1rem;
+  //   color: #333;
+  //   cursor: pointer;
+  //   transition: all 0.2s ease;
+    
+  //   &:hover {
+  //     color: #667eea;
+  //     transform: scale(1.1);
+  //   }
+  // }
+  
+  // .user-dropdown {
+  //   button {
+  //     background: none;
+  //     border: none;
+  //     padding: 0.5rem;
+  //     color: #333;
+  //     font-size: 0.9rem;
+  //     font-weight: 500;
+  //     cursor: pointer;
+  //     transition: all 0.2s ease;
+  //     border-radius: 4px;
+      
+  //     &:hover {
+  //       background: #f8f9fa;
+  //       color: #667eea;
+  //     }
+      
+  //     &:focus {
+  //       outline: none;
+  //       box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  //     }
+  //   }
+  // }
+}
+
+// Mobile-specific header adjustments
+@media (max-width: 767.98px) {
+  .header {
+    // .header-middle-inner {
+    //   padding: 0.75rem 0;
+    // }
+    
+    // .navbar-toggler,
+    // .search-box-icon {
+    //   padding: 0.75rem;
+    //   font-size: 1.3rem;
+    // }
+    
+    // .divider-v {
+    //   height: 24px;
+    //   width: 1px;
+    //   opacity: 0.3;
+    // }
+  }
+}
+
+// Enhanced sidebar animations
+.sidebar {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.sidebar-enter {
+    transform: translateX(-100%);
+  }
+  
+  &.sidebar-enter-active {
+    transform: translateX(0);
+  }
+  
+  &.sidebar-exit {
+    transform: translateX(0);
+  }
+  
+  &.sidebar-exit-active {
+    transform: translateX(-100%);
+  }
+}
+
+// Backdrop improvements
+.sidebar-backdrop {
+  backdrop-filter: blur(2px);
+  transition: all 0.3s ease;
+  
+  &.backdrop-enter {
+    opacity: 0;
+  }
+  
+  &.backdrop-enter-active {
+    opacity: 1;
+  }
+  
+  &.backdrop-exit {
+    opacity: 1;
+  }
+  
+  &.backdrop-exit-active {
+    opacity: 0;
+  }
+}
+
+// Category-specific icon gradients (matching navbar design)
+.category-icon-modern {
+  &[data-category-slug*="electronic"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="clothing"] {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="furniture"] {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="shoes"] {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="bags"] {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="sports"] {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="home"] {
+    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="car"] {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="motorcycle"] {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="laptop"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+  
+  &[data-category-slug*="phone"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    
+    .category-image {
+      filter: brightness(1.1) contrast(1.1);
+    }
+  }
+}
+
+// Hover effects for better interactivity
+.modern-category-item {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+  
+  // Ensure content stays above the shine effect
+  .category-link-modern {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Touch feedback for mobile devices
+@media (hover: none) and (pointer: coarse) {
+  .modern-category-item {
+    &:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease;
+    }
+  }
+  
+  .navbar-toggler:active,
+  .search-box-icon:active {
+    transform: scale(0.95);
+  }
+  
+  .show-toggle-modern:active {
+    transform: scale(0.98);
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  // .header {
+  //   background: #1e1e1e;
+  //   color: #ffffff;
+    
+  //   .navbar-toggler,
+  //   .search-box-icon {
+  //     color: #ffffff;
+      
+  //     &:hover {
+  //       color: #667eea;
+  //     }
+  //   }
+    
+  //   .user-dropdown button {
+  //     color: #ffffff;
+      
+  //     &:hover {
+  //       background: #2d2d2d;
+  //       color: #667eea;
+  //     }
+  //   }
+  // }
+  
+  // .sidebar {
+  //   background: #1e1e1e;
+  //   color: #ffffff;
+  //   border-color: #404040;
+  // }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .modern-category-item {
+    border: 2px solid transparent;
+    
+    &:hover,
+    &:focus {
+      border-color: #000000;
+    }
+    
+    &.active {
+      border-color: #000000;
+    }
+  }
+  
+  .category-icon-modern {
+    border: 2px solid #cccccc;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .modern-category-item,
+  .category-link-modern,
+  .category-arrow,
+  .toggle-chevron,
+  .sidebar,
+  .sidebar-backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .modern-category-item::before {
+    display: none;
+  }
+}
+
+// Print styles (hide interactive elements)
+@media print {
+  .header,
+  .sidebar,
+  .sidebar-backdrop {
+    display: none !important;
+  }
+}

@@ -15,7 +15,7 @@
                     <div class="d-flex align-items-center justify-content-center header-top-center">
                         <div class="header-text text-center fs-12 py-1 py-lg-0">
                             Summer sale discount off
-                            <span class="text-danger">50%</span>! <a routerlink="/shop" class="text-reset">Shop Now</a>
+                            <span class="text-danger">50%</span>! <a routerLink="/shop" class="text-reset">Shop Now</a>
                         </div>
                     </div>
                 </div>
@@ -38,19 +38,6 @@
                 <div class="col-12">
                     <div class="d-flex flex-row justify-content-between w-100 flex-md-wrap flex-lg-nowrap header-middle-inner">
                         <div class="d-flex align-items-center justify-content-between justify-content-md-center justify-content-lg-start pb-md-2 pb-lg-0 header-middle-left">
-                            <!-- <button class="navbar-toggler d-inline-block d-md-none" type="button"
-                                data-bs-toggle="collapse-side" data-bs-target=".header-bottom" data-target-2=".header"
-                                data-target-3=".main-content" aria-controls="navbarSupportedContent"
-                                aria-expanded="false" aria-label="Toggle navigation">
-                                <div class="position-relative mx-auto my-0 navbar-toggler-btn">
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </button> -->
                             <button class="d-inline-block d-md-none navbar-toggler" type="button" (click)="toggleNavbarSidebar()">
                                 <fa-icon [icon]="faBarsStaggered"></fa-icon>
                             </button>
@@ -59,7 +46,6 @@
                             </a>
                             <a class="navbar-brand d-none d-md-inline-block" routerLink="/">
                                 <app-site-logo></app-site-logo>
-                                <!-- <h1 class="mb-0 d-none d-md-block logo-text">ng<span>C</span>ommerce</h1> -->
                             </a>
                             <div class="d-flex align-items-center d-md-none justify-content-center align-items-center">
                                 <fa-icon (click)="toggleSearchSidebar()" [icon]="faMagnifyingGlass" class="search-box-icon"></fa-icon>
@@ -111,23 +97,33 @@
 
 </header>
 
+<!-- Mobile Category Navigation Sidebar -->
 <app-sidebar
     id="navbarId" 
-    title="Categories"
-    width="300px">
-    <div class="px-3 py-2">
-        <app-featured-category
-            [categories]="categories"
-            [styleType]="'list'"
-            [navigationMode]="'custom'"
-            (categorySelected)="onCategorySelect($event)">
-        </app-featured-category>
-    </div>
+    title="Browse Categories"
+    width="320px"
+    class="sidebar-mobile-nav">
+    <app-featured-category
+        [styleType]="'list'"
+        [navigationMode]="'custom'"
+        [headerTitle]="'Browse Categories'"
+        [showHeader]="false"
+        [showSearch]="true"
+        [showAllOption]="true"
+        [showProductCount]="true"
+        [searchThreshold]="5"
+        [initialVisibleCount]="100"
+        [showToggleButton]="false"
+        [autoExpandOnMobile]="true"
+        (categorySelected)="onCategorySelect($event)"
+        class="h-100">
+    </app-featured-category>
 </app-sidebar>
 
+<!-- Mobile Search Sidebar -->
 <app-sidebar
     id="searchId" 
-    title="Search the products"
+    title="Search Products"
     width="90%">
     <div class="p-3">
         <app-search></app-search>

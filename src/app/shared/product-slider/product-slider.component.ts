@@ -42,10 +42,6 @@ export class ProductSliderComponent implements OnInit, AfterViewChecked {
     slidesPerView: 1,  // Always show 1 slide
     spaceBetween: 20,
     loop: true,
-    autoplay: { 
-      delay: 3000,
-      pauseOnMouseEnter: true
-    },
     pagination: {
       clickable: true,
       dynamicBullets: true
