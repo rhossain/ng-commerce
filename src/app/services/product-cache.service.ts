@@ -53,7 +53,7 @@ export class ProductCacheService {
         console.log(`Loaded ${this.cachedProducts.length} products from cache`);
         
         this.updateCacheState();
-        this.toastr.success('Product cache loaded from local storage.', 'Success');
+        // this.toastr.success('Product cache loaded from local storage.', 'Success');
       } catch (error) {
         console.error('Failed to parse cached data:', error);
         this.clearCache();
@@ -75,7 +75,7 @@ export class ProductCacheService {
         })
       );
       console.log(`Saved ${this.cachedProducts.length} products to cache`);
-      this.toastr.success('Product cache saved to local storage.', 'Success');
+      // this.toastr.success('Product cache saved to local storage.', 'Success');
     } catch (error) {
       console.error('Failed to save cache:', error);
       this.toastr.error('Failed to save product cache.', 'Error');
@@ -153,7 +153,7 @@ export class ProductCacheService {
           
           if (res?.items?.length) {
             this.updateCache(res.items);
-            this.toastr.success('Product data fetched and cached successfully.', 'Success');
+            // this.toastr.success('Product data fetched and cached successfully.', 'Success');
             resolve();
           } else {
             this.toastr.warning('Empty product list received from server.', 'Warning');
@@ -246,7 +246,8 @@ export class ProductCacheService {
     if (paginatedItems.length === 0 && itemsTotal > 0) {
       this.toastr.warning('No products found for the current filter or page.', 'Warning');
     } else if (paginatedItems.length > 0) {
-      this.toastr.success(`${paginatedItems.length} products loaded.`, 'Success');
+      console.log(`${paginatedItems.length} products loaded.`, 'Success');
+      // this.toastr.success(`${paginatedItems.length} products loaded.`, 'Success');
     }
 
     return {
@@ -293,7 +294,7 @@ export class ProductCacheService {
     if (filtered.length === 0) {
       this.toastr.info('No products found in this price range.', 'Info');
     } else {
-      this.toastr.success(`${filtered.length} products found in price range.`, 'Success');
+      // this.toastr.success(`${filtered.length} products found in price range.`, 'Success');
     }
     return filtered;
   }
@@ -304,7 +305,7 @@ export class ProductCacheService {
     if (sorted.length === 0) {
       this.toastr.info('No best-selling products found.', 'Info');
     } else {
-      this.toastr.success('Best-selling products sorted successfully.', 'Success');
+      // this.toastr.success('Best-selling products sorted successfully.', 'Success');
     }
 
     return sorted;
@@ -316,7 +317,7 @@ export class ProductCacheService {
       this.toastr.warning('Product not found in cache.', 'Warning');
       return undefined;
     } else {
-      this.toastr.success('Product loaded from cache.', 'Success');
+      // this.toastr.success('Product loaded from cache.', 'Success');
       return of(product);
     }
   }   
