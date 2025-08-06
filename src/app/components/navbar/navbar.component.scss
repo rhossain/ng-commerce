@@ -591,7 +591,7 @@
     position: absolute;
     top: 100%;
     left: 0;
-    z-index: 1000;
+    z-index: 15;
     display: none;
     float: left;
     min-width: 296px;
@@ -819,14 +819,14 @@
    Z-INDEX MANAGEMENT
    ======================================== */
 
-.navbar {
-  position: relative;
-  z-index: 1000;
-}
+// .navbar {
+//   position: relative;
+//   z-index: 1000;
+// }
 
-.dropdown-categories-enhanced {
-  z-index: 1001;
-}
+// .dropdown-categories-enhanced {
+//   z-index: 1001;
+// }
 
 /* ========================================
    SCROLL BEHAVIOR
