@@ -84,11 +84,11 @@ export class ProductCacheService {
 
   private isCacheValid(): boolean {
     const isValid = Date.now() - this.cacheTimestamp < this.CACHE_EXPIRY_MINUTES * 60 * 1000;
-    console.log('Cache validity check:', {
-      isValid,
-      cacheAge: Date.now() - this.cacheTimestamp,
-      expiryMs: this.CACHE_EXPIRY_MINUTES * 60 * 1000
-    });
+    // console.log('Cache validity check:', {
+    //   isValid,
+    //   cacheAge: Date.now() - this.cacheTimestamp,
+    //   expiryMs: this.CACHE_EXPIRY_MINUTES * 60 * 1000
+    // });
     return isValid;
   }
 
