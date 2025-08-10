@@ -135,18 +135,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // Navigation methods for other nav items
   navigateToFlashDeals(): void {
-    this.router.navigate(['/shop'], {
+    this.router.navigate(['/product/shop'], {
       queryParams: { 
-        filter: 'flash-deals',
+        filter: 'featured',
         page: 1 
       }
     });
   }
 
   navigateToNewArrivals(): void {
-    this.router.navigate(['/shop'], {
+    this.router.navigate(['/product/shop'], {
       queryParams: { 
-        filter: 'new-arrivals',
+        filter: 'new',
         page: 1 
       }
     });
