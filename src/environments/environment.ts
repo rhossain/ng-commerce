@@ -40,6 +40,10 @@ export const environment: EnvironmentConfiguration = {
             updateOrderStatus: "order",
             cancelOrder: "order",
         },
+        order_items: {
+            createItem: "order_items",
+            bulkCreate: "order_items/bulk", // For future bulk creation if needed
+        },
         shipping: {
             // ✅ Direct Xano table endpoints
             getShippingMethods: "shipping_methods",

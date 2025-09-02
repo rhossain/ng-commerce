@@ -1,0 +1,447 @@
+<!-- Product Details -->
+<div class="mobile-gradient">
+  <div class="overlay"></div>
+</div>
+
+<!-- Order History Component Template -->
+<section class="com-order-history py-4 position-relative">
+  <div class="container order-history-container">
+    <!-- Header Section -->
+    <div class="order-history-header d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+      <div class="header-content">
+        <h2 class="h4 mb-1">Order History</h2>
+        <p class="text-muted mb-0">Track and manage your orders</p>
+      </div>
+
+      <!-- Back to List Button (shown when viewing details) -->
+      <button *ngIf="currentView === 'details'" class="btn btn-outline-secondary" (click)="backToList()">
+        <fa-icon [icon]="faArrowLeft"></fa-icon>
+        Back to Orders
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading orders...</span>
+      </div>
+      <p class="loading-text">Loading your orders...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      <fa-icon [icon]="faExclamationTriangle" class="me-2"></fa-icon>
+      {{ errorMessage }}
+      <button class="btn btn-sm btn-outline-danger ms-3" (click)="refreshOrders()">
+        <fa-icon [icon]="faRefresh" class="me-1"></fa-icon>Try Again
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="order-history-content">
+
+      <!-- Order List View -->
+      <div *ngIf="currentView === 'list'" class="order-list-view">
+
+        <!-- Filters Section -->
+        <div class="filters-section">
+          <div class="filters-header">
+            <h3>Filter Orders</h3>
+            <button class="btn btn-sm btn-outline-secondary" (click)="clearFilters()">
+              <fa-icon [icon]="faTimes"></fa-icon>Clear Filters
+            </button>
+          </div>
+
+          <div class="filters-row">
+            <div class="filter-group">
+              <label for="statusFilter">Status</label>
+              <select id="statusFilter" class="form-select" [(ngModel)]="statusFilter"
+                (change)="onStatusFilterChange()">
+                <option value="">All Statuses</option>
+                <option *ngFor="let status of orderStatuses" [value]="status">
+                  {{ getStatusText(status) }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="dateFrom">From Date</label>
+              <input type="date" id="dateFrom" class="form-control" [(ngModel)]="dateFromFilter"
+                (change)="onDateFilterChange()">
+            </div>
+
+            <div class="filter-group">
+              <label for="dateTo">To Date</label>
+              <input type="date" id="dateTo" class="form-control" [(ngModel)]="dateToFilter"
+                (change)="onDateFilterChange()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Summary Stats -->
+        <div class="orders-summary" *ngIf="hasOrders()">
+          <div class="summary-card">
+            <div class="summary-item">
+              <span class="summary-label">Total Orders</span>
+              <span class="summary-value">{{ totalOrders }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Orders State -->
+        <div *ngIf="!hasOrders() && !loading" class="no-orders-state">
+          <div class="no-orders-icon">
+            <fa-icon [icon]="faShoppingBag"></fa-icon>
+          </div>
+          <h3>No Orders Found</h3>
+          <p>You haven't placed any orders yet, or no orders match your current filters.</p>
+          <div class="no-orders-actions">
+            <a routerLink="/products" class="btn btn-primary">
+              <fa-icon [icon]="faShoppingCart" class="me-2"></fa-icon>
+              Start Shopping
+            </a>
+            <button class="btn btn-outline-secondary ms-2" (click)="clearFilters()">
+              <fa-icon [icon]="faFilter" class="me-1"></fa-icon>
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Grid -->
+        <div *ngIf="hasOrders()" class="orders-grid">
+          <div *ngFor="let order of orders; trackBy: trackByOrderId" class="order-card">
+
+            <!-- Order Header -->
+            <div class="order-header">
+              <div class="order-info">
+                <span class="order-number">#{{ order.id }}</span>
+                <span class="order-date">{{ formatDate(order.order_date) }}</span>
+              </div>
+              <div class="order-status">
+                <span [class]="getStatusBadgeClass(order.status)">
+                  {{ getStatusText(order.status) }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Order Details Summary -->
+            <div class="order-details">
+              <div class="detail-row">
+                <span class="detail-label">Items:</span>
+                <span class="detail-value">{{ getTotalItems(order) }}</span>
+              </div>
+
+              <div class="detail-row">
+                <span class="detail-label">Total:</span>
+                <span class="detail-value total-amount">${{ order.total_amount | number:'1.2-2' }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="order.shipping_method">
+                <span class="detail-label">Shipping:</span>
+                <span class="detail-value">{{ getShippingMethodName(order) }}</span>
+              </div>
+
+              <div class="detail-row" *ngIf="hasTrackingInfo(order)">
+                <span class="detail-label">Tracking:</span>
+                <span class="detail-value tracking-number">{{ getTrackingNumber(order) }}</span>
+              </div>
+            </div>
+
+            <!-- Order Items Preview -->
+            <div class="order-items-preview" *ngIf="order.order_items && order.order_items.length > 0">
+              <div class="items-list">
+                <div *ngFor="let item of order.order_items.slice(0, 3)" class="item-preview">
+                  <img [src]="item.product?.main_image_url || '/assets/images/placeholder-product.jpg'"
+                    [alt]="item.product?.name" class="item-image" loading="lazy">
+                  <div class="item-info">
+                    <span class="item-name">{{ item.product?.name }}</span>
+                    <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                  </div>
+                </div>
+
+                <div *ngIf="order.order_items.length > 3" class="more-items">
+                  +{{ order.order_items.length - 3 }} more
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Actions -->
+            <div class="order-actions">
+              <button class="btn btn-outline-primary btn-sm" (click)="loadOrderDetails(order.id)">
+                <fa-icon [icon]="faEye" class="me-1"></fa-icon>
+                View Details
+              </button>
+
+              <button *ngIf="hasTrackingInfo(order)" class="btn btn-outline-info btn-sm" (click)="trackOrder(order)">
+                <fa-icon [icon]="faTruck" class="me-1"></fa-icon>
+                Track
+              </button>
+
+              <button *ngIf="canCancelOrder(order)" class="btn btn-outline-danger btn-sm"
+                (click)="cancelOrder(order.id)">
+                <fa-icon [icon]="faTimes" class="me-1"></fa-icon>
+                Cancel
+              </button>
+
+              <button *ngIf="canReorderOrder(order)" class="btn btn-outline-success btn-sm" (click)="reorder(order)">
+                <fa-icon [icon]="faRedo" class="me-1"></fa-icon>
+                Reorder
+              </button>
+
+              <button class="btn btn-outline-secondary btn-sm" (click)="downloadInvoice(order.id)">
+                <fa-icon [icon]="faDownload" class="me-1"></fa-icon>
+                Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav *ngIf="shouldShowPagination()" class="pagination-container" aria-label="Order pagination">
+          <ul class="pagination justify-content-center">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="onPageChange(currentPage - 1)">
+                <fa-icon [icon]="faChevronLeft"></fa-icon>
+                Previous
+              </button>
+            </li>
+
+            <li *ngFor="let page of getPagesArray()" class="page-item" [class.active]="page === currentPage">
+              <button class="page-link" (click)="onPageChange(page)">
+                {{ page }}
+              </button>
+            </li>
+
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="onPageChange(currentPage + 1)">
+                Next
+                <fa-icon [icon]="faChevronRight"></fa-icon>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Order Details View -->
+      <div *ngIf="currentView === 'details'" class="order-details-view">
+
+        <!-- Details Loading State -->
+        <div *ngIf="detailsLoading" class="loading-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading order details...</span>
+          </div>
+          <p class="loading-text">Loading order details...</p>
+        </div>
+
+        <!-- Order Details Content -->
+        <div *ngIf="selectedOrder && !detailsLoading" class="order-details-content">
+
+          <!-- Order Header -->
+          <div class="details-header">
+            <div class="details-title">
+              <h2>Order #{{ selectedOrder.id }}</h2>
+              <span [class]="getStatusBadgeClass(selectedOrder.status)">
+                {{ getStatusText(selectedOrder.status) }}
+              </span>
+            </div>
+            <div class="details-meta">
+              <span class="order-date">{{ formatDateTime(selectedOrder.order_date) }}</span>
+            </div>
+          </div>
+
+          <!-- Order Summary Cards -->
+          <div class="summary-cards">
+            <div class="summary-card">
+              <div class="card-header">
+                <fa-icon [icon]="faDollarSign"></fa-icon>
+                <h4>Order Total</h4>
+              </div>
+              <div class="card-content">
+                <div class="total-amount">${{ selectedOrder.total_amount | number:'1.2-2' }}</div>
+              </div>
+            </div>
+
+            <div class="summary-card">
+              <div class="card-header">
+                <fa-icon [icon]="faBox"></fa-icon>
+                <h4>Items</h4>
+              </div>
+              <div class="card-content">
+                <div class="item-count">{{ getTotalItems(selectedOrder) }} Items</div>
+              </div>
+            </div>
+
+            <div class="summary-card" *ngIf="selectedOrder.payment">
+              <div class="card-header">
+                <fa-icon [icon]="faCreditCard"></fa-icon>
+                <h4>Payment</h4>
+              </div>
+              <div class="card-content">
+                <div class="payment-method">{{ getPaymentMethodName(selectedOrder) }}</div>
+                <div class="payment-status">{{ getPaymentStatus(selectedOrder) }}</div>
+              </div>
+            </div>
+
+            <div class="summary-card" *ngIf="selectedOrder.shipping_status">
+              <div class="card-header">
+                <fa-icon [icon]="faTruck"></fa-icon>
+                <h4>Shipping</h4>
+              </div>
+              <div class="card-content">
+                <div class="shipping-method">{{ getShippingMethodName(selectedOrder) }}</div>
+                <div class="shipping-status">{{ getShippingStatus(selectedOrder) }}</div>
+                <div class="tracking-info" *ngIf="hasTrackingInfo(selectedOrder)">
+                  <small>Tracking: {{ getTrackingNumber(selectedOrder) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items Details -->
+          <div class="order-items-section">
+            <h3>Order Items</h3>
+            <div class="items-table">
+              <div class="table-header">
+                <div class="col-product">Product</div>
+                <div class="col-quantity">Quantity</div>
+                <div class="col-price">Unit Price</div>
+                <div class="col-total">Total</div>
+              </div>
+
+              <div *ngFor="let item of selectedOrder.order_items" class="table-row">
+                <div class="col-product">
+                  <div class="product-info">
+                    <img [src]="item.product?.main_image_url || '/assets/images/placeholder-product.jpg'"
+                      [alt]="item.product?.name" class="product-image" loading="lazy">
+                    <div class="product-details">
+                      <h5 class="product-name">{{ item.product?.name }}</h5>
+                      <div class="product-variant" *ngIf="item.variant">
+                        SKU: {{ item.variant.sku }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-quantity">{{ item.quantity }}</div>
+                <div class="col-price">${{ item.unit_price | number:'1.2-2' }}</div>
+                <div class="col-total">${{ item.total_price | number:'1.2-2' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing Breakdown -->
+          <div class="pricing-breakdown">
+            <h3>Order Summary</h3>
+            <div class="breakdown-table">
+              <div class="breakdown-row">
+                <span class="label">Subtotal:</span>
+                <span class="value">${{ getOrderSubtotal(selectedOrder) | number:'1.2-2' }}</span>
+              </div>
+              <div class="breakdown-row" *ngIf="selectedOrder.shipping_cost">
+                <span class="label">Shipping:</span>
+                <span class="value">${{ selectedOrder.shipping_cost | number:'1.2-2' }}</span>
+              </div>
+              <div class="breakdown-row" *ngIf="selectedOrder.tax_amount">
+                <span class="label">Tax:</span>
+                <span class="value">${{ selectedOrder.tax_amount | number:'1.2-2' }}</span>
+              </div>
+              <div class="breakdown-row" *ngIf="selectedOrder.discount_amount">
+                <span class="label">Discount:</span>
+                <span class="value discount">-${{ selectedOrder.discount_amount | number:'1.2-2' }}</span>
+              </div>
+              <div class="breakdown-row total">
+                <span class="label">Total:</span>
+                <span class="value">${{ selectedOrder.total_amount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Information -->
+          <div class="shipping-section" *ngIf="selectedOrder.shipping_address">
+            <h3>Shipping Information</h3>
+            <div class="shipping-info">
+              <div class="address-card">
+                <h5>Shipping Address</h5>
+                <div class="address">
+                  <div>{{ selectedOrder.shipping_address.first_name }} {{ selectedOrder.shipping_address.last_name }}
+                  </div>
+                  <div *ngIf="selectedOrder.shipping_address.company">{{ selectedOrder.shipping_address.company }}</div>
+                  <div>{{ selectedOrder.shipping_address.address_line_1 }}</div>
+                  <div *ngIf="selectedOrder.shipping_address.address_line_2">{{
+                    selectedOrder.shipping_address.address_line_2 }}</div>
+                  <div>{{ selectedOrder.shipping_address.city }}, {{ selectedOrder.shipping_address.state }} {{
+                    selectedOrder.shipping_address.zip_code }}</div>
+                  <div>{{ selectedOrder.shipping_address.country }}</div>
+                  <div *ngIf="selectedOrder.shipping_address.phone">{{ selectedOrder.shipping_address.phone }}</div>
+                </div>
+              </div>
+
+              <div class="delivery-info" *ngIf="selectedOrder.shipping_method">
+                <h5>Delivery Method</h5>
+                <div>{{ selectedOrder.shipping_method.name }}</div>
+                <div class="delivery-estimate">
+                  Estimated Delivery: {{ getEstimatedDelivery(selectedOrder) }}
+                </div>
+                <div *ngIf="selectedOrder.shipping_address.delivery_instructions" class="delivery-instructions">
+                  <strong>Instructions:</strong> {{ selectedOrder.shipping_address.delivery_instructions }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tracking Information -->
+          <div class="tracking-section" *ngIf="selectedOrder.shipping_status">
+            <h3>Tracking Information</h3>
+            <div class="tracking-info">
+              <div class="tracking-details">
+                <div class="tracking-number">
+                  <strong>Tracking Number:</strong> {{ selectedOrder.shipping_status.tracking_number }}
+                </div>
+                <div class="carrier-info">
+                  <strong>Carrier:</strong> {{ selectedOrder.shipping_method?.carrier }}
+                </div>
+                <div class="last-update">
+                  <strong>Last Update:</strong> {{ selectedOrder.shipping_status.carrier_update }}
+                </div>
+                <div class="estimated-delivery">
+                  <strong>Estimated Delivery:</strong> {{ selectedOrder.shipping_status.estimated_delivery }}
+                </div>
+              </div>
+
+              <div class="tracking-actions">
+                <button class="btn btn-primary" (click)="trackOrder(selectedOrder)">
+                  <fa-icon [icon]="faExternalLink" class="me-2"></fa-icon>
+                  Track Package
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Actions -->
+          <div class="details-actions">
+            <button *ngIf="canCancelOrder(selectedOrder)" class="btn btn-danger"
+              (click)="cancelOrder(selectedOrder.id)">
+              <fa-icon [icon]="faTimes" class="me-2"></fa-icon>
+              Cancel Order
+            </button>
+
+            <button *ngIf="canReturnOrder(selectedOrder)" class="btn btn-warning">
+              <i class="fas fa-undo me-2"></i>
+              <fa-icon [icon]="faUndo" class="me-2"></fa-icon>
+              Return Items
+            </button>
+
+            <button *ngIf="canReorderOrder(selectedOrder)" class="btn btn-success" (click)="reorder(selectedOrder)">
+              <fa-icon [icon]="faRedo" class="me-2"></fa-icon>
+              Reorder
+            </button>
+
+            <button class="btn btn-outline-secondary" (click)="downloadInvoice(selectedOrder.id)">
+              <fa-icon [icon]="faDownload" class="me-2"></fa-icon>
+              Download Invoice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

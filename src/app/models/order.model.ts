@@ -7,16 +7,17 @@ export interface OrderModel {
   order_date: string;
   total_amount: number;
   status: OrderStatus;
+  cart_item_id: number;
   shipping_methods_id: number;
   shipping_cost: number;
   shipping_addresses_id: number;
+  notes: string;
   user_id: number;
   
-  // Optional fields
+  // Optional fields (not in your database but used in service)
   promotion_code?: string;
   discount_amount?: number;
   tax_amount?: number;
-  notes?: string;
   
   // Xano addon relationships
   order_items?: OrderItem[];
@@ -27,15 +28,16 @@ export interface OrderModel {
   user?: UserModel;
 }
 
+// FIXED: Updated to match your exact database schema
 export interface OrderItem {
   id: number;
   created_at: number;
   quantity: number;
   unit_price: number;
   total_price: number;
-  product_id: number;
-  variant_id: number;
   order_id: number;
+  product_id: number;
+  product_variant_id: number; // CHANGED: This matches your database field name
   
   // Optional fields
   discount_amount?: number;
@@ -44,6 +46,7 @@ export interface OrderItem {
   // Xano addon relationships
   product?: ProductModel;
   variant?: ProductVariant;
+  order?: OrderModel;
 }
 
 // Shipping Method Model
@@ -170,9 +173,10 @@ export interface CreateOrderRequest {
   notes?: string | null;
 }
 
+// FIXED: Updated to match database field names
 export interface OrderItemRequest {
   product_id: number;
-  variant_id: number;
+  product_variant_id: number; // CHANGED: This matches your database field name
   quantity: number;
   unit_price: number;
 }
@@ -304,7 +308,7 @@ export interface WishlistItem {
   added_at: number;
   user_id: number;
   product_id: number;
-  variant_id?: number;
+  variant_id?: number; // NOTE: This can stay as variant_id since it's for wishlist, not orders
   
   // Xano addon relationships
   product?: ProductModel;

@@ -36,6 +36,10 @@ export interface EnvironmentConfiguration {
             updateOrderStatus: string;
             cancelOrder: string;
         },
+        order_items: {
+            createItem: string;
+            bulkCreate: string; // Optional to implement bulk endpoint
+        },
         shipping: {
             getShippingMethods: string;
             getUserAddresses: string;

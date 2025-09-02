@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 
 // FontAwesome icons
@@ -16,7 +16,7 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { ShippingService } from '../../services/shipping.service';
-import { PricingService } from '../../services/pricing.service'; // ← Add this import
+import { PricingService } from '../../services/pricing.service';
 
 // Models
 import { CartItem } from '../../models/cart.model';
@@ -59,6 +59,11 @@ import { PaymentMethod, CheckoutTotals, StepValidation } from './checkout-types'
 })
 export default class CheckoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  // ViewChild references for accessing form data
+  @ViewChild(PaymentFormComponent) paymentFormComponent!: PaymentFormComponent;
+  @ViewChild(ShippingFormComponent) shippingFormComponent!: ShippingFormComponent;
+  @ViewChild(BillingFormComponent) billingFormComponent!: BillingFormComponent;
 
   // Icons
   faCreditCard = faCreditCard;
@@ -149,7 +154,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private orderService: OrderService,
     private shippingService: ShippingService,
-    private pricingService: PricingService // ← Add this injection
+    private pricingService: PricingService
   ) {}
 
   ngOnInit(): void {
@@ -158,6 +163,11 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     this.loadUserData();
     this.loadShippingData();
     this.calculateTotals();
+    
+    // Set default payment method
+    if (this.paymentMethods.length > 0) {
+      this.selectedPaymentMethod = this.paymentMethods[0];
+    }
   }
 
   ngOnDestroy(): void {
@@ -198,7 +208,6 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     this.isLoadingAddresses = true;
     this.isLoadingShippingMethods = true;
 
-    // Ensure user is logged in before loading addresses
     if (!this.authService.isLoggedIn()) {
       this.isLoadingAddresses = false;
       this.isLoadingShippingMethods = false;
@@ -212,10 +221,10 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (addresses) => {
-          // Double-check that addresses belong to current user
           this.shippingAddresses = addresses.filter(address => address.user_id === currentUserId);
           this.selectedShippingAddress = this.shippingAddresses.find(a => a.is_active) || this.shippingAddresses[0] || null;
           this.isLoadingAddresses = false;
+          this.validateOrder();
         },
         error: (error) => {
           console.error('Error loading user addresses:', error);
@@ -233,6 +242,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
           this.selectedShippingMethod = methods.find(m => m.type === 'standard') || methods[0] || null;
           this.calculateShippingCost();
           this.isLoadingShippingMethods = false;
+          this.validateOrder();
         },
         error: () => {
           this.isLoadingShippingMethods = false;
@@ -274,14 +284,19 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
   onShippingAddressSelected(address: ShippingAddress): void {
     this.selectedShippingAddress = address;
     this.calculateShippingCost();
+    this.validateOrder();
   }
 
   onBillingAddressSelected(address: ShippingAddress): void {
     this.selectedBillingAddress = address;
+    this.validateOrder();
   }
 
   onSameBillingAddressChanged(same: boolean): void {
     this.sameBillingAddress = same;
+    if (same) {
+      this.selectedBillingAddress = this.selectedShippingAddress;
+    }
     this.validateOrder();
   }
 
@@ -289,6 +304,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
   onShippingMethodSelected(method: ShippingMethod): void {
     this.selectedShippingMethod = method;
     this.calculateShippingCost();
+    this.validateOrder();
   }
 
   // Payment Events
@@ -316,85 +332,264 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     this.calculateTotals();
   }
 
-  // Order Processing
+  // Order Processing - UPDATED WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
   async processOrder(): Promise<void> {
-    if (!this.isOrderValid || this.isProcessingOrder) {
+    if (!this.validateAllForms()) {
+      this.toastr.error('Please complete all required information', 'Validation Error');
+      return;
+    }
+
+    if (this.isProcessingOrder) {
       return;
     }
 
     this.isProcessingOrder = true;
+    console.log('Starting order processing...');
 
     try {
-      // Create shipping address if new
-      let shippingAddressId = this.selectedShippingAddress?.id;
+      // Validate required selections
+      if (!this.selectedShippingAddress) {
+        throw new Error('Please select a shipping address');
+      }
       
-      // Prepare order items using PricingService for effective pricing
-      const orderItems: OrderItemRequest[] = this.cartItems.map(item => ({
-        product_id: item.product.id,
-        variant_id: item.variant.id,
-        quantity: item.quantity,
-        unit_price: this.pricingService.getEffectivePrice(item.variant) // ← Use PricingService
-      }));
+      if (!this.selectedShippingMethod) {
+        throw new Error('Please select a shipping method');
+      }
+      
+      if (!this.selectedPaymentMethod) {
+        throw new Error('Please select a payment method');
+      }
+      
+      if (this.cartItems.length === 0) {
+        throw new Error('Your cart is empty');
+      }
 
-      // Create order request
+      // DEBUG: Log cart items before mapping
+      console.log('Raw cart items:', this.cartItems);
+      console.log('Cart items structure:', this.cartItems.map(item => ({
+        product_id: item.product?.id,
+        variant_id: item.variant?.id,
+        quantity: item.quantity,
+        product: item.product,
+        variant: item.variant
+      })));
+
+      // Prepare order items with proper pricing
+      const orderItems: OrderItemRequest[] = this.cartItems.map(item => {
+        const effectivePrice = this.pricingService.getEffectivePrice(item.variant);
+        const orderItem = {
+          product_id: item.product.id,
+          product_variant_id: item.variant.id,
+          quantity: item.quantity,
+          unit_price: effectivePrice
+        };
+        
+        // DEBUG: Log each order item
+        console.log('Mapped order item:', orderItem);
+        return orderItem;
+      });
+
+      console.log('Final order items array:', orderItems);
+
+      // Create order request with all required fields
       const orderRequest: CreateOrderRequest = {
-        shipping_address_id: shippingAddressId || null,
-        shipping_method_id: this.selectedShippingMethod?.id || null,
-        payment_method: this.selectedPaymentMethod?.id,
+        shipping_address_id: this.selectedShippingAddress.id,
+        shipping_method_id: this.selectedShippingMethod.id,
+        payment_method: this.selectedPaymentMethod.id,
         items: orderItems,
         promotion_code: this.appliedPromotion?.code || null,
-        delivery_instructions: null,
+        delivery_instructions: this.selectedShippingAddress.delivery_instructions || null,
         notes: this.orderNotes || null
       };
 
-      // Create order
-      const order = await this.orderService.createOrder(orderRequest).toPromise();
+      // DEBUG: Log the complete request payload
+      console.log('Complete order request payload:', JSON.stringify(orderRequest, null, 2));
+
+      // Create the order
+      const createdOrder = await firstValueFrom(this.orderService.createOrder(orderRequest));
       
-      if (order) {
-        // Process payment
-        await this.processPayment(order);
-        
-        // Clear cart
-        this.cartService.clearCart();
-        
-        // Redirect to success page
-        this.router.navigate(['/order/success'], { 
-          queryParams: { orderId: order.id } 
-        });
+      console.log('Order created successfully:', createdOrder);
+      
+      // DEBUG: Check if order_items were returned
+      if (!createdOrder.order_items || createdOrder.order_items.length === 0) {
+        console.error('❌ ORDER ITEMS NOT CREATED OR RETURNED!');
+        console.error('Backend did not create or return order_items');
+        console.error('Expected items:', orderItems);
+        console.error('Received order:', createdOrder);
+      } else {
+        console.log('✅ Order items created successfully:', createdOrder.order_items);
+      }
+      
+      if (!createdOrder || !createdOrder.id) {
+        throw new Error('Order creation failed - no order ID returned');
       }
 
-    } catch (error) {
+      // Continue with payment processing...
+      if (this.selectedPaymentMethod.id === 'credit_card') {
+        await this.processCreditCardPayment(createdOrder);
+      } else {
+        await this.processDigitalWalletPayment(createdOrder);
+      }
+
+      // Use the promotion if one was applied
+      if (this.appliedPromotion) {
+        this.orderService.usePromotion(this.appliedPromotion.code);
+      }
+
+      // Clear cart after successful order
+      this.cartService.clearCart();
+
+      // Navigate to order confirmation
+      this.router.navigate(['/checkout/success'], {
+        queryParams: { orderId: createdOrder.id }
+      });
+
+      this.toastr.success('Order placed successfully!', 'Success');
+
+    } catch (error: any) {
       console.error('Order processing failed:', error);
-      this.toastr.error('Failed to process order. Please try again.');
+      this.handleOrderError(error);
     } finally {
       this.isProcessingOrder = false;
     }
   }
 
-  private async processPayment(order: OrderModel): Promise<void> {
-    if (!this.selectedPaymentMethod || !order) {
-      throw new Error('Missing payment method or order');
+  private async processCreditCardPayment(order: OrderModel): Promise<void> {
+    if (!this.paymentFormComponent || !this.paymentFormComponent.paymentForm.valid) {
+      throw new Error('Invalid payment information');
     }
 
-    const paymentRequest: PaymentRequest = {
+    const formValue = this.paymentFormComponent.paymentForm.value;
+    
+    const paymentData: PaymentRequest = {
       order_id: order.id,
-      payment_method: this.selectedPaymentMethod.id,
-      amount: this.orderTotal,
+      payment_method: 'credit_card',
+      amount: order.total_amount,
+      currency: 'USD',
+      gateway_data: {
+        card_number: formValue.card_number,
+        expiry_date: `${formValue.expiry_month}/${formValue.expiry_year}`,
+        cvv: formValue.cvv,
+        cardholder_name: formValue.cardholder_name,
+        billing_address: this.getBillingAddressData()
+      }
+    };
+
+    const payment = await firstValueFrom(this.orderService.processPayment(paymentData));
+    
+    if (!payment || (payment.status !== 'completed' && payment.status !== 'processing')) {
+      throw new Error(`Payment failed: ${payment?.failure_reason || 'Unknown error'}`);
+    }
+
+    console.log('Payment processed successfully:', payment);
+  }
+
+  private async processDigitalWalletPayment(order: OrderModel): Promise<void> {
+    const paymentData: PaymentRequest = {
+      order_id: order.id,
+      payment_method: this.selectedPaymentMethod!.id,
+      amount: order.total_amount,
       currency: 'USD',
       gateway_data: {}
     };
 
-    await this.orderService.processPayment(paymentRequest).toPromise();
+    // For digital wallets, you would typically redirect to the payment provider
+    // or use their JavaScript SDK. For now, we'll simulate the process.
+    const payment = await firstValueFrom(this.orderService.processPayment(paymentData));
+    
+    if (!payment || (payment.status !== 'completed' && payment.status !== 'processing')) {
+      throw new Error(`Payment failed: ${payment?.failure_reason || 'Unknown error'}`);
+    }
+
+    console.log('Digital wallet payment processed successfully:', payment);
+  }
+
+  private getBillingAddressData(): any {
+    const billingAddress = this.sameBillingAddress ? this.selectedShippingAddress : this.selectedBillingAddress;
+    
+    if (!billingAddress) {
+      return {};
+    }
+
+    return {
+      first_name: billingAddress.first_name,
+      last_name: billingAddress.last_name,
+      address_line_1: billingAddress.address_line_1,
+      address_line_2: billingAddress.address_line_2,
+      city: billingAddress.city,
+      state: billingAddress.state,
+      zip_code: billingAddress.zip_code,
+      country: billingAddress.country
+    };
+  }
+
+  private handleOrderError(error: any): void {
+    let errorMessage = 'Failed to process order. Please try again.';
+    
+    if (error.status === 400) {
+      errorMessage = error.error?.message || 'Invalid order data. Please check your information.';
+    } else if (error.status === 401) {
+      errorMessage = 'Please log in to place an order.';
+      this.router.navigate(['/auth/login'], {
+        queryParams: { returnUrl: '/checkout' }
+      });
+      return;
+    } else if (error.status === 409) {
+      errorMessage = 'Some items in your cart are no longer available. Please review your cart.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    this.toastr.error(errorMessage, 'Order Failed');
+  }
+
+  private validateAllForms(): boolean {
+    const hasValidShipping = this.selectedShippingAddress !== null;
+    const hasValidShippingMethod = this.selectedShippingMethod !== null;
+    const hasValidBilling = this.sameBillingAddress || this.selectedBillingAddress !== null;
+    const hasValidPayment = this.selectedPaymentMethod !== null && this.stepValidation.payment;
+    
+    if (!hasValidShipping) {
+      this.toastr.error('Please select or add a shipping address', 'Shipping Address Required');
+      return false;
+    }
+    
+    if (!hasValidShippingMethod) {
+      this.toastr.error('Please select a shipping method', 'Shipping Method Required');
+      return false;
+    }
+    
+    if (!hasValidBilling) {
+      this.toastr.error('Please select or add a billing address', 'Billing Address Required');
+      return false;
+    }
+    
+    if (!hasValidPayment) {
+      this.toastr.error('Please complete payment information', 'Payment Information Required');
+      return false;
+    }
+    
+    if (this.cartItems.length === 0) {
+      this.toastr.error('Your cart is empty', 'Cart Empty');
+      return false;
+    }
+
+    return true;
   }
 
   // Calculation Methods
   private calculateShippingCost(): void {
     if (this.selectedShippingMethod) {
-      this.shippingCost = this.shippingService.calculateShippingCost(
-        this.selectedShippingMethod.id,
-        this.cartSubtotal,
-        this.shippingMethods
-      );
+      // Check if free shipping applies from promotion
+      if (this.appliedPromotion?.discount_type === 'free_shipping') {
+        this.shippingCost = 0;
+      } else {
+        this.shippingCost = this.shippingService.calculateShippingCost(
+          this.selectedShippingMethod.id,
+          this.cartSubtotal,
+          this.shippingMethods
+        );
+      }
       this.calculateTotals();
     }
   }
@@ -411,6 +606,11 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     const taxRate = 0.08;
     this.taxAmount = this.cartSubtotal * taxRate;
 
+    // Apply promotion discount if applicable
+    if (this.appliedPromotion && this.appliedPromotion.discount_type !== 'free_shipping') {
+      this.discountAmount = this.orderService.calculateDiscount(this.appliedPromotion, this.cartSubtotal);
+    }
+
     // Calculate order total
     this.orderTotal = this.orderService.calculateOrderTotal(
       this.cartSubtotal,
@@ -425,9 +625,10 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
   private validateOrder(): void {
     this.isOrderValid = 
       this.cartItems.length > 0 &&
-      this.stepValidation.shipping &&
-      this.stepValidation.shippingMethod &&
-      (this.sameBillingAddress || this.stepValidation.billing) &&
+      this.selectedShippingAddress !== null &&
+      this.selectedShippingMethod !== null &&
+      (this.sameBillingAddress || this.selectedBillingAddress !== null) &&
+      this.selectedPaymentMethod !== null &&
       this.stepValidation.payment;
   }
 
@@ -473,5 +674,28 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
    */
   hasDiscountedItems(): boolean {
     return this.cartItems.some(item => this.pricingService.hasValidDiscount(item.variant));
+  }
+
+  /**
+   * Get formatted currency string
+   */
+  formatCurrency(amount: number): string {
+    return this.orderService.formatCurrency(amount);
+  }
+
+  /**
+   * Debug method to log current checkout state
+   */
+  debugCheckoutState(): void {
+    console.group('Checkout State Debug');
+    console.log('Current User:', this.currentUser);
+    console.log('Cart Items:', this.cartItems.length);
+    console.log('Selected Shipping Address:', this.selectedShippingAddress);
+    console.log('Selected Shipping Method:', this.selectedShippingMethod);
+    console.log('Selected Payment Method:', this.selectedPaymentMethod);
+    console.log('Order Totals:', this.checkoutTotals);
+    console.log('Step Validation:', this.stepValidation);
+    console.log('Is Order Valid:', this.isOrderValid);
+    console.groupEnd();
   }
 }
