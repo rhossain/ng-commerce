@@ -7,7 +7,7 @@ export interface OrderModel {
   order_date: string;
   total_amount: number;
   status: OrderStatus;
-  cart_item_id: number;
+  cart_item_id: number | null;
   shipping_methods_id: number;
   shipping_cost: number;
   shipping_addresses_id: number;
@@ -218,6 +218,7 @@ export interface UpdateOrderRequest {
   shipping_method_id?: number;
   notes?: string;
   tracking_number?: string;
+  user_id?: number;
 }
 
 export interface OrderFilterOptions {
