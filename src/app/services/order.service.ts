@@ -1,15 +1,15 @@
-// services/order.service.ts - COMPLETE MAIN ORDER SERVICE
+// services/order.service.ts - REFACTORED MAIN SERVICE
 import { Injectable } from '@angular/core';
-import { Observable, throwError, forkJoin, of } from 'rxjs';
-import { map, switchMap, tap, catchError, finalize, delay } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
-import { OrderRepositoryService } from './order-repository.service';
-import { OrderBusinessLogicService } from './order-business-logic.service';
-import { OrderStateManagementService } from './order-state-management.service';
+import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import { map, tap, shareReplay } from 'rxjs/operators';
+import { OrderCoreService } from './order-core.service';
+import { OrderCacheService } from './order-cache.service';
+import { OrderValidationService } from './order-validation.service';
+import { OrderPaymentService } from './order-payment.service';
+import { OrderAnalyticsService } from './order-analytics.service';
 import { OrderUtilityService } from './order-utility.service';
-import { ShippingService } from './shipping.service'; // Your existing shipping service
-import { ShippingIntegrationService } from './shipping-integration.service'; // Your existing integration service
+import { ShippingService } from './shipping.service';
+import { ShippingIntegrationService } from './shipping-integration.service';
 import { 
   OrderModel, 
   CreateOrderRequest, 
@@ -19,257 +19,433 @@ import {
   PaymentModel,
   OrderFilterOptions,
   PromotionModel,
-  ReturnRequest,
-  InvoiceModel,
-  OrderAnalytics,
-  OrderTrackingEvent
+  OrderSummary
 } from '../models/order.model';
 
+/**
+ * Main Order Service - Orchestrates all order-related operations
+ * This service acts as a facade that delegates to specialized services
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
 
+  // Current order state for checkout process
+  private currentOrderSubject = new BehaviorSubject<Partial<CreateOrderRequest> | null>(null);
+  currentOrder$ = this.currentOrderSubject.asObservable();
+
+  // Current filters state
+  private currentFiltersSubject = new BehaviorSubject<OrderFilterOptions>({});
+  currentFilters$ = this.currentFiltersSubject.asObservable();
+
+  // Loading state
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  loading$ = this.loadingSubject.asObservable();
+
+  // Combined observable for dashboard data - initialized after dependency injection
+  dashboard$: Observable<any>;
+
   constructor(
-    private orderRepository: OrderRepositoryService,
-    private orderBusinessLogic: OrderBusinessLogicService,
-    private orderStateManager: OrderStateManagementService,
-    private orderUtility: OrderUtilityService,
-    private authService: AuthService,
-    private router: Router,
-    private shippingService: ShippingService, // Your existing shipping service
-    private shippingIntegration: ShippingIntegrationService // Your existing integration service
-  ) {}
-
-  // ===== OBSERVABLE ACCESSORS FOR STATE =====
-  get currentOrder$() { return this.orderStateManager.currentOrder$; }
-  get orderCache$() { return this.orderStateManager.orderCache$; }
-  get orderSummary$() { return this.orderStateManager.orderSummary$; }
-  get loadingStates$() { return this.orderStateManager.loadingStates$; }
-  get filters$() { return this.orderStateManager.filters$; }
-  get pagination$() { return this.orderStateManager.pagination$; }
-  get selectedOrders$() { return this.orderStateManager.selectedOrders$; }
-  get orderStats$() { return this.orderStateManager.orderStats$; }
-
-  // ===== INTEGRATION WITH YOUR EXISTING SHIPPING SERVICES =====
-  
-  /**
-   * Get shipping methods using your existing service
-   */
-  getShippingMethods(forceRefresh: boolean = false): Observable<any[]> {
-    return this.shippingService.getShippingMethods(forceRefresh);
-  }
-
-  /**
-   * Get user addresses using your existing service
-   */
-  getUserShippingAddresses(forceRefresh: boolean = false): Observable<any[]> {
-    return this.shippingService.getUserShippingAddresses(forceRefresh);
-  }
-
-  /**
-   * Create shipping address using your existing service
-   */
-  createShippingAddress(address: any): Observable<any> {
-    return this.shippingService.createShippingAddress(address);
-  }
-
-  /**
-   * Update shipping address using your existing service
-   */
-  updateShippingAddress(addressId: number, address: any): Observable<any> {
-    return this.shippingService.updateShippingAddress(addressId, address);
-  }
-
-  /**
-   * Delete shipping address using your existing service
-   */
-  deleteShippingAddress(addressId: number): Observable<void> {
-    return this.shippingService.deleteShippingAddress(addressId);
-  }
-
-  /**
-   * Set default shipping address using your existing service
-   */
-  setDefaultAddress(addressId: number): Observable<any> {
-    return this.shippingService.setDefaultAddress(addressId);
-  }
-
-  /**
-   * Calculate shipping cost using your existing service
-   */
-  calculateShippingCost(methodId: number, cartTotal: number, shippingMethods?: any[]): number {
-    return this.shippingService.calculateShippingCost(methodId, cartTotal, shippingMethods);
-  }
-
-  /**
-   * Get checkout summary with shipping integration
-   */
-  getCheckoutSummary(): Observable<any> {
-    return this.shippingIntegration.checkoutSummary$;
-  }
-
-  /**
-   * Select shipping method using your existing integration
-   */
-  selectShippingMethod(methodId: number): void {
-    this.shippingIntegration.selectShippingMethod(methodId);
-  }
-
-  /**
-   * Get selected shipping method from your integration service
-   */
-  getSelectedShippingMethod(): number | null {
-    return this.shippingIntegration.getSelectedShippingMethod();
-  }
-
-  /**
-   * Update cart total in shipping service
-   */
-  updateCartTotal(total: number): void {
-    this.shippingService.updateCartTotal(total);
+    private orderCore: OrderCoreService,
+    private orderCache: OrderCacheService,
+    private validation: OrderValidationService,
+    private payment: OrderPaymentService,
+    private analytics: OrderAnalyticsService,
+    private utility: OrderUtilityService,
+    private shipping: ShippingService,
+    private shippingIntegration: ShippingIntegrationService
+  ) {
+    // Initialize dashboard observable after dependencies are injected
+    this.dashboard$ = combineLatest([
+      this.orderCache.orders$,
+      this.analytics.getOrderStatistics(),
+      this.analytics.getDashboardSummary()
+    ]).pipe(
+      map(([orders, statistics, summary]) => ({
+        orders: orders.slice(0, 5), // Latest 5 orders
+        statistics,
+        summary
+      })),
+      shareReplay(1)
+    );
   }
 
   // ===== PRIMARY ORDER OPERATIONS =====
 
   /**
-   * Create order with shipping integration
+   * Create order with integrated shipping and payment validation
    */
   createOrder(orderData: CreateOrderRequest): Observable<OrderModel> {
-    // Get selected shipping method from your integration service
-    const selectedMethod = this.shippingIntegration.getSelectedShippingMethod();
-    
-    if (selectedMethod && !orderData.shipping_method_id) {
-      orderData.shipping_method_id = selectedMethod;
+    this.setLoading(true);
+
+    // Integrate with shipping service
+    const selectedShippingMethod = this.shippingIntegration.getSelectedShippingMethod();
+    if (selectedShippingMethod && !orderData.shipping_method_id) {
+      orderData.shipping_method_id = selectedShippingMethod;
     }
 
-    return this.orderBusinessLogic.createOrder(orderData).pipe(
+    return this.orderCore.createOrder(orderData).pipe(
       tap(order => {
-        this.orderStateManager.addOrderToCache(order);
-        this.orderStateManager.clearCurrentOrderData();
-        
-        // Reset shipping integration after successful order
+        this.clearCurrentOrder();
         this.shippingIntegration.reset();
-      })
+      }),
+      tap(() => this.setLoading(false))
     );
   }
 
   /**
-   * Get user's orders with enhanced loading strategy
+   * Get orders with smart caching and filtering
    */
-  getUserOrders(
+  getOrders(
     page: number = 1,
     perPage: number = 10,
     filters?: OrderFilterOptions
   ): Observable<OrderResponse> {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      this.router.navigate(['/login']);
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    this.orderStateManager.setGlobalLoading(true);
-    
     if (filters) {
-      this.orderStateManager.setFilters(filters);
+      this.setCurrentFilters(filters);
     }
 
-    return this.orderRepository.getUserOrdersWithRelations(userId).pipe(
-      map(allOrders => {
-        let filteredOrders = this.applyFilters(allOrders, filters);
-        filteredOrders = this.orderUtility.sortOrdersByDate(filteredOrders);
-        
-        const totalItems = filteredOrders.length;
-        const totalPages = Math.ceil(totalItems / perPage);
-        const startIndex = (page - 1) * perPage;
-        const paginatedOrders = filteredOrders.slice(startIndex, startIndex + perPage);
-        
-        this.orderStateManager.setPagination(page, perPage, totalPages);
-        
-        return {
-          itemsReceived: paginatedOrders.length,
-          curPage: page,
-          nextPage: page < totalPages ? page + 1 : null,
-          prevPage: page > 1 ? page - 1 : null,
-          offset: startIndex,
-          perPage: perPage,
-          itemsTotal: totalItems,
-          pageTotal: totalPages,
-          items: paginatedOrders
-        };
-      }),
-      tap(response => {
-        this.orderStateManager.updateOrderCache(response.items);
-      }),
-      catchError(error => {
-        console.error('Error loading orders:', error);
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this.orderStateManager.setGlobalLoading(false);
-      })
-    );
+    return this.orderCore.getOrders(page, perPage, filters);
   }
 
   /**
-   * Get specific order by ID with all related data
+   * Get single order with cache-first strategy
    */
   getOrder(orderId: number): Observable<OrderModel> {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      this.router.navigate(['/login']);
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    const cachedOrder = this.orderStateManager.getOrderFromCache(orderId);
-    if (cachedOrder && cachedOrder.order_items && cachedOrder.order_items.length > 0) {
-      return of(cachedOrder);
-    }
-
-    this.orderStateManager.setOrderLoading(orderId, true);
-
-    return this.orderRepository.getOrderWithRelations(orderId).pipe(
-      map(order => {
-        if (order.user_id !== userId) {
-          throw new Error('Access denied: Order does not belong to current user');
-        }
-        return order;
-      }),
-      tap(order => {
-        this.orderStateManager.addOrderToCache(order);
-        this.orderStateManager.markOrderItemsAsLoaded(orderId);
-      }),
-      catchError(error => {
-        console.error('Error loading order details:', error);
-        return throwError(() => error);
-      }),
-      finalize(() => {
-        this.orderStateManager.setOrderLoading(orderId, false);
-      })
-    );
+    return this.orderCore.getOrder(orderId);
   }
 
   /**
-   * Update order status and other details
+   * Update order with validation
    */
   updateOrder(orderId: number, updates: UpdateOrderRequest): Observable<OrderModel> {
-    return this.orderRepository.updateOrder(orderId, updates).pipe(
-      tap(updatedOrder => {
-        this.orderStateManager.updateOrderInCache(updatedOrder);
-      })
+    return this.orderCore.updateOrder(orderId, updates);
+  }
+
+  /**
+   * Cancel order with validation
+   */
+  cancelOrder(orderId: number, reason?: string): Observable<OrderModel> {
+    return this.orderCore.cancelOrder(orderId, reason);
+  }
+
+  // ===== PAYMENT OPERATIONS =====
+
+  processPayment(paymentData: PaymentRequest): Observable<PaymentModel> {
+    return this.payment.processPayment(paymentData);
+  }
+
+  getPaymentStatus(paymentId: number): Observable<PaymentModel> {
+    return this.payment.getPaymentStatus(paymentId);
+  }
+
+  processRefund(paymentId: number, amount: number, reason?: string): Observable<PaymentModel> {
+    return this.payment.processRefund(paymentId, amount, reason);
+  }
+
+  // ===== PROMOTION OPERATIONS =====
+
+  validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
+    return this.payment.validatePromotionCode(code, orderTotal);
+  }
+
+  getAvailablePromotions(): Observable<PromotionModel[]> {
+    return this.payment.getAvailablePromotions();
+  }
+
+  calculateDiscount(promotion: PromotionModel, orderTotal: number): number {
+    return this.payment.calculateDiscount(promotion, orderTotal);
+  }
+
+  usePromotion(code: string): Observable<void> {
+    return this.payment.usePromotion(code);
+  }
+
+  // ===== SHIPPING INTEGRATION =====
+
+  getShippingMethods(forceRefresh: boolean = false): Observable<any[]> {
+    return this.shipping.getShippingMethods(forceRefresh);
+  }
+
+  getUserShippingAddresses(forceRefresh: boolean = false): Observable<any[]> {
+    return this.shipping.getUserShippingAddresses(forceRefresh);
+  }
+
+  createShippingAddress(address: any): Observable<any> {
+    return this.shipping.createShippingAddress(address);
+  }
+
+  updateShippingAddress(addressId: number, address: any): Observable<any> {
+    return this.shipping.updateShippingAddress(addressId, address);
+  }
+
+  deleteShippingAddress(addressId: number): Observable<void> {
+    return this.shipping.deleteShippingAddress(addressId);
+  }
+
+  calculateShippingCost(methodId: number, cartTotal: number, shippingMethods?: any[]): number {
+    return this.shipping.calculateShippingCost(methodId, cartTotal, shippingMethods);
+  }
+
+  selectShippingMethod(methodId: number): void {
+    this.shippingIntegration.selectShippingMethod(methodId);
+  }
+
+  getSelectedShippingMethod(): number | null {
+    return this.shippingIntegration.getSelectedShippingMethod();
+  }
+
+  updateCartTotal(total: number): void {
+    this.shipping.updateCartTotal(total);
+  }
+
+  // ===== CURRENT ORDER STATE MANAGEMENT =====
+
+  setCurrentOrder(orderData: Partial<CreateOrderRequest>): void {
+    this.currentOrderSubject.next(orderData);
+  }
+
+  getCurrentOrder(): Partial<CreateOrderRequest> | null {
+    return this.currentOrderSubject.value;
+  }
+
+  updateCurrentOrder(updates: Partial<CreateOrderRequest>): void {
+    const current = this.currentOrderSubject.value;
+    this.currentOrderSubject.next({ ...current, ...updates });
+  }
+
+  clearCurrentOrder(): void {
+    this.currentOrderSubject.next(null);
+  }
+
+  // ===== FILTER MANAGEMENT =====
+
+  setCurrentFilters(filters: OrderFilterOptions): void {
+    this.currentFiltersSubject.next(filters);
+  }
+
+  getCurrentFilters(): OrderFilterOptions {
+    return this.currentFiltersSubject.value;
+  }
+
+  clearFilters(): void {
+    this.currentFiltersSubject.next({});
+  }
+
+  // ===== CACHE OPERATIONS =====
+
+  /**
+   * Get cached orders (reactive)
+   */
+  getCachedOrders(): Observable<OrderModel[]> {
+    return this.orderCache.orders$;
+  }
+
+  /**
+   * Search orders in cache
+   */
+  searchOrders(searchTerm: string): Observable<OrderModel[]> {
+    return this.orderCache.orders$.pipe(
+      map(orders => this.orderCache.searchOrders(searchTerm))
     );
   }
 
   /**
-   * Cancel order
+   * Refresh all order data
    */
-  cancelOrder(orderId: number, reason?: string): Observable<OrderModel> {
-    return this.orderBusinessLogic.cancelOrder(orderId, reason).pipe(
-      tap(cancelledOrder => {
-        this.orderStateManager.updateOrderInCache(cancelledOrder);
-      })
+  refreshOrders(): void {
+    this.orderCore.refreshOrders();
+  }
+
+  /**
+   * Clear all cached data
+   */
+  clearCache(): void {
+    this.orderCache.clear();
+    this.shipping.clearCache();
+  }
+
+  // ===== ANALYTICS AND REPORTING =====
+
+  /**
+   * Get order analytics
+   */
+  getOrderAnalytics(): Observable<any> {
+    return this.analytics.getOrderAnalytics();
+  }
+
+  /**
+   * Get order statistics
+   */
+  getOrderStatistics(): Observable<any> {
+    return this.analytics.getOrderStatistics();
+  }
+
+  /**
+   * Get revenue trends
+   */
+  getRevenueTrends(period: 'daily' | 'weekly' | 'monthly' = 'monthly'): Observable<any[]> {
+    return this.analytics.getRevenueTrends(period);
+  }
+
+  /**
+   * Get top products
+   */
+  getTopProducts(limit: number = 10): Observable<any[]> {
+    return this.analytics.getTopProducts(limit);
+  }
+
+  /**
+   * Export analytics data
+   */
+  exportAnalyticsData(): Observable<any> {
+    return this.analytics.exportAnalyticsData();
+  }
+
+  // ===== VALIDATION UTILITIES =====
+
+  /**
+   * Validate order creation request
+   */
+  validateOrderCreation(orderData: CreateOrderRequest): { isValid: boolean; errors: string[]; warnings?: string[] } {
+    return this.validation.validateCreateOrderRequest(orderData);
+  }
+
+  /**
+   * Check if order can be cancelled
+   */
+  canCancelOrder(order: OrderModel): boolean {
+    return this.validation.canCancelOrder(order).isValid;
+  }
+
+  /**
+   * Check if order can be returned
+   */
+  canReturnOrder(order: OrderModel): boolean {
+    return this.validation.canReturnOrder(order).isValid;
+  }
+
+  /**
+   * Quick validation for operations
+   */
+  quickValidate(order: OrderModel, operation: 'view' | 'cancel' | 'return' | 'modify'): boolean {
+    return this.validation.quickValidate(order, operation);
+  }
+
+  // ===== UTILITY METHODS =====
+
+  formatCurrency(amount: number): string {
+    return this.utility.formatCurrency(amount);
+  }
+
+  formatOrderDate(dateString: string): string {
+    return this.utility.formatOrderDate(dateString);
+  }
+
+  formatOrderId(orderId: number): string {
+    return this.utility.formatOrderId(orderId);
+  }
+
+  getOrderStatusText(status: any): string {
+    return this.utility.getOrderStatusText(status);
+  }
+
+  getOrderStatusColor(status: any): string {
+    return this.utility.getOrderStatusColor(status);
+  }
+
+  getOrderStatusIcon(status: any): string {
+    return this.utility.getOrderStatusIcon(status);
+  }
+
+  getTotalItemsInOrder(order: OrderModel): number {
+    return this.utility.getTotalItemsInOrder(order);
+  }
+
+  getOrderSubtotal(order: OrderModel): number {
+    return this.utility.getOrderSubtotal(order);
+  }
+
+  getEstimatedDeliveryDate(order: OrderModel): Date | null {
+    return this.utility.getEstimatedDeliveryDate(order);
+  }
+
+  hasTrackingInfo(order: OrderModel): boolean {
+    return this.utility.hasTrackingInfo(order);
+  }
+
+  getTrackingUrl(order: OrderModel): string | null {
+    return this.utility.getTrackingUrl(order);
+  }
+
+  getProductNamesFromOrder(order: OrderModel): string {
+    return this.utility.getProductNamesFromOrder(order);
+  }
+
+  getCustomerName(order: OrderModel): string {
+    return this.utility.getCustomerName(order);
+  }
+
+  // ===== BULK OPERATIONS =====
+
+  /**
+   * Export orders to CSV
+   */
+  exportOrdersToCSV(orders: OrderModel[], filename?: string): void {
+    this.utility.downloadCSV(orders, filename);
+  }
+
+  /**
+   * Get orders by status from cache
+   */
+  getOrdersByStatus(status: string): Observable<OrderModel[]> {
+    return this.orderCache.orders$.pipe(
+      map(orders => orders.filter(order => order.status === status))
     );
   }
+
+  /**
+   * Get orders by date range from cache
+   */
+  getOrdersByDateRange(startDate: Date, endDate: Date): Observable<OrderModel[]> {
+    return this.orderCache.orders$.pipe(
+      map(orders => this.orderCache.getOrdersByDateRange(startDate, endDate))
+    );
+  }
+
+  // ===== CALCULATION METHODS =====
+
+  /**
+   * Calculate order total with promotions
+   */
+  calculateOrderTotal(
+    subtotal: number,
+    shippingCost: number,
+    taxRate: number = 0,
+    promotion?: PromotionModel | null
+  ): any {
+    return this.payment.calculateOrderTotal(subtotal, shippingCost, taxRate, promotion);
+  }
+
+  /**
+   * Calculate subtotal from items
+   */
+  calculateSubtotal(items: Array<{ unit_price: number; quantity: number }>): number {
+    return this.payment.calculateSubtotal(items);
+  }
+
+  // ===== LOADING STATE MANAGEMENT =====
+
+  private setLoading(loading: boolean): void {
+    this.loadingSubject.next(loading);
+  }
+
+  isLoading(): Observable<boolean> {
+    return this.loading$;
+  }
+
+  // ===== REORDER FUNCTIONALITY =====
 
   /**
    * Get items from previous order for reordering
@@ -289,583 +465,127 @@ export class OrderService {
           current_price: item.unit_price,
           image_url: item.product?.main_image_url || '',
           brand: item.product?.brand || '',
-          in_stock: true
+          in_stock: true // Would need actual inventory check
         }));
       })
     );
   }
 
-  // ===== PAYMENT OPERATIONS =====
-
-  processPayment(paymentData: PaymentRequest): Observable<PaymentModel> {
-    return this.orderBusinessLogic.processPayment(paymentData);
-  }
-
-  getPaymentStatus(paymentId: number): Observable<PaymentModel> {
-    return this.orderRepository.getPaymentById(paymentId);
-  }
-
-  processRefund(paymentId: number, amount: number, reason?: string): Observable<PaymentModel> {
-    return this.orderBusinessLogic.processRefund(paymentId, amount, reason);
-  }
-
-  // ===== PROMOTION OPERATIONS =====
-
-  validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
-    return this.orderBusinessLogic.validatePromotionCode(code, orderTotal);
-  }
-
-  getAvailablePromotions(): PromotionModel[] {
-    return this.orderBusinessLogic.getAvailablePromotions();
-  }
-
-  calculateDiscount(promotion: PromotionModel, orderTotal: number): number {
-    return this.orderBusinessLogic.calculateDiscount(promotion, orderTotal);
-  }
-
-  usePromotion(code: string): void {
-    this.orderBusinessLogic.usePromotion(code);
-  }
-
-  // ===== ORDER ITEMS MANAGEMENT =====
-
-  loadOrderItems(orderId: number): void {
-    if (this.orderStateManager.areOrderItemsLoaded(orderId) || 
-        this.orderStateManager.areOrderItemsLoading(orderId)) {
-      return;
-    }
-    
-    this.orderStateManager.setOrderItemsLoading(orderId, true);
-    
-    this.getOrder(orderId).pipe(
-      finalize(() => this.orderStateManager.setOrderItemsLoading(orderId, false))
-    ).subscribe({
-      next: () => {
-        // Order is now loaded with items
-      },
-      error: (error) => {
-        console.warn(`Failed to load items for order ${orderId}:`, error);
-      }
-    });
-  }
-
-  isLoadingOrderItems(orderId: number): boolean {
-    return this.orderStateManager.areOrderItemsLoading(orderId);
-  }
-
-  // ===== STATE MANAGEMENT METHODS =====
-
-  setCurrentOrderData(orderData: Partial<CreateOrderRequest>): void {
-    this.orderStateManager.setCurrentOrderData(orderData);
-  }
-
-  getCurrentOrderData(): Partial<CreateOrderRequest> | null {
-    return this.orderStateManager.getCurrentOrderData();
-  }
-
-  updateCurrentOrderData(updates: Partial<CreateOrderRequest>): void {
-    this.orderStateManager.updateCurrentOrderData(updates);
-  }
-
-  clearCurrentOrderData(): void {
-    this.orderStateManager.clearCurrentOrderData();
-  }
-
-  setFilters(filters: OrderFilterOptions): void {
-    this.orderStateManager.setFilters(filters);
-  }
-
-  updateFilters(updates: Partial<OrderFilterOptions>): void {
-    this.orderStateManager.updateFilters(updates);
-  }
-
-  clearFilters(): void {
-    this.orderStateManager.clearFilters();
-  }
-
-  getCurrentFilters(): OrderFilterOptions {
-    return this.orderStateManager.getCurrentFilters();
-  }
-
-  // ===== SELECTION MANAGEMENT =====
-
-  selectOrder(orderId: number): void {
-    this.orderStateManager.selectOrder(orderId);
-  }
-
-  deselectOrder(orderId: number): void {
-    this.orderStateManager.deselectOrder(orderId);
-  }
-
-  toggleOrderSelection(orderId: number): void {
-    this.orderStateManager.toggleOrderSelection(orderId);
-  }
-
-  selectAllOrders(orderIds: number[]): void {
-    this.orderStateManager.selectAllOrders(orderIds);
-  }
-
-  clearOrderSelection(): void {
-    this.orderStateManager.clearOrderSelection();
-  }
-
-  getSelectedOrders(): number[] {
-    return this.orderStateManager.getSelectedOrders();
-  }
-
-  isOrderSelected(orderId: number): boolean {
-    return this.orderStateManager.isOrderSelected(orderId);
-  }
-
-  // ===== BULK OPERATIONS =====
-
-  bulkUpdateOrderStatus(orderIds: number[], newStatus: string): void {
-    this.orderStateManager.bulkUpdateOrderStatus(orderIds, newStatus);
-  }
-
-  bulkDeleteOrders(orderIds: number[]): void {
-    this.orderStateManager.bulkDeleteOrders(orderIds);
-  }
-
-  // ===== PAGINATION MANAGEMENT =====
-
-  setCurrentPage(page: number): void {
-    this.orderStateManager.setCurrentPage(page);
-  }
-
-  getCurrentPagination(): { page: number; perPage: number; totalPages: number } {
-    return this.orderStateManager.getCurrentPagination();
-  }
-
-  resetPagination(): void {
-    this.orderStateManager.resetPagination();
-  }
-
-  // ===== UTILITY DELEGATIONS =====
-
-  getOrderStatusText(status: any): string {
-    return this.orderUtility.getOrderStatusText(status);
-  }
-
-  getOrderStatusColor(status: any): string {
-    return this.orderUtility.getOrderStatusColor(status);
-  }
-
-  getOrderStatusIcon(status: any): string {
-    return this.orderUtility.getOrderStatusIcon(status);
-  }
-
-  formatCurrency(amount: number): string {
-    return this.orderUtility.formatCurrency(amount);
-  }
-
-  formatOrderDate(dateString: string): string {
-    return this.orderUtility.formatOrderDate(dateString);
-  }
-
-  formatOrderId(orderId: number): string {
-    return this.orderUtility.formatOrderId(orderId);
-  }
-
-  getTotalItemsInOrder(order: OrderModel): number {
-    return this.orderUtility.getTotalItemsInOrder(order);
-  }
-
-  getOrderSubtotal(order: OrderModel): number {
-    return this.orderUtility.getOrderSubtotal(order);
-  }
-
-  getEstimatedDeliveryDate(order: OrderModel): Date | null {
-    return this.orderUtility.getEstimatedDeliveryDate(order);
-  }
-
-  hasTrackingInfo(order: OrderModel): boolean {
-    return this.orderUtility.hasTrackingInfo(order);
-  }
-
-  getTrackingUrl(order: OrderModel): string | null {
-    return this.orderUtility.getTrackingUrl(order);
-  }
-
-  getProductNamesFromOrder(order: OrderModel): string {
-    return this.orderUtility.getProductNamesFromOrder(order);
-  }
-
-  getCustomerName(order: OrderModel): string {
-    return this.orderUtility.getCustomerName(order);
-  }
-
-  getFormattedShippingAddress(order: OrderModel): string {
-    return this.orderUtility.getFormattedShippingAddress(order);
-  }
-
-  getShippingMethodName(order: OrderModel): string {
-    return this.orderUtility.getShippingMethodName(order);
-  }
-
-  getPaymentMethodName(order: OrderModel): string {
-    return this.orderUtility.getPaymentMethodName(order);
-  }
-
-  getOrderAgeInDays(order: OrderModel): number {
-    return this.orderUtility.getOrderAgeInDays(order);
-  }
-
-  isRecentOrder(order: OrderModel): boolean {
-    return this.orderUtility.isRecentOrder(order);
-  }
-
-  // ===== BUSINESS LOGIC DELEGATIONS =====
-
-  canCancelOrder(order: OrderModel): boolean {
-    return this.orderBusinessLogic.canCancelOrder(order);
-  }
-
-  canReturnOrder(order: OrderModel): boolean {
-    return this.orderBusinessLogic.canReturnOrder(order);
-  }
-
-  canReorderOrder(order: OrderModel): boolean {
-    return this.orderBusinessLogic.canReorderOrder(order);
-  }
-
-  calculateOrderTotal(
-    cartSubtotal: number, 
-    shippingCost: number, 
-    taxRate: number = 0,
-    discountAmount: number = 0
-  ): number {
-    return this.orderBusinessLogic.calculateOrderTotal(cartSubtotal, shippingCost, taxRate, discountAmount);
-  }
-
-  getOrderPriority(order: OrderModel): 'low' | 'normal' | 'high' | 'urgent' {
-    return this.orderBusinessLogic.getOrderPriority(order);
-  }
-
-  needsAttention(order: OrderModel): { needsAttention: boolean; reason?: string } {
-    return this.orderBusinessLogic.needsAttention(order);
-  }
-
-  // ===== ANALYTICS AND REPORTING =====
-
-  calculateOrderAnalytics(orders: OrderModel[]): OrderAnalytics {
-    return this.orderBusinessLogic.calculateOrderAnalytics(orders);
-  }
-
-  generateOrderSummaryReport(orders: OrderModel[]): any {
-    return this.orderUtility.generateOrderSummaryReport(orders);
-  }
-
-  getOrdersByStatus(status: string): OrderModel[] {
-    return this.orderStateManager.getOrdersByStatus(status);
-  }
-
-  getRecentOrders(limit: number = 5): OrderModel[] {
-    return this.orderStateManager.getRecentOrders(limit);
-  }
-
-  searchOrdersInCache(searchTerm: string): OrderModel[] {
-    return this.orderStateManager.searchOrdersInCache(searchTerm);
-  }
-
-  getOrdersInDateRange(startDate: Date, endDate: Date): OrderModel[] {
-    return this.orderStateManager.getOrdersInDateRange(startDate, endDate);
-  }
-
-  getOrdersByAmountRange(minAmount: number, maxAmount: number): OrderModel[] {
-    return this.orderStateManager.getOrdersByAmountRange(minAmount, maxAmount);
-  }
-
-  // ===== EXPORT AND IMPORT =====
-
-  exportOrdersToCSV(orders: OrderModel[], filename?: string): void {
-    this.orderUtility.downloadCSV(orders, filename);
-  }
-
-  prepareOrderForExport(order: OrderModel): any {
-    return this.orderUtility.prepareOrderForExport(order);
-  }
-
-  // ===== SORTING AND GROUPING =====
-
-  sortOrdersInCache(sortBy: 'date' | 'amount' | 'status', ascending: boolean = false): void {
-    this.orderStateManager.sortOrdersInCache(sortBy, ascending);
-  }
-
-  groupOrdersByStatus(): { [status: string]: OrderModel[] } {
-    return this.orderStateManager.groupOrdersByStatus();
-  }
-
-  groupOrdersByDateRange(rangeType: 'day' | 'week' | 'month'): { [key: string]: OrderModel[] } {
-    return this.orderStateManager.groupOrdersByDateRange(rangeType);
-  }
-
-  // ===== RETURN AND REFUND OPERATIONS =====
-
-  createReturnRequest(returnData: Partial<ReturnRequest>): Observable<ReturnRequest> {
-    return this.orderBusinessLogic.createReturnRequest(returnData);
-  }
-
-  getUserReturnRequests(): Observable<ReturnRequest[]> {
-    // Mock implementation - you can replace with actual API call
-    return of([]);
-  }
-
-  // ===== INVOICE OPERATIONS =====
-
-  generateInvoice(orderId: number): Observable<InvoiceModel> {
-    return this.orderBusinessLogic.generateInvoice(orderId);
-  }
-
-  downloadInvoice(invoiceId: number): Observable<Blob> {
-    const invoiceContent = `
-      INVOICE #${invoiceId}
-      Generated: ${new Date().toLocaleDateString()}
-      
-      Thank you for your order!
-      
-      For questions, please contact support.
-    `;
-    
-    const blob = new Blob([invoiceContent], { type: 'text/plain' });
-    
-    return of(blob).pipe(
-      delay(300),
-      tap(() => {
-        console.log('Invoice download ready');
-      })
-    );
-  }
-
-  // ===== TRACKING OPERATIONS =====
-
-  getOrderTrackingEvents(orderId: number): Observable<OrderTrackingEvent[]> {
-    // Mock implementation - you can replace with actual API call
-    return of([]);
-  }
-
-  addTrackingEvent(orderId: number, event: Partial<OrderTrackingEvent>): Observable<OrderTrackingEvent> {
-    // Mock implementation - you can replace with actual API call
-    const mockEvent: OrderTrackingEvent = {
-      id: Date.now(),
-      order_id: orderId,
-      event_type: event.event_type || 'note_added',
-      description: event.description || '',
-      created_at: Date.now(),
-      created_by: this.authService.getUserId() || undefined
-    };
-
-    return of(mockEvent);
-  }
-
-  // ===== VALIDATION METHODS =====
-
-  validateOrderCompleteness(order: OrderModel): { isComplete: boolean; missingFields: string[] } {
-    return this.orderUtility.validateOrderCompleteness(order);
-  }
-
-  validateOrderItems(order: OrderModel): { isValid: boolean; errors: string[] } {
-    return this.orderUtility.validateOrderItems(order);
-  }
-
-  validateShippingAddress(order: OrderModel): { isValid: boolean; errors: string[] } {
-    return this.orderUtility.validateShippingAddress(order);
-  }
-
-  // ===== PERFORMANCE AND MONITORING =====
-
-  getCacheStats(): any {
+  // ===== SERVICE INTEGRATION STATUS =====
+
+  /**
+   * Get integration status of all services
+   */
+  getIntegrationStatus(): {
+    core: boolean;
+    cache: boolean;
+    validation: boolean;
+    payment: boolean;
+    analytics: boolean;
+    shipping: boolean;
+    shippingIntegration: boolean;
+  } {
     return {
-      orderState: this.orderStateManager.getCacheStats(),
-      shipping: this.shippingService.getCacheStats(),
-      performance: this.orderStateManager.getPerformanceStats()
+      core: !!this.orderCore,
+      cache: !!this.orderCache,
+      validation: !!this.validation,
+      payment: !!this.payment,
+      analytics: !!this.analytics,
+      shipping: !!this.shipping,
+      shippingIntegration: this.shippingIntegration.isInitialized()
     };
   }
 
-  getOrderStats(): any {
-    return this.orderStateManager.getOrderStats();
-  }
+  /**
+   * Get performance statistics
+   */
+  getPerformanceStats(): {
+    cacheStats: any;
+    paymentCacheStats: any;
+    totalMemoryUsage: string;
+  } {
+    const cacheStats = this.orderCache.getCacheStats();
+    const paymentCacheStats = this.payment.getCacheStats();
 
-  getDebugInfo(): any {
     return {
-      orderService: {
-        cacheStats: this.getCacheStats(),
-        currentFilters: this.getCurrentFilters(),
-        pagination: this.getCurrentPagination(),
-        selectedOrders: this.getSelectedOrders(),
-        hasActiveSubscriptions: this.orderStateManager.hasActiveSubscriptions()
-      },
-      shippingService: this.shippingService.getCacheStats(),
-      shippingIntegration: this.shippingIntegration.getDebugInfo()
+      cacheStats,
+      paymentCacheStats,
+      totalMemoryUsage: `${Math.round((JSON.stringify(cacheStats).length + JSON.stringify(paymentCacheStats).length) / 1024)}KB`
     };
   }
 
-  // ===== DEBUGGING METHODS =====
+  // ===== DEBUG AND MONITORING =====
 
-  debugOrder(order: OrderModel): void {
-    this.orderUtility.debugOrder(order);
-  }
-
-  debugCurrentState(): void {
-    this.orderStateManager.debugCurrentState();
-    console.group('Shipping Integration Debug');
-    console.log(this.shippingIntegration.getDebugInfo());
+  /**
+   * Debug all service states
+   */
+  debugAllServices(): void {
+    console.group('[OrderService] Complete Debug Information');
+    
+    console.log('Integration Status:', this.getIntegrationStatus());
+    console.log('Performance Stats:', this.getPerformanceStats());
+    console.log('Current Order:', this.getCurrentOrder());
+    console.log('Current Filters:', this.getCurrentFilters());
+    
+    this.orderCache.debugCache();
+    this.payment.debugPaymentService();
+    
     console.groupEnd();
   }
 
-  // ===== SUBSCRIPTION MANAGEMENT =====
-
-  hasActiveSubscriptions(): boolean {
-    return this.orderStateManager.hasActiveSubscriptions();
-  }
-
-  getSubscriptionCounts(): { [key: string]: number } {
-    return this.orderStateManager.getSubscriptionCounts();
-  }
-
-  // ===== REFRESH AND RESET OPERATIONS =====
-
-  refreshOrders(userId?: number): Observable<OrderModel[]> {
-    const targetUserId = userId || this.authService.getUserId();
-    if (!targetUserId) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
-    this.orderStateManager.setGlobalLoading(true);
-
-    return this.orderRepository.getUserOrdersWithRelations(targetUserId).pipe(
-      tap(orders => {
-        this.orderStateManager.updateOrderCache(orders);
-      }),
-      finalize(() => {
-        this.orderStateManager.setGlobalLoading(false);
-      })
-    );
-  }
-
-  refreshShippingData(): void {
-    this.shippingIntegration.refreshShippingCalculations();
-    this.shippingService.getUserShippingAddresses(true).subscribe();
-    this.shippingService.getShippingMethods(true).subscribe();
-  }
-
-  reset(): void {
-    this.orderStateManager.clearAllState();
-    this.shippingIntegration.reset();
-    this.shippingService.clearCache();
-  }
-
-  clearCache(): void {
-    this.orderStateManager.clearAllState();
-    this.shippingService.clearCache();
-  }
-
-  // ===== PRIVATE HELPER METHODS =====
-
-  private applyFilters(orders: OrderModel[], filters?: OrderFilterOptions): OrderModel[] {
-    if (!filters) return orders;
-
-    let filteredOrders = [...orders];
-
-    if (filters.status) {
-      filteredOrders = filteredOrders.filter(order => order.status === filters.status);
-    }
-
-    if (filters.date_from) {
-      filteredOrders = filteredOrders.filter(order => 
-        new Date(order.order_date) >= new Date(filters.date_from!)
-      );
-    }
-
-    if (filters.date_to) {
-      filteredOrders = filteredOrders.filter(order => 
-        new Date(order.order_date) <= new Date(filters.date_to!)
-      );
-    }
-
-    if (filters.min_amount !== undefined) {
-      filteredOrders = filteredOrders.filter(order => order.total_amount >= filters.min_amount!);
-    }
-
-    if (filters.max_amount !== undefined) {
-      filteredOrders = filteredOrders.filter(order => order.total_amount <= filters.max_amount!);
-    }
-
-    if (filters.search_term) {
-      filteredOrders = filteredOrders.filter(order => 
-        this.orderUtility.matchesSearchCriteria(order, filters.search_term!)
-      );
-    }
-
-    if (filters.shipping_method_id) {
-      filteredOrders = filteredOrders.filter(order => 
-        order.shipping_methods_id === filters.shipping_method_id
-      );
-    }
-
-    return filteredOrders;
-  }
-
-  // ===== INTEGRATION HELPERS =====
-
-  private integrateWithShippingServices(order: OrderModel): OrderModel {
-    // Enhance order with shipping method details from your existing service
-    const shippingMethod = this.shippingService.getShippingMethodById(order.shipping_methods_id);
-    
-    if (shippingMethod) {
-      order.shipping_method = shippingMethod;
-    }
-
-    return order;
-  }
-
-  // ===== COMPATIBILITY METHODS (for backward compatibility) =====
-
   /**
-   * @deprecated Use getUserOrders instead
+   * Get service version and info
    */
-  getUserOrdersWithItems(page: number = 1, perPage: number = 10, filters?: OrderFilterOptions): Observable<OrderResponse> {
-    console.warn('getUserOrdersWithItems is deprecated. Use getUserOrders instead.');
-    return this.getUserOrders(page, perPage, filters);
-  }
-
-  /**
-   * @deprecated Use getOrder instead
-   */
-  getOrderWithItems(orderId: number): Observable<OrderModel> {
-    console.warn('getOrderWithItems is deprecated. Use getOrder instead.');
-    return this.getOrder(orderId);
-  }
-
-  /**
-   * @deprecated Use getOrderItems through getOrder instead
-   */
-  getOrderItems(orderId: number): Observable<any[]> {
-    console.warn('getOrderItems is deprecated. Use getOrder to get complete order with items.');
-    return this.getOrder(orderId).pipe(
-      map(order => order.order_items || [])
-    );
-  }
-
-  // ===== ADDITIONAL UTILITY METHODS =====
-
-  isInitialized(): boolean {
-    return this.shippingIntegration.isInitialized();
-  }
-
-  getServiceVersion(): string {
-    return '2.0.0-integrated';
-  }
-
-  getIntegrationStatus(): { 
-    orderService: boolean; 
-    shippingService: boolean; 
-    shippingIntegration: boolean; 
+  getServiceInfo(): {
+    version: string;
+    components: string[];
+    isFullyInitialized: boolean;
+    lastRefresh: number;
   } {
+    const integrationStatus = this.getIntegrationStatus();
+    const isFullyInitialized = Object.values(integrationStatus).every(status => status === true);
+
     return {
-      orderService: true,
-      shippingService: !!this.shippingService,
-      shippingIntegration: this.shippingIntegration.isInitialized()
+      version: '3.0.0-modular',
+      components: [
+        'OrderCoreService',
+        'OrderCacheService', 
+        'OrderValidationService',
+        'OrderPaymentService',
+        'OrderAnalyticsService',
+        'OrderUtilityService',
+        'ShippingService',
+        'ShippingIntegrationService'
+      ],
+      isFullyInitialized,
+      lastRefresh: Date.now()
     };
+  }
+
+  // ===== CLEANUP METHODS =====
+
+  /**
+   * Reset all services to initial state
+   */
+  resetAllServices(): void {
+    this.clearCurrentOrder();
+    this.clearFilters();
+    this.clearCache();
+    this.shippingIntegration.reset();
+    this.payment.clearPromotionsCache();
+  }
+
+  /**
+   * Optimize performance by cleaning up old data
+   */
+  optimizePerformance(): void {
+    // Clean up expired cache entries
+    this.orderCache.clear();
+    
+    // Clear old promotion cache
+    this.payment.clearPromotionsCache();
+    
+    // Reset shipping calculations
+    this.shippingIntegration.refreshShippingCalculations();
   }
 }

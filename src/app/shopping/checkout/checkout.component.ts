@@ -606,18 +606,25 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     const taxRate = 0.08;
     this.taxAmount = this.cartSubtotal * taxRate;
 
-    // Apply promotion discount if applicable
-    if (this.appliedPromotion && this.appliedPromotion.discount_type !== 'free_shipping') {
-      this.discountAmount = this.orderService.calculateDiscount(this.appliedPromotion, this.cartSubtotal);
-    }
-
     // Calculate order total
-    this.orderTotal = this.orderService.calculateOrderTotal(
+    // Calculate order total - get the correct property from the returned object
+    const orderCalculation = this.orderService.calculateOrderTotal(
       this.cartSubtotal,
       this.shippingCost,
       taxRate,
-      this.discountAmount
+      this.appliedPromotion
     );
+
+    this.orderTotal = orderCalculation.total;
+    // You can also use other properties:
+    this.taxAmount = orderCalculation.tax;
+    this.discountAmount = orderCalculation.discount;
+    this.shippingCost = orderCalculation.shipping;
+
+    // Apply promotion discount if applicable
+    if (this.appliedPromotion?.discount_type === 'free_shipping') {
+      this.shippingCost = orderCalculation.shipping; // Will be 0 for free shipping
+    }
 
     this.validateOrder();
   }

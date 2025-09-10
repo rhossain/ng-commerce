@@ -7,6 +7,8 @@ import { Subject, takeUntil, finalize } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faArrowLeft, faBox, faChevronLeft, faChevronRight, faCreditCard, faDownload, faDollarSign, faExclamationTriangle, faExternalLink, faEye, faFilter, faRedo, faRefresh, faShoppingBag, faShoppingCart, faTimes, faTruck, faUndo } from '@fortawesome/free-solid-svg-icons';
 import { OrderService } from '../../services/order.service';
+import { OrderBusinessLogicService } from '../../services/order-business-logic.service';
+import { OrderUtilityService } from '../../services/order-utility.service';
 import { AuthService } from '../../services/auth.service';
 import { OrderModel, OrderResponse, OrderStatus, OrderFilterOptions } from '../../models/order.model';
 import { CharInitialsPipe } from "../../shared/char-initials.pipe";
@@ -71,6 +73,8 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
 
   constructor(
     public orderService: OrderService,
+    public orderBusinessLogicService: OrderBusinessLogicService,
+    public orderUtilityService: OrderUtilityService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -118,7 +122,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     if (this.dateToFilter) filters.date_to = this.dateToFilter;
     
     // Use the new getUserOrders method
-    this.orderService.getUserOrders(this.currentPage, this.perPage, filters)
+    this.orderService.getOrders(this.currentPage, this.perPage, filters)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: OrderResponse) => {
@@ -308,7 +312,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     // Use the new order service method
-    this.orderService.downloadInvoice(orderId)
+    this.orderBusinessLogicService.downloadInvoice(orderId)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => {
@@ -561,7 +565,7 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
    * Check if order can be reordered
    */
   canReorderOrder(order: OrderModel): boolean {
-    return this.orderService.canReorderOrder(order);
+    return this.orderBusinessLogicService.canReorderOrder(order);
   }
 
   /**
@@ -586,14 +590,14 @@ export class OrderHistoryComponent implements OnInit, OnDestroy {
    * Get shipping method name
    */
   getShippingMethodName(order: OrderModel): string {
-    return this.orderService.getShippingMethodName(order);
+    return this.orderUtilityService.getShippingMethodName(order);
   }
 
   /**
    * Get payment method name
    */
   getPaymentMethodName(order: OrderModel): string {
-    return this.orderService.getPaymentMethodName(order);
+    return this.orderUtilityService.getPaymentMethodName(order);
   }
 
   /**
