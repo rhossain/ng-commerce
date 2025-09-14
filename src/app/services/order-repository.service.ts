@@ -1,7 +1,7 @@
 // services/core/order-repository.service.ts - OPTIMIZED FOR RATE LIMITING
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of, BehaviorSubject, EMPTY } from 'rxjs';
+import { Observable, forkJoin, of, BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { map, delay, finalize, catchError, tap, shareReplay, retry, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -222,10 +222,17 @@ export class OrderRepositoryService {
 
   private cleanupCache(): void {
     const now = Date.now();
+    let cleanedCount = 0;
+    
     for (const [key, cached] of this.dataCache.entries()) {
       if (now - cached.timestamp > cached.ttl) {
         this.dataCache.delete(key);
+        cleanedCount++;
       }
+    }
+    
+    if (cleanedCount > 0) {
+      console.log(`[OrderRepository] Cleaned up ${cleanedCount} expired cache entries`);
     }
   }
 
@@ -246,7 +253,11 @@ export class OrderRepositoryService {
     const url = `${this.apiUrl}/${environment.apiEndpoints.order.createOrder}`;
     const headers = this.getAuthHeaders();
     
-    const request = () => this.http.post<OrderModel>(url, orderData, { headers });
+    const request = () => this.http.post<OrderModel>(url, orderData, { headers }).pipe(
+      tap(newOrder => {
+        console.log(`[OrderRepository] Created order ${newOrder.id} for user ${newOrder.user_id}`);
+      })
+    );
     
     return this.queueRequest(
       `create_order_${Date.now()}`, 
@@ -257,6 +268,7 @@ export class OrderRepositoryService {
       tap(() => {
         // Invalidate related caches
         this.invalidateCache('user_orders');
+        this.invalidateCache('all_orders');
         this.invalidateCache('order_analytics');
       })
     );
@@ -266,23 +278,58 @@ export class OrderRepositoryService {
    * Get orders with enhanced caching
    */
   getUserOrdersWithRelations(userId: number): Observable<OrderModel[]> {
+    console.log(`[OrderRepository] Getting orders with relations for user: ${userId}`);
+    
     const cacheKey = `user_orders_${userId}_full`;
     
     const request = () => forkJoin({
       orders: this.getAllOrders(),
       allOrderItems: this.getAllOrderItems(),
-      allShippingStatuses: this.http.get<ShippingStatus[]>(`${this.apiUrl}/shipping_status`, { headers: this.getAuthHeaders() }),
-      allPayments: this.http.get<PaymentModel[]>(`${this.apiUrl}/payment`, { headers: this.getAuthHeaders() })
+      allShippingStatuses: this.http.get<ShippingStatus[]>(`${this.apiUrl}/shipping_status`, { headers: this.getAuthHeaders() }).pipe(
+        catchError(error => {
+          console.warn('[OrderRepository] Failed to load shipping statuses:', error);
+          return of([]);
+        })
+      ),
+      allPayments: this.http.get<PaymentModel[]>(`${this.apiUrl}/payment`, { headers: this.getAuthHeaders() }).pipe(
+        catchError(error => {
+          console.warn('[OrderRepository] Failed to load payments:', error);
+          return of([]);
+        })
+      )
     }).pipe(
       map(({ orders, allOrderItems, allShippingStatuses, allPayments }) => {
-        return orders
+        console.log(`[OrderRepository] Processing relations for ${orders.length} total orders`);
+        
+        const userOrders = orders
           .filter(order => order.user_id === userId)
-          .map(order => ({
-            ...order,
-            order_items: allOrderItems.filter(item => item.order_id === order.id),
-            shipping_status: allShippingStatuses.find(status => status.order_id === order.id),
-            payment: allPayments.find(payment => payment.order_id === order.id)
-          }));
+          .map(order => {
+            // Find related data for this order
+            const orderItems = allOrderItems.filter(item => item.order_id === order.id);
+            const shippingStatus = allShippingStatuses.find(status => status.order_id === order.id);
+            const orderPayments = allPayments.filter(payment => payment.order_id === order.id);
+            const payment = orderPayments.length > 0 ? 
+              orderPayments.sort((a, b) => b.created_at - a.created_at)[0] : undefined;
+            
+            // Return complete order with relations
+            return {
+              ...order,
+              order_items: orderItems,
+              shipping_status: shippingStatus,
+              payment: payment
+            };
+          });
+        
+        console.log(`[OrderRepository] Built ${userOrders.length} complete orders for user ${userId}`);
+        
+        // CRITICAL: Sort by ORDER ID descending (newest orders first)
+        const sortedOrders = userOrders.sort((a, b) => b.id - a.id);
+        
+        if (sortedOrders.length > 1) {
+          console.log(`[OrderRepository] Orders sorted by ID: ${sortedOrders[0].id} (newest) to ${sortedOrders[sortedOrders.length - 1].id} (oldest)`);
+        }
+        
+        return sortedOrders;
       })
     );
 
@@ -320,7 +367,18 @@ export class OrderRepositoryService {
     const headers = this.getAuthHeaders();
     const cacheKey = 'all_orders';
     
-    const request = () => this.http.get<OrderModel[]>(url, { headers });
+    const request = () => this.http.get<OrderModel[]>(url, { headers }).pipe(
+      map(orders => {
+        // CRITICAL: Sort by ORDER ID descending at the repository level
+        return orders.sort((a, b) => b.id - a.id);
+      }),
+      tap(orders => {
+        console.log(`[OrderRepository] Retrieved ${orders.length} orders, sorted by ID descending`);
+        if (orders.length > 0) {
+          console.log(`[OrderRepository] Order ID range: ${orders[0].id} (newest) to ${orders[orders.length - 1].id} (oldest)`);
+        }
+      })
+    );
     
     return this.queueRequest(cacheKey, request, 2);
   }
@@ -333,7 +391,11 @@ export class OrderRepositoryService {
     const headers = this.getAuthHeaders();
     const cacheKey = `order_${orderId}`;
     
-    const request = () => this.http.get<OrderModel>(url, { headers });
+    const request = () => this.http.get<OrderModel>(url, { headers }).pipe(
+      tap(order => {
+        console.log(`[OrderRepository] Retrieved order ${orderId} with status: ${order.status}`);
+      })
+    );
     
     return this.queueRequest(cacheKey, request, 3);
   }
@@ -345,7 +407,11 @@ export class OrderRepositoryService {
     const url = `${this.apiUrl}/${environment.apiEndpoints.order.updateOrderStatus}/${orderId}`;
     const headers = this.getAuthHeaders();
     
-    const request = () => this.http.patch<OrderModel>(url, updates, { headers });
+    const request = () => this.http.patch<OrderModel>(url, updates, { headers }).pipe(
+      tap(updatedOrder => {
+        console.log(`[OrderRepository] Updated order ${orderId} - new status: ${updatedOrder.status}`);
+      })
+    );
     
     return this.queueRequest(
       `update_order_${orderId}_${Date.now()}`, 
@@ -354,9 +420,10 @@ export class OrderRepositoryService {
       false // Don't cache updates
     ).pipe(
       tap(() => {
-        // Invalidate related caches
+        // Invalidate related caches more thoroughly
         this.invalidateCache(`order_${orderId}`);
         this.invalidateCache('user_orders');
+        this.invalidateCache('all_orders'); // Also invalidate all orders cache
       })
     );
   }
@@ -427,7 +494,17 @@ export class OrderRepositoryService {
     const headers = this.getAuthHeaders();
     const cacheKey = 'all_order_items';
     
-    const request = () => this.http.get<OrderItem[]>(url, { headers });
+    const request = () => this.http.get<OrderItem[]>(url, { headers }).pipe(
+      map(items => {
+        // Sort by order_id descending, then by item id ascending
+        return items.sort((a, b) => {
+          if (a.order_id !== b.order_id) {
+            return b.order_id - a.order_id;
+          }
+          return a.id - b.id;
+        });
+      })
+    );
     
     return this.queueRequest(cacheKey, request, 1);
   }
@@ -500,7 +577,15 @@ export class OrderRepositoryService {
     const headers = this.getAuthHeaders();
     const cacheKey = 'shipping_methods';
     
-    const request = () => this.http.get<ShippingMethod[]>(url, { headers });
+    const request = () => this.http.get<ShippingMethod[]>(url, { headers }).pipe(
+      map(methods => {
+        // Sort shipping methods by id for consistency
+        return methods.sort((a, b) => a.id - b.id);
+      }),
+      tap(methods => {
+        console.log(`[OrderRepository] Retrieved ${methods.length} shipping methods`);
+      })
+    );
     
     // Cache shipping methods for 1 hour as they rarely change
     return this.queueRequest(cacheKey, request, 1, true).pipe(
@@ -533,7 +618,15 @@ export class OrderRepositoryService {
     const headers = this.getAuthHeaders();
     const cacheKey = 'shipping_addresses';
     
-    const request = () => this.http.get<ShippingAddress[]>(url, { headers });
+    const request = () => this.http.get<ShippingAddress[]>(url, { headers }).pipe(
+      map(addresses => {
+        // Sort addresses by id descending (newest first)
+        return addresses.sort((a, b) => b.id - a.id);
+      }),
+      tap(addresses => {
+        console.log(`[OrderRepository] Retrieved ${addresses.length} shipping addresses`);
+      })
+    );
     
     return this.queueRequest(cacheKey, request, 2);
   }
@@ -558,6 +651,48 @@ export class OrderRepositoryService {
     );
     
     return this.queueRequest(cacheKey, request, 2);
+  }
+
+  /**
+   * Test method for direct API calls (for debugging)
+   */
+  testDirectApiCall(): Observable<any> {
+    console.log('=== TESTING DIRECT API CALL ===');
+    
+    const url = `${this.apiUrl}/${environment.apiEndpoints.order.getUserOrders}`;
+    const headers = this.getAuthHeaders();
+    
+    console.log('Test URL:', url);
+    console.log('Test Headers:', headers);
+    
+    return this.http.get(url, { headers }).pipe(
+      map(orders => {
+        console.log('Raw API response:', orders);
+        // Ensure sorting even for test calls
+        if (Array.isArray(orders)) {
+          return (orders as OrderModel[]).sort((a, b) => b.id - a.id);
+        }
+        return orders;
+      }),
+      tap(response => {
+        console.log('Test API call successful:', response);
+      }),
+      catchError(error => {
+        console.error('Test API call failed:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Helper method for return window check
+   */
+  private isWithinReturnWindow(orderDate: string): boolean {
+    const orderTime = new Date(orderDate).getTime();
+    const now = Date.now();
+    const returnWindowMs = 30 * 24 * 60 * 60 * 1000; // 30 days
+    
+    return (now - orderTime) <= returnWindowMs;
   }
 
   // ===== UTILITY METHODS =====
@@ -637,6 +772,22 @@ export class OrderRepositoryService {
     console.log('Queue Stats:', this.getQueueStats());
     console.log('Cache Keys:', Array.from(this.dataCache.keys()));
     console.log('Pending Requests:', Array.from(this.pendingRequests.keys()));
+    
+    // Additional debugging info
+    const cacheInfo = Array.from(this.dataCache.entries()).map(([key, cached]) => ({
+      key,
+      age: Date.now() - cached.timestamp,
+      ttl: cached.ttl,
+      expired: Date.now() - cached.timestamp > cached.ttl
+    }));
+    
+    console.log('Cache Details:', cacheInfo);
+    console.log('Rate Limit Status:', {
+      requestsThisWindow: this.requestCount,
+      maxRequests: 8,
+      timeUntilReset: this.RESET_INTERVAL - (Date.now() - this.lastResetTime)
+    });
+    
     console.groupEnd();
   }
 }

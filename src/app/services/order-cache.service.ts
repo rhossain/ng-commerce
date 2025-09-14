@@ -282,40 +282,173 @@ export class OrderCacheService {
    * Advanced search with caching
    */
   searchOrders(searchTerm: string, filters?: any): OrderModel[] {
+    // Create cache key based on search term and filters
     const cacheKey = `search_${searchTerm}_${JSON.stringify(filters)}`;
     const cached = this.relatedDataCache.get(cacheKey);
     
+    // Return cached results if still valid
     if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      console.log(`[OrderCache] Using cached search results for: "${searchTerm}"`);
       return cached.data;
     }
 
-    const term = searchTerm.toLowerCase();
-    const results = this.getAllOrders().filter(order => {
-      const matchesSearch = 
-        order.id.toString().includes(term) ||
-        order.notes.toLowerCase().includes(term) ||
-        order.status.toLowerCase().includes(term) ||
-        (order.shipping_address?.first_name + ' ' + order.shipping_address?.last_name)
-          .toLowerCase().includes(term);
+    console.log(`[OrderCache] Performing new search for: "${searchTerm}"`);
 
-      if (!matchesSearch) return false;
+    // Normalize search term
+    const term = searchTerm.toLowerCase().trim();
+    
+    // Get all orders from cache (already sorted by ID descending)
+    const allOrders = this.getAllOrders();
+    
+    // Apply search filtering
+    const searchResults = allOrders.filter(order => {
+      // Skip if search term is empty
+      if (!term) {
+        return true;
+      }
 
-      // Apply additional filters if provided
-      if (filters?.status && order.status !== filters.status) return false;
-      if (filters?.minAmount && order.total_amount < filters.minAmount) return false;
-      if (filters?.maxAmount && order.total_amount > filters.maxAmount) return false;
+      // Search in order ID (convert to string)
+      const orderIdMatch = order.id.toString().includes(term);
+      
+      // Search in order notes (handle null/undefined)
+      const notesMatch = order.notes ? order.notes.toLowerCase().includes(term) : false;
+      
+      // Search in order status
+      const statusMatch = order.status.toLowerCase().includes(term);
+      
+      // Search in customer name (from shipping address)
+      let customerNameMatch = false;
+      if (order.shipping_address) {
+        const fullName = `${order.shipping_address.first_name || ''} ${order.shipping_address.last_name || ''}`.toLowerCase();
+        customerNameMatch = fullName.includes(term);
+      }
+      
+      // Search in user email (if available)
+      const userEmailMatch = order.user?.email ? order.user.email.toLowerCase().includes(term) : false;
+      
+      // Search in total amount (convert to string)
+      const amountMatch = order.total_amount.toString().includes(term);
+      
+      // Search in order date (format: YYYY-MM-DD)
+      const dateMatch = order.order_date.toLowerCase().includes(term);
+      
+      // Search in shipping method name (if available)
+      const shippingMethodMatch = order.shipping_method?.name ? 
+        order.shipping_method.name.toLowerCase().includes(term) : false;
+      
+      // Search in payment method (if available)
+      const paymentMethodMatch = order.payment?.payment_method ? 
+        order.payment.payment_method.toLowerCase().includes(term) : false;
+      
+      // Search in tracking number (if available)
+      const trackingMatch = order.shipping_status?.tracking_number ? 
+        order.shipping_status.tracking_number.toLowerCase().includes(term) : false;
 
-      return true;
+      // Search in product names (if order items are loaded)
+      let productNamesMatch = false;
+      if (order.order_items && order.order_items.length > 0) {
+        productNamesMatch = order.order_items.some(item => 
+          item.product?.name ? item.product.name.toLowerCase().includes(term) : false
+        );
+      }
+
+      // Return true if any field matches
+      return orderIdMatch || 
+            notesMatch || 
+            statusMatch || 
+            customerNameMatch || 
+            userEmailMatch || 
+            amountMatch || 
+            dateMatch || 
+            shippingMethodMatch || 
+            paymentMethodMatch || 
+            trackingMatch || 
+            productNamesMatch;
     });
 
-    // Cache search results for 5 minutes
+    console.log(`[OrderCache] Search "${searchTerm}" found ${searchResults.length} results`);
+
+    // Apply additional filters if provided
+    let filteredResults = searchResults;
+    
+    if (filters) {
+      filteredResults = searchResults.filter(order => {
+        // Filter by status
+        if (filters.status && order.status !== filters.status) {
+          return false;
+        }
+        
+        // Filter by minimum amount
+        if (filters.minAmount !== undefined && order.total_amount < filters.minAmount) {
+          return false;
+        }
+        
+        // Filter by maximum amount  
+        if (filters.maxAmount !== undefined && order.total_amount > filters.maxAmount) {
+          return false;
+        }
+        
+        // Filter by date range
+        if (filters.dateFrom) {
+          const orderDate = new Date(order.order_date);
+          const fromDate = new Date(filters.dateFrom);
+          if (orderDate < fromDate) {
+            return false;
+          }
+        }
+        
+        if (filters.dateTo) {
+          const orderDate = new Date(order.order_date);
+          const toDate = new Date(filters.dateTo);
+          if (orderDate > toDate) {
+            return false;
+          }
+        }
+        
+        // Filter by user ID (for admin searches)
+        if (filters.userId && order.user_id !== filters.userId) {
+          return false;
+        }
+        
+        // Filter by shipping method
+        if (filters.shippingMethodId && order.shipping_methods_id !== filters.shippingMethodId) {
+          return false;
+        }
+        
+        // Filter by payment status
+        if (filters.paymentStatus && (!order.payment || order.payment.status !== filters.paymentStatus)) {
+          return false;
+        }
+        
+        return true;
+      });
+    }
+
+    console.log(`[OrderCache] After filters applied: ${filteredResults.length} results`);
+
+    // CRITICAL: Sort results by ORDER ID descending (newest orders first)
+    const sortedResults = filteredResults.sort((a, b) => b.id - a.id);
+
+    // Log sorting verification
+    if (sortedResults.length > 1) {
+      console.log(`[OrderCache] Search results sorted by ID: ${sortedResults[0].id} (first) to ${sortedResults[sortedResults.length - 1].id} (last)`);
+    }
+
+    // Cache the search results for 5 minutes
     this.relatedDataCache.set(cacheKey, {
-      data: results,
+      data: sortedResults,
       timestamp: Date.now(),
-      ttl: 5 * 60 * 1000
+      ttl: 5 * 60 * 1000 // 5 minutes cache
     });
 
-    return results;
+    // Log cache operation
+    this.logCacheOperation('SEARCH', 0, { 
+      searchTerm, 
+      resultsCount: sortedResults.length,
+      filtersApplied: !!filters 
+    });
+
+    return sortedResults;
   }
 
   /**
@@ -623,13 +756,15 @@ export class OrderCacheService {
       validOrders.push({ ...cacheEntry.order });
     }
     
-    return validOrders.sort((a, b) => 
-      new Date(b.order_date).getTime() - new Date(a.order_date).getTime()
-    );
+    // Sort by ORDER ID descending (highest ID first = newest orders)
+    return validOrders.sort((a, b) => b.id - a.id);
   }
 
   getOrderSummaries(): OrderSummary[] {
-    return Array.from(this.orderSummaryCache.values());
+    const summaries = Array.from(this.orderSummaryCache.values());
+    
+    // Sort summaries by ORDER ID descending (highest ID first)  
+    return summaries.sort((a, b) => b.id - a.id);
   }
 
   getOrderSummary(orderId: number): OrderSummary | null {
