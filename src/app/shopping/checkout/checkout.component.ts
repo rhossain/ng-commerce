@@ -332,7 +332,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     this.calculateTotals();
   }
 
-  // Order Processing - UPDATED WITH COMPREHENSIVE ERROR HANDLING AND VALIDATION
+  // UPDATED ORDER PROCESSING - FOR DEVELOPMENT MODE
   async processOrder(): Promise<void> {
     if (!this.validateAllForms()) {
       this.toastr.error('Please complete all required information', 'Validation Error');
@@ -344,7 +344,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     }
 
     this.isProcessingOrder = true;
-    console.log('Starting order processing...');
+    console.log('Starting development order processing...');
 
     try {
       // Validate required selections
@@ -364,87 +364,80 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
         throw new Error('Your cart is empty');
       }
 
-      // DEBUG: Log cart items before mapping
-      console.log('Raw cart items:', this.cartItems);
-      console.log('Cart items structure:', this.cartItems.map(item => ({
-        product_id: item.product?.id,
-        variant_id: item.variant?.id,
-        quantity: item.quantity,
-        product: item.product,
-        variant: item.variant
-      })));
-
       // Prepare order items with proper pricing
       const orderItems: OrderItemRequest[] = this.cartItems.map(item => {
         const effectivePrice = this.pricingService.getEffectivePrice(item.variant);
-        const orderItem = {
+        return {
           product_id: item.product.id,
           product_variant_id: item.variant.id,
           quantity: item.quantity,
           unit_price: effectivePrice
         };
-        
-        // DEBUG: Log each order item
-        console.log('Mapped order item:', orderItem);
-        return orderItem;
       });
 
-      console.log('Final order items array:', orderItems);
-
-      // Create order request with all required fields
+      // Create order request
       const orderRequest: CreateOrderRequest = {
         shipping_address_id: this.selectedShippingAddress.id,
         shipping_method_id: this.selectedShippingMethod.id,
-        payment_method: this.selectedPaymentMethod.id,
         items: orderItems,
         promotion_code: this.appliedPromotion?.code || null,
         delivery_instructions: this.selectedShippingAddress.delivery_instructions || null,
         notes: this.orderNotes || null
       };
 
-      // DEBUG: Log the complete request payload
-      console.log('Complete order request payload:', JSON.stringify(orderRequest, null, 2));
+      console.log('Creating order with payload:', orderRequest);
 
       // Create the order
       const createdOrder = await firstValueFrom(this.orderService.createOrder(orderRequest));
       
       console.log('Order created successfully:', createdOrder);
       
-      // DEBUG: Check if order_items were returned
-      if (!createdOrder.order_items || createdOrder.order_items.length === 0) {
-        console.error('❌ ORDER ITEMS NOT CREATED OR RETURNED!');
-        console.error('Backend did not create or return order_items');
-        console.error('Expected items:', orderItems);
-        console.error('Received order:', createdOrder);
-      } else {
-        console.log('✅ Order items created successfully:', createdOrder.order_items);
-      }
-      
       if (!createdOrder || !createdOrder.id) {
         throw new Error('Order creation failed - no order ID returned');
       }
 
-      // Continue with payment processing...
-      if (this.selectedPaymentMethod.id === 'credit_card') {
-        await this.processCreditCardPayment(createdOrder);
-      } else {
-        await this.processDigitalWalletPayment(createdOrder);
-      }
+      // DEVELOPMENT MODE: Process mock payment
+      await this.processMockPayment(createdOrder);
 
       // Use the promotion if one was applied
       if (this.appliedPromotion) {
-        this.orderService.usePromotion(this.appliedPromotion.code);
+        await firstValueFrom(this.orderService.usePromotion(this.appliedPromotion.code));
       }
 
       // Clear cart after successful order
       this.cartService.clearCart();
 
-      // Navigate to order confirmation
-      this.router.navigate(['/checkout/success'], {
-        queryParams: { orderId: createdOrder.id }
-      });
-
+      // Show success message
       this.toastr.success('Order placed successfully!', 'Success');
+
+      // DEVELOPMENT MODE: Create success data and redirect to orders
+      const successData = {
+        orderId: createdOrder.id,
+        orderNumber: `DEV-${createdOrder.id}`,
+        totalAmount: createdOrder.total_amount,
+        paymentMethod: this.selectedPaymentMethod!.name,
+        estimatedDelivery: this.getEstimatedDeliveryText(),
+        customerEmail: this.currentUser?.email || 'customer@example.com',
+        itemCount: this.cartItems.length,
+        processedAt: new Date().toISOString()
+      };
+
+      console.log('✅ Order completed successfully:', successData);
+
+      // Additional success notification
+      setTimeout(() => {
+        this.toastr.info(
+          `Order #${successData.orderNumber} has been created. You'll receive a confirmation email shortly.`,
+          'What\'s Next?',
+          {
+            timeOut: 6000,
+            closeButton: true
+          }
+        );
+      }, 500);
+
+      // Redirect to orders page
+      this.router.navigate(['/orders']);
 
     } catch (error: any) {
       console.error('Order processing failed:', error);
@@ -454,54 +447,81 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async processCreditCardPayment(order: OrderModel): Promise<void> {
-    if (!this.paymentFormComponent || !this.paymentFormComponent.paymentForm.valid) {
-      throw new Error('Invalid payment information');
+  /**
+   * Get estimated delivery text for display
+   */
+  private getEstimatedDeliveryText(): string {
+    if (!this.selectedShippingMethod) {
+      return '5-7 business days';
     }
-
-    const formValue = this.paymentFormComponent.paymentForm.value;
     
-    const paymentData: PaymentRequest = {
-      order_id: order.id,
-      payment_method: 'credit_card',
-      amount: order.total_amount,
-      currency: 'USD',
-      gateway_data: {
-        card_number: formValue.card_number,
-        expiry_date: `${formValue.expiry_month}/${formValue.expiry_year}`,
-        cvv: formValue.cvv,
-        cardholder_name: formValue.cardholder_name,
-        billing_address: this.getBillingAddressData()
-      }
-    };
-
-    const payment = await firstValueFrom(this.orderService.processPayment(paymentData));
-    
-    if (!payment || (payment.status !== 'completed' && payment.status !== 'processing')) {
-      throw new Error(`Payment failed: ${payment?.failure_reason || 'Unknown error'}`);
+    const deliveryDays = this.selectedShippingMethod.estimated_delivery_days;
+    if (deliveryDays) {
+      return deliveryDays;
     }
-
-    console.log('Payment processed successfully:', payment);
+    
+    // Fallback based on shipping method type
+    switch (this.selectedShippingMethod.type.toLowerCase()) {
+      case 'express':
+      case 'overnight':
+        return '1-2 business days';
+      case 'expedited':
+        return '2-3 business days';
+      case 'standard':
+      default:
+        return '5-7 business days';
+    }
   }
 
-  private async processDigitalWalletPayment(order: OrderModel): Promise<void> {
-    const paymentData: PaymentRequest = {
+  /**
+   * DEVELOPMENT MODE: Process mock payment
+   */
+  private async processMockPayment(order: OrderModel): Promise<void> {
+    console.log('Processing mock payment for development...');
+
+    // Get payment form data if it's a credit card
+    let paymentData: PaymentRequest = {
       order_id: order.id,
       payment_method: this.selectedPaymentMethod!.id,
       amount: order.total_amount,
-      currency: 'USD',
-      gateway_data: {}
+      currency: 'USD'
     };
 
-    // For digital wallets, you would typically redirect to the payment provider
-    // or use their JavaScript SDK. For now, we'll simulate the process.
-    const payment = await firstValueFrom(this.orderService.processPayment(paymentData));
-    
-    if (!payment || (payment.status !== 'completed' && payment.status !== 'processing')) {
-      throw new Error(`Payment failed: ${payment?.failure_reason || 'Unknown error'}`);
+    // Add mock gateway data based on payment method
+    if (this.selectedPaymentMethod!.id === 'credit_card' && this.paymentFormComponent?.paymentForm.valid) {
+      const formValue = this.paymentFormComponent.paymentForm.value;
+      paymentData.gateway_data = {
+        card_number: formValue.card_number || '****-****-****-1234',
+        expiry_date: `${formValue.expiry_month || '12'}/${formValue.expiry_year || '2025'}`,
+        cvv: '***',
+        cardholder_name: formValue.cardholder_name || 'Test User',
+        billing_address: this.getBillingAddressData()
+      };
+    } else {
+      // For digital wallets, add mock data
+      paymentData.gateway_data = {
+        mock_payment: true,
+        payment_method: this.selectedPaymentMethod!.name
+      };
     }
 
-    console.log('Digital wallet payment processed successfully:', payment);
+    try {
+      const payment = await firstValueFrom(this.orderService.processPayment(paymentData));
+      
+      console.log('Mock payment processed:', payment);
+      
+      if (!payment || (payment.status !== 'completed' && payment.status !== 'processing')) {
+        throw new Error(`Payment failed: ${payment?.failure_reason || 'Unknown error'}`);
+      }
+
+      this.toastr.success('Payment processed successfully (Development Mode)', 'Payment Success');
+
+    } catch (error) {
+      console.error('Mock payment processing failed:', error);
+      // In development, we might want to continue even if payment fails
+      // but still show a warning
+      this.toastr.warning('Payment simulation failed, but order was created', 'Development Warning');
+    }
   }
 
   private getBillingAddressData(): any {
@@ -547,7 +567,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     const hasValidShipping = this.selectedShippingAddress !== null;
     const hasValidShippingMethod = this.selectedShippingMethod !== null;
     const hasValidBilling = this.sameBillingAddress || this.selectedBillingAddress !== null;
-    const hasValidPayment = this.selectedPaymentMethod !== null && this.stepValidation.payment;
+    const hasValidPayment = this.selectedPaymentMethod !== null;
     
     if (!hasValidShipping) {
       this.toastr.error('Please select or add a shipping address', 'Shipping Address Required');
@@ -565,7 +585,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     }
     
     if (!hasValidPayment) {
-      this.toastr.error('Please complete payment information', 'Payment Information Required');
+      this.toastr.error('Please select a payment method', 'Payment Method Required');
       return false;
     }
     
@@ -604,10 +624,8 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
 
     // Calculate tax (8% tax rate)
     const taxRate = 0.08;
-    this.taxAmount = this.cartSubtotal * taxRate;
 
-    // Calculate order total
-    // Calculate order total - get the correct property from the returned object
+    // Calculate order total using the order service
     const orderCalculation = this.orderService.calculateOrderTotal(
       this.cartSubtotal,
       this.shippingCost,
@@ -616,15 +634,9 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
     );
 
     this.orderTotal = orderCalculation.total;
-    // You can also use other properties:
     this.taxAmount = orderCalculation.tax;
     this.discountAmount = orderCalculation.discount;
     this.shippingCost = orderCalculation.shipping;
-
-    // Apply promotion discount if applicable
-    if (this.appliedPromotion?.discount_type === 'free_shipping') {
-      this.shippingCost = orderCalculation.shipping; // Will be 0 for free shipping
-    }
 
     this.validateOrder();
   }
@@ -635,8 +647,7 @@ export default class CheckoutComponent implements OnInit, OnDestroy {
       this.selectedShippingAddress !== null &&
       this.selectedShippingMethod !== null &&
       (this.sameBillingAddress || this.selectedBillingAddress !== null) &&
-      this.selectedPaymentMethod !== null &&
-      this.stepValidation.payment;
+      this.selectedPaymentMethod !== null;
   }
 
   // Getters for child components

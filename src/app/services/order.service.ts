@@ -1,13 +1,14 @@
-// services/order.service.ts - REFACTORED MAIN SERVICE
+// services/order.service.ts - UPDATED FOR DEVELOPMENT MODE
 import { Injectable } from '@angular/core';
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
-import { map, tap, shareReplay } from 'rxjs/operators';
+import { Observable, combineLatest, BehaviorSubject, of } from 'rxjs';
+import { map, tap, shareReplay, switchMap } from 'rxjs/operators';
 import { OrderCoreService } from './order-core.service';
 import { OrderCacheService } from './order-cache.service';
 import { OrderValidationService } from './order-validation.service';
 import { OrderPaymentService } from './order-payment.service';
 import { OrderAnalyticsService } from './order-analytics.service';
 import { OrderUtilityService } from './order-utility.service';
+import { OrderBusinessLogicService } from './order-business-logic.service';
 import { ShippingService } from './shipping.service';
 import { ShippingIntegrationService } from './shipping-integration.service';
 import { 
@@ -23,7 +24,7 @@ import {
 } from '../models/order.model';
 
 /**
- * Main Order Service - Orchestrates all order-related operations
+ * Main Order Service - Updated for Development Mode
  * This service acts as a facade that delegates to specialized services
  */
 @Injectable({
@@ -53,6 +54,7 @@ export class OrderService {
     private payment: OrderPaymentService,
     private analytics: OrderAnalyticsService,
     private utility: OrderUtilityService,
+    private businessLogic: OrderBusinessLogicService, // Use business logic service for dev payments
     private shipping: ShippingService,
     private shippingIntegration: ShippingIntegrationService
   ) {
@@ -85,7 +87,7 @@ export class OrderService {
       orderData.shipping_method_id = selectedShippingMethod;
     }
 
-    return this.orderCore.createOrder(orderData).pipe(
+    return this.businessLogic.createOrder(orderData).pipe(
       tap(order => {
         this.clearCurrentOrder();
         this.shippingIntegration.reset();
@@ -127,39 +129,61 @@ export class OrderService {
    * Cancel order with validation
    */
   cancelOrder(orderId: number, reason?: string): Observable<OrderModel> {
-    return this.orderCore.cancelOrder(orderId, reason);
+    return this.businessLogic.cancelOrder(orderId, reason);
   }
 
-  // ===== PAYMENT OPERATIONS =====
+  // ===== DEVELOPMENT MODE PAYMENT OPERATIONS =====
 
+  /**
+   * Process payment - Uses development mode mock payment
+   */
   processPayment(paymentData: PaymentRequest): Observable<PaymentModel> {
-    return this.payment.processPayment(paymentData);
+    return this.businessLogic.processPayment(paymentData);
   }
 
+  /**
+   * Get payment status (mock in development)
+   */
   getPaymentStatus(paymentId: number): Observable<PaymentModel> {
-    return this.payment.getPaymentStatus(paymentId);
+    // In development mode, return a mock payment status
+    const mockPayment: PaymentModel = {
+      id: paymentId,
+      created_at: Date.now(),
+      amount: 100, // Mock amount
+      payment_method: 'credit_card',
+      status: 'completed',
+      order_id: 1,
+      transaction_id: `DEV_TXN_${paymentId}`,
+      currency: 'USD'
+    };
+
+    return of(mockPayment);
   }
 
+  /**
+   * Process refund (mock in development)
+   */
   processRefund(paymentId: number, amount: number, reason?: string): Observable<PaymentModel> {
-    return this.payment.processRefund(paymentId, amount, reason);
+    return this.businessLogic.processRefund(paymentId, amount, reason);
   }
 
   // ===== PROMOTION OPERATIONS =====
 
   validatePromotionCode(code: string, orderTotal: number): Observable<PromotionModel> {
-    return this.payment.validatePromotionCode(code, orderTotal);
+    return this.businessLogic.validatePromotionCode(code, orderTotal);
   }
 
   getAvailablePromotions(): Observable<PromotionModel[]> {
-    return this.payment.getAvailablePromotions();
+    return of(this.businessLogic.getAvailablePromotions());
   }
 
   calculateDiscount(promotion: PromotionModel, orderTotal: number): number {
-    return this.payment.calculateDiscount(promotion, orderTotal);
+    return this.businessLogic.calculateDiscount(promotion, orderTotal);
   }
 
   usePromotion(code: string): Observable<void> {
-    return this.payment.usePromotion(code);
+    this.businessLogic.usePromotion(code);
+    return of(void 0);
   }
 
   // ===== SHIPPING INTEGRATION =====
@@ -316,14 +340,14 @@ export class OrderService {
    * Check if order can be cancelled
    */
   canCancelOrder(order: OrderModel): boolean {
-    return this.validation.canCancelOrder(order).isValid;
+    return this.businessLogic.canCancelOrder(order);
   }
 
   /**
    * Check if order can be returned
    */
   canReturnOrder(order: OrderModel): boolean {
-    return this.validation.canReturnOrder(order).isValid;
+    return this.businessLogic.canReturnOrder(order);
   }
 
   /**
@@ -368,7 +392,7 @@ export class OrderService {
   }
 
   getEstimatedDeliveryDate(order: OrderModel): Date | null {
-    return this.utility.getEstimatedDeliveryDate(order);
+    return this.businessLogic.getEstimatedDeliveryDate(order);
   }
 
   hasTrackingInfo(order: OrderModel): boolean {
@@ -425,14 +449,14 @@ export class OrderService {
     taxRate: number = 0,
     promotion?: PromotionModel | null
   ): any {
-    return this.payment.calculateOrderTotal(subtotal, shippingCost, taxRate, promotion);
+    return this.businessLogic.calculateOrderTotal(subtotal, shippingCost, taxRate, promotion);
   }
 
   /**
    * Calculate subtotal from items
    */
   calculateSubtotal(items: Array<{ unit_price: number; quantity: number }>): number {
-    return this.payment.calculateSubtotal(items);
+    return this.businessLogic.calculateSubtotal(items);
   }
 
   // ===== LOADING STATE MANAGEMENT =====
@@ -471,6 +495,31 @@ export class OrderService {
     );
   }
 
+  // ===== INVOICE OPERATIONS =====
+
+  /**
+   * Generate invoice for an order
+   */
+  generateInvoice(orderId: number): Observable<any> {
+    return this.businessLogic.generateInvoice(orderId);
+  }
+
+  /**
+   * Download invoice for an order
+   */
+  downloadInvoice(orderId: number): Observable<Blob> {
+    return this.businessLogic.downloadInvoice(orderId);
+  }
+
+  // ===== RETURN OPERATIONS =====
+
+  /**
+   * Create return request
+   */
+  createReturnRequest(returnData: any): Observable<any> {
+    return this.businessLogic.createReturnRequest(returnData);
+  }
+
   // ===== SERVICE INTEGRATION STATUS =====
 
   /**
@@ -482,6 +531,7 @@ export class OrderService {
     validation: boolean;
     payment: boolean;
     analytics: boolean;
+    businessLogic: boolean;
     shipping: boolean;
     shippingIntegration: boolean;
   } {
@@ -491,6 +541,7 @@ export class OrderService {
       validation: !!this.validation,
       payment: !!this.payment,
       analytics: !!this.analytics,
+      businessLogic: !!this.businessLogic,
       shipping: !!this.shipping,
       shippingIntegration: this.shippingIntegration.isInitialized()
     };
@@ -541,12 +592,13 @@ export class OrderService {
     components: string[];
     isFullyInitialized: boolean;
     lastRefresh: number;
+    developmentMode: boolean;
   } {
     const integrationStatus = this.getIntegrationStatus();
     const isFullyInitialized = Object.values(integrationStatus).every(status => status === true);
 
     return {
-      version: '3.0.0-modular',
+      version: '3.0.0-development',
       components: [
         'OrderCoreService',
         'OrderCacheService', 
@@ -554,11 +606,13 @@ export class OrderService {
         'OrderPaymentService',
         'OrderAnalyticsService',
         'OrderUtilityService',
+        'OrderBusinessLogicService',
         'ShippingService',
         'ShippingIntegrationService'
       ],
       isFullyInitialized,
-      lastRefresh: Date.now()
+      lastRefresh: Date.now(),
+      developmentMode: true
     };
   }
 
@@ -587,5 +641,20 @@ export class OrderService {
     
     // Reset shipping calculations
     this.shippingIntegration.refreshShippingCalculations();
+  }
+
+  /**
+   * Development mode specific methods
+   */
+  getDevelopmentInfo(): {
+    mockPaymentsEnabled: boolean;
+    mockPromotionsCount: number;
+    lastOrderCreated: string;
+  } {
+    return {
+      mockPaymentsEnabled: true,
+      mockPromotionsCount: this.businessLogic.getAvailablePromotions().length,
+      lastOrderCreated: new Date().toISOString()
+    };
   }
 }

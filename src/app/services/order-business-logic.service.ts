@@ -1,4 +1,4 @@
-// services/order-business-logic.service.ts - COMPLETE VERSION
+// services/order-business-logic.service.ts - UPDATED FOR DEVELOPMENT MODE
 import { Injectable } from '@angular/core';
 import { Observable, throwError, of } from 'rxjs';
 import { map, switchMap, catchError, tap, delay } from 'rxjs/operators';
@@ -21,6 +21,9 @@ import {
   OrderAnalytics,
   OrderTrackingEvent
 } from '../models/order.model';
+
+// Environment flag for development mode
+const IS_DEVELOPMENT = true; // Set this to false for production
 
 @Injectable({
   providedIn: 'root'
@@ -185,43 +188,54 @@ export class OrderBusinessLogicService {
 
   // ===== ORDER CANCELLATION LOGIC =====
 
-  // In order-business-logic.service.ts
-    cancelOrder(orderId: number, reason?: string): Observable<OrderModel> {
-        const userId = this.authService.getUserId();
-        if (!userId) {
-            this.router.navigate(['/login']);
-            return throwError(() => new Error('User not authenticated'));
-        }
-
-        return this.orderRepository.getOrderById(orderId).pipe(
-            switchMap(order => {
-            if (order.user_id !== userId) {
-                throw new Error('Access denied: Order does not belong to current user');
-            }
-
-            if (!this.canCancelOrder(order)) {
-                throw new Error('Order cannot be cancelled. Current status: ' + order.status);
-            }
-
-            const updates: UpdateOrderRequest = {
-                status: 'cancelled' as OrderStatus,
-                notes: reason ? `${order.notes}\nCancelled by customer: ${reason}` : `${order.notes}\nCancelled by customer`,
-                user_id: userId  // ADD THIS LINE - Include user_id in the update payload
-            };
-            
-            return this.orderRepository.updateOrder(orderId, updates);
-            }),
-            // ... rest of the method
-        );
+  cancelOrder(orderId: number, reason?: string): Observable<OrderModel> {
+    const userId = this.authService.getUserId();
+    if (!userId) {
+      this.router.navigate(['/login']);
+      return throwError(() => new Error('User not authenticated'));
     }
 
-  // ===== PAYMENT PROCESSING LOGIC =====
+    return this.orderRepository.getOrderById(orderId).pipe(
+      switchMap(order => {
+        if (order.user_id !== userId) {
+          throw new Error('Access denied: Order does not belong to current user');
+        }
+
+        if (!this.canCancelOrder(order)) {
+          throw new Error('Order cannot be cancelled. Current status: ' + order.status);
+        }
+
+        const updates: UpdateOrderRequest = {
+          status: 'cancelled' as OrderStatus,
+          notes: reason ? `${order.notes}\nCancelled by customer: ${reason}` : `${order.notes}\nCancelled by customer`,
+          user_id: userId
+        };
+        
+        return this.orderRepository.updateOrder(orderId, updates);
+      }),
+      tap(() => {
+        this.toastr.success('Order cancelled successfully', 'Success');
+      }),
+      catchError(error => {
+        console.error('Order cancellation failed:', error);
+        this.toastr.error(error.message || 'Failed to cancel order', 'Cancellation Failed');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ===== DEVELOPMENT MODE PAYMENT PROCESSING =====
 
   processPayment(paymentData: PaymentRequest): Observable<PaymentModel> {
     if (!this.validatePaymentData(paymentData)) {
       return throwError(() => new Error('Invalid payment data'));
     }
 
+    if (IS_DEVELOPMENT) {
+      return this.processMockPayment(paymentData);
+    }
+
+    // Production payment processing
     return this.orderRepository.processPayment(paymentData).pipe(
       tap(payment => {
         if (payment.status === 'completed') {
@@ -232,6 +246,48 @@ export class OrderBusinessLogicService {
       }),
       catchError(error => {
         this.toastr.error('Payment processing failed', 'Error');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * DEVELOPMENT MODE: Process mock payment for testing
+   */
+  private processMockPayment(paymentData: PaymentRequest): Observable<PaymentModel> {
+    console.log('Processing mock payment in development mode:', paymentData);
+
+    // Simulate network delay
+    return of(null).pipe(
+      delay(1500), // 1.5 second delay to simulate API call
+      map(() => {
+        // Create mock payment response
+        const mockPayment: PaymentModel = {
+          id: Date.now(), // Mock ID
+          created_at: Date.now(),
+          amount: paymentData.amount,
+          payment_method: paymentData.payment_method,
+          status: 'completed', // Always succeed in development
+          order_id: paymentData.order_id,
+          transaction_id: `DEV_TXN_${Date.now()}`,
+          gateway_response: {
+            status: 'success',
+            transaction_id: `DEV_TXN_${Date.now()}`,
+            gateway: 'development',
+            processed_at: new Date().toISOString()
+          },
+          currency: paymentData.currency || 'USD'
+        };
+
+        console.log('Mock payment created:', mockPayment);
+        return mockPayment;
+      }),
+      tap(payment => {
+        this.toastr.success(`Mock payment processed successfully (${payment.payment_method})`, 'Development Mode');
+      }),
+      catchError(error => {
+        console.error('Mock payment failed:', error);
+        this.toastr.error('Mock payment failed', 'Development Error');
         return throwError(() => error);
       })
     );
@@ -264,8 +320,8 @@ export class OrderBusinessLogicService {
     }
 
     if (promotion.minimum_order_amount && orderTotal < promotion.minimum_order_amount) {
-      this.toastr.error(`Minimum order amount of $${promotion.minimum_order_amount} required`, 'Error');
-      return throwError(() => ({ status: 400, message: `Minimum order amount of $${promotion.minimum_order_amount} required` }));
+      this.toastr.error(`Minimum order amount of ${promotion.minimum_order_amount} required`, 'Error');
+      return throwError(() => ({ status: 400, message: `Minimum order amount of ${promotion.minimum_order_amount} required` }));
     }
 
     if (promotion.usage_limit && promotion.usage_count >= promotion.usage_limit) {
@@ -312,9 +368,37 @@ export class OrderBusinessLogicService {
     return items.reduce((total, item) => total + (item.unit_price * item.quantity), 0);
   }
 
-  calculateOrderTotal(cartSubtotal: number, shippingCost: number, taxRate: number = 0, discountAmount: number = 0): number {
-    const tax = cartSubtotal * taxRate;
-    return Math.max(0, cartSubtotal + shippingCost + tax - discountAmount);
+  calculateOrderTotal(
+    cartSubtotal: number, 
+    shippingCost: number, 
+    taxRate: number = 0, 
+    promotion?: PromotionModel | null
+  ): {
+    total: number;
+    tax: number;
+    discount: number;
+    shipping: number;
+  } {
+    let discount = 0;
+    let finalShippingCost = shippingCost;
+
+    if (promotion) {
+      if (promotion.discount_type === 'free_shipping') {
+        finalShippingCost = 0;
+      } else {
+        discount = this.calculateDiscount(promotion, cartSubtotal);
+      }
+    }
+
+    const tax = Math.round(cartSubtotal * taxRate * 100) / 100;
+    const total = Math.max(0, cartSubtotal + finalShippingCost + tax - discount);
+
+    return {
+      total: Math.round(total * 100) / 100,
+      tax: Math.round(tax * 100) / 100,
+      discount: Math.round(discount * 100) / 100,
+      shipping: Math.round(finalShippingCost * 100) / 100
+    };
   }
 
   // ===== BUSINESS RULE METHODS =====
@@ -405,7 +489,7 @@ export class OrderBusinessLogicService {
   // ===== RETURN AND REFUND LOGIC =====
 
   createReturnRequest(returnData: Partial<ReturnRequest>): Observable<ReturnRequest> {
-    // Mock implementation
+    // Mock implementation for development
     const mockReturn: ReturnRequest = {
       id: Date.now(),
       order_id: returnData.order_id || 0,
@@ -417,6 +501,7 @@ export class OrderBusinessLogicService {
     };
 
     return of(mockReturn).pipe(
+      delay(500), // Simulate API delay
       tap(() => {
         this.toastr.success('Return request submitted successfully', 'Success');
       })
@@ -424,6 +509,29 @@ export class OrderBusinessLogicService {
   }
 
   processRefund(paymentId: number, amount: number, reason?: string): Observable<PaymentModel> {
+    if (IS_DEVELOPMENT) {
+      // Mock refund processing
+      const mockRefund: PaymentModel = {
+        id: Date.now(),
+        created_at: Date.now(),
+        amount: -amount, // Negative for refund
+        payment_method: 'refund',
+        status: 'completed',
+        order_id: 0, // Would be populated in real implementation
+        transaction_id: `REF_${Date.now()}`,
+        refund_amount: amount,
+        refund_date: new Date().toISOString(),
+        currency: 'USD'
+      };
+
+      return of(mockRefund).pipe(
+        delay(1000),
+        tap(() => {
+          this.toastr.success(`Refund of ${amount} processed successfully`, 'Development Mode');
+        })
+      );
+    }
+
     return this.orderRepository.processRefund(paymentId, amount, reason);
   }
 
@@ -452,9 +560,6 @@ export class OrderBusinessLogicService {
 
   // ===== INVOICE GENERATION =====
 
-  /**
-   * UPDATED: Generate comprehensive invoice with order details
-   */
   generateInvoice(orderId: number): Observable<InvoiceModel> {
     return this.orderRepository.getOrderWithRelations(orderId).pipe(
       map(order => {
@@ -487,9 +592,6 @@ export class OrderBusinessLogicService {
     );
   }
 
-  /**
-   * UPDATED: Download comprehensive invoice with order details
-   */
   downloadInvoice(orderId: number): Observable<Blob> {
     return this.orderRepository.getOrderWithRelations(orderId).pipe(
       map(order => {
@@ -503,9 +605,6 @@ export class OrderBusinessLogicService {
     );
   }
 
-  /**
-   * Generate detailed invoice content
-   */
   private generateInvoiceContent(order: OrderModel): string {
     const subtotal = order.order_items?.reduce((sum, item) => sum + item.total_price, 0) || 0;
     const tax = this.calculateTaxAmount(order, 0.08);
@@ -579,9 +678,6 @@ Phone: 1-800-555-0123
     return content.trim();
   }
 
-  /**
-   * Get customer information section
-   */
   private getCustomerInfo(order: OrderModel): string {
     const address = order.shipping_address;
     if (!address) {
@@ -596,9 +692,6 @@ Phone: ${address.phone || 'Not provided'}
     `.trim();
   }
 
-  /**
-   * Get shipping information section
-   */
   private getShippingInfo(order: OrderModel): string {
     const address = order.shipping_address;
     if (!address) {
@@ -619,9 +712,6 @@ ${address.delivery_instructions ? `Delivery Instructions: ${address.delivery_ins
     `.trim();
   }
 
-  /**
-   * Get order items section
-   */
   private getItemsSection(order: OrderModel): string {
     if (!order.order_items || order.order_items.length === 0) {
       return 'No items found';
@@ -639,7 +729,6 @@ ${address.delivery_instructions ? `Delivery Instructions: ${address.delivery_ins
       
       itemsText += `${paddedName} ${qty} ${unitPrice} ${totalPrice}\n`;
       
-      // Add product details if available
       if (item.variant?.sku) {
         itemsText += `  SKU: ${item.variant.sku}\n`;
       }
@@ -652,9 +741,6 @@ ${address.delivery_instructions ? `Delivery Instructions: ${address.delivery_ins
     return itemsText;
   }
 
-  /**
-   * Get payment information section
-   */
   private getPaymentInfo(order: OrderModel): string {
     if (!order.payment) {
       return 'Payment information not available';
@@ -669,9 +755,6 @@ Payment Date: ${new Date(order.payment.created_at).toLocaleDateString()}
     `.trim();
   }
 
-  /**
-   * Format currency for invoice
-   */
   private formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -679,16 +762,10 @@ Payment Date: ${new Date(order.payment.created_at).toLocaleDateString()}
     }).format(amount || 0);
   }
 
-  /**
-   * Get order status text
-   */
   private getOrderStatusText(status: string): string {
     return status.charAt(0).toUpperCase() + status.slice(1);
   }
 
-  /**
-   * Calculate tax amount for invoice
-   */
   private calculateTaxAmount(order: OrderModel, taxRate: number): number {
     const subtotal = order.order_items?.reduce((sum, item) => sum + item.total_price, 0) || 0;
     return Math.round(subtotal * taxRate * 100) / 100;
