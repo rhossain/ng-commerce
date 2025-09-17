@@ -1,3 +1,4 @@
+// card.component.ts - Updated with wishlist functionality
 import { Component, ElementRef, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -12,11 +13,19 @@ import { ProductService } from '../../services/product.service';
 import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 import { UnderDevelopmentDirective } from '../../shared/under-development.directive';
 import { PricingService } from '../../services/pricing.service';
+import { WishlistButtonComponent } from '../../components/wishlist/wishlist-button/wishlist-button.component';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [RouterModule, CommonModule, FontAwesomeModule, StarRatingComponent, UnderDevelopmentDirective],
+  imports: [
+    RouterModule, 
+    CommonModule, 
+    FontAwesomeModule, 
+    StarRatingComponent, 
+    UnderDevelopmentDirective,
+    WishlistButtonComponent
+  ],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss'
 })

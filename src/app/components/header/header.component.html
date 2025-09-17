@@ -69,6 +69,8 @@
                                     <div ngbDropdownMenu aria-labelledby="ddUser" *ngIf="isLoggedIn">
                                         <p class="ps-3 mb-0 text-secondary-dark fs-5">{{ firstName }} {{ lastName }}</p>
                                         <button ngbDropdownItem routerLink="/auth/profile">Profile</button>
+                                        <button ngbDropdownItem routerLink="/orders">Orders</button>
+                                        <button ngbDropdownItem routerLink="/wishlist">Wishlist</button>
                                         <button ngbDropdownItem (click)="logout()">Logout</button>
                                     </div>
                                     <div ngbDropdownMenu aria-labelledby="ddUser" *ngIf="!isLoggedIn">

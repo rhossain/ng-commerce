@@ -4,6 +4,7 @@ import { RegisterComponent } from './auth/register/register.component';
 import { ProfileComponent } from './auth/profile/profile.component';
 import { AuthGuard } from './guards/auth.guard';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { WishlistListComponent } from './components/wishlist/wishlist-list/wishlist-list.component';
 
 export const routes: Routes = [
     {
@@ -47,5 +48,11 @@ export const routes: Routes = [
         path: 'orders', 
         component: OrderHistoryComponent,
         canActivate: [AuthGuard]
+    },
+    { 
+        path: 'wishlist', 
+        component: WishlistListComponent,
+        canActivate: [AuthGuard],
+        title: 'My Wishlist'
     },
 ];

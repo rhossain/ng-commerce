@@ -1,0 +1,29 @@
+.wishlist-counter {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+}
+
+.wishlist-counter:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #dc3545;
+}
+
+.wishlist-counter.has-items {
+    color: #dc3545;
+}
+
+.badge {
+    font-size: 0.7rem;
+    min-width: 1.2rem;
+    height: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+fa-icon {
+    font-size: 1.2rem;
+}

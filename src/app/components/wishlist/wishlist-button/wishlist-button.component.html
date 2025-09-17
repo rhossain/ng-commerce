@@ -1,0 +1,16 @@
+<button 
+    class="icon-btn wishlist"
+    [class.active]="isInWishlist"
+    [class.loading]="isLoading"
+    [disabled]="isLoading"
+    (click)="toggleWishlist($event)"
+    [title]="getTooltipText()">
+    
+    <fa-icon 
+        [icon]="isInWishlist ? faHeartSolid : faHeartRegular"
+        [class.text-danger]="isInWishlist"
+        [class.d-none]="isLoading">
+    </fa-icon>
+    
+    <span *ngIf="isLoading" class="spinner-border spinner-border-sm ms-1"></span>
+</button>

@@ -1,0 +1,34 @@
+<a 
+    routerLink="/wishlist"
+    class="nav-link wishlist-counter"
+    [class.has-items]="wishlistCount > 0"
+    *ngIf="isAuthenticated">
+    
+    <div class="position-relative">
+        <fa-icon [icon]="faHeart" [class.text-danger]="wishlistCount > 0"></fa-icon>
+        
+        <span 
+            *ngIf="wishlistCount > 0" 
+            class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
+            {{ wishlistCount > 99 ? '99+' : wishlistCount }}
+        </span>
+    </div>
+    
+    <span class="ms-2 d-none d-md-inline">
+        Wishlist
+        <small class="d-block text-muted">{{ wishlistCount }} items</small>
+    </span>
+</a>
+
+<!-- Login prompt for unauthenticated users -->
+<a 
+    routerLink="/auth/login"
+    class="nav-link wishlist-counter text-muted"
+    *ngIf="!isAuthenticated">
+    
+    <fa-icon [icon]="faHeart"></fa-icon>
+        <span class="ms-2 d-none d-md-inline">
+        Wishlist
+        <small class="d-block">Login required</small>
+    </span>
+</a>

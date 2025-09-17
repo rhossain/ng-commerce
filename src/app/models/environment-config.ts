@@ -29,6 +29,13 @@ export interface EnvironmentConfiguration {
             getProfile: string;
             setSignup: string;
         },
+        wishlist: {
+            getWishlist: string;
+            addToWishlist: string;
+            getWishlistItem: string;
+            updateWishlistItem: string;
+            removeWishlistItem: string;
+        },
         order: {
             createOrder: string;
             getUserOrders: string;

@@ -40,8 +40,7 @@ export class QuickMenuComponent {
 
   navigateToWishlist(): void {
     this.closeMenu();
-    // TODO: Implement wishlist navigation when ready
-    this.toastrService.info('This feature is under development.', 'Info');
+    this.router.navigate(['/wishlist']);
   }
 
   navigateToUser(): void {

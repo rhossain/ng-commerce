@@ -33,6 +33,13 @@ export const environment: EnvironmentConfiguration = {
             getProfile: "auth/me",
             setSignup: "auth/signup"
         },
+        wishlist: {
+            getWishlist: "wishlist",
+            addToWishlist: "wishlist",
+            getWishlistItem: "wishlist",
+            updateWishlistItem: "wishlist",
+            removeWishlistItem: "wishlist"
+        },
         order: {
             createOrder: "order",
             getUserOrders: "order",
