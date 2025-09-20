@@ -1,0 +1,1 @@
+import{Ab as n,Bb as o,Xb as p,cb as s}from"./chunk-GODDSXPM.js";import"./chunk-4CLCTAJ7.js";var e=class i{static \u0275fac=function(t){return new(t||i)};static \u0275cmp=s({type:i,selectors:[["app-wishlist"]],decls:2,vars:0,template:function(t,a){t&1&&(n(0,"p"),p(1,"wishlist works!"),o())},encapsulation:2})};export{e as default};
