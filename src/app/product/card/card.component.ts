@@ -10,6 +10,7 @@ import { ProductModel } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
 import { ImageCacheService } from '../../services/image-cache.service';
 import { ProductService } from '../../services/product.service';
+import { QuickviewService } from '../../services/quickview.service'; 
 import { StarRatingComponent } from "../../shared/star-rating/star-rating.component";
 import { UnderDevelopmentDirective } from '../../shared/under-development.directive';
 import { PricingService } from '../../services/pricing.service';
@@ -53,7 +54,8 @@ export class CardComponent implements AfterViewInit {
     private toastr: ToastrService,
     private productService: ProductService,
     private imageCacheService: ImageCacheService,
-    public pricingService: PricingService
+    private quickviewService: QuickviewService,
+    public pricingService: PricingService,
   ) {}
 
   ngAfterViewInit() {
@@ -139,6 +141,15 @@ export class CardComponent implements AfterViewInit {
     } finally {
       this.isAddingToCart = false;
     }
+  }
+
+  openQuickview(): void {
+    if (!this.product || !this.product.id) {
+      this.toastr.warning('Product information not available', 'Cannot Open Quickview');
+      return;
+    }
+
+    this.quickviewService.openQuickview(this.product.id);
   }
 
   incrementQuantity(): void {
