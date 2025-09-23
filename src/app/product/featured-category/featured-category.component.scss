@@ -101,7 +101,7 @@
         &[data-category="bags"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-bags), 0) 0%, rgba(var(--clr-category-bags), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-periwinkle-blue), 0) 0%, rgba(var(--clr-periwinkle-blue), 0.7) 100%);
                 }
             }
         }
@@ -109,7 +109,7 @@
         &[data-category="car"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-car), 0) 0%, rgba(var(--clr-category-car), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-crimson-red), 0) 0%, rgba(var(--clr-crimson-red), 0.7) 100%);
                 }
             }
         }
@@ -117,7 +117,7 @@
         &[data-category="clothing-fashion"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-clothing), 0) 0%, rgba(var(--clr-category-clothing), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-fuchsia-rose), 0) 0%, rgba(var(--clr-fuchsia-rose), 0.7) 100%);
                 }
             }
         }
@@ -125,7 +125,7 @@
         &[data-category="electronic-accessories"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-accessories), 0) 0%, rgba(var(--clr-category-accessories), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-indigo-blue), 0) 0%, rgba(var(--clr-indigo-blue), 0.7) 100%);
                 }
             }
         }
@@ -133,7 +133,7 @@
         &[data-category="furniture"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-furniture), 0) 0%, rgba(var(--clr-category-furniture), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-aqua-green), 0) 0%, rgba(var(--clr-aqua-green), 0.7) 100%);
                 }
             }
         }
@@ -141,7 +141,7 @@
         &[data-category="home-appliances"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-appliances), 0) 0%, rgba(var(--clr-category-appliances), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-amethyst-purple), 0) 0%, rgba(var(--clr-amethyst-purple), 0.7) 100%);
                 }
             }
         }
@@ -149,7 +149,7 @@
         &[data-category="laptop"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-laptop), 0) 0%, rgba(var(--clr-category-laptop), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-sapphire-blue), 0) 0%, rgba(var(--clr-sapphire-blue), 0.7) 100%);
                 }
             }
         }
@@ -157,7 +157,7 @@
         &[data-category="motorcycle"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-motorcycle), 0) 0%, rgba(var(--clr-category-motorcycle), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-charcoal-gray), 0) 0%, rgba(var(--clr-charcoal-gray), 0.7) 100%);
                 }
             }
         }
@@ -165,7 +165,7 @@
         &[data-category="phone"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-phone), 0) 0%, rgba(var(--clr-category-phone), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-cerulean-blue), 0) 0%, rgba(var(--clr-cerulean-blue), 0.7) 100%);
                 }
             }
         }
@@ -173,7 +173,7 @@
         &[data-category="shoes"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-shoes), 0) 0%, rgba(var(--clr-category-shoes), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-carrot-orange), 0) 0%, rgba(var(--clr-carrot-orange), 0.7) 100%);
                 }
             }
         }
@@ -181,7 +181,7 @@
         &[data-category="sports-fitness"] {
             .#{$this}-image {
                 &::after {
-                    background-image: linear-gradient(rgba(var(--clr-category-sports), 0) 0%, rgba(var(--clr-category-sports), 0.7) 100%);
+                    background-image: linear-gradient(rgba(var(--clr-emerald-green), 0) 0%, rgba(var(--clr-emerald-green), 0.7) 100%);
                 }
             }
         }
@@ -497,7 +497,7 @@
 }
 
 .dropdown-categories-modern {
-    background: white;
+    background: rgb(var(--clr-white));
     border: none;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(47, 79, 79, 0.15);
@@ -541,7 +541,7 @@
 
 .dropdown-header-modern {
     background: linear-gradient(135deg, #2F4F4F 0%, #4A6B6B 100%);
-    color: white;
+    color: rgb(var(--clr-white));
     padding: 16px 20px;
     display: flex;
     align-items: center;
@@ -737,47 +737,47 @@
 
     /* Category specific icon colors */
     &[data-category-slug="bags"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-bags)), rgba(var(--clr-category-bags), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)), rgba(var(--clr-periwinkle-blue), 0.6));
     }
 
     &[data-category-slug="car"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-car)), rgba(var(--clr-category-car), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-crimson-red)), rgba(var(--clr-crimson-red), 0.6));
     }
 
     &[data-category-slug="clothing-fashion"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-clothing)), rgba(var(--clr-category-clothing), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-fuchsia-rose)), rgba(var(--clr-fuchsia-rose), 0.6));
     }
 
     &[data-category-slug="electronic-accessories"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-accessories)), rgba(var(--clr-category-accessories), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-indigo-blue)), rgba(var(--clr-indigo-blue), 0.6));
     }
 
     &[data-category-slug="furniture"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-furniture)), rgba(var(--clr-category-furniture), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-aqua-green)), rgba(var(--clr-aqua-green), 0.6));
     }
 
     &[data-category-slug="home-appliances"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-appliances)), rgba(var(--clr-category-appliances), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-amethyst-purple)), rgba(var(--clr-amethyst-purple), 0.6));
     }
 
     &[data-category-slug="laptop"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-laptop)), rgba(var(--clr-category-laptop), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-sapphire-blue)), rgba(var(--clr-sapphire-blue), 0.6));
     }
 
     &[data-category-slug="motorcycle"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-motorcycle)), rgba(var(--clr-category-motorcycle), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-charcoal-gray)), rgba(var(--clr-charcoal-gray), 0.6));
     }
 
     &[data-category-slug="phone"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-phone)), rgba(var(--clr-category-phone), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-cerulean-blue)), rgba(var(--clr-cerulean-blue), 0.6));
     }
 
     &[data-category-slug="shoes"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-shoes)), rgba(var(--clr-category-shoes), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-carrot-orange)), rgba(var(--clr-carrot-orange), 0.6));
     }
 
     &[data-category-slug="sports-fitness"] {
-        background: linear-gradient(135deg, rgb(var(--clr-category-sports)), rgba(var(--clr-category-sports), 0.6));
+        background: linear-gradient(135deg, rgb(var(--clr-emerald-green)), rgba(var(--clr-emerald-green), 0.6));
     }
 }
 
@@ -846,7 +846,7 @@
 
     &:hover {
         background: #F97316;
-        color: white;
+        color: rgb(var(--clr-white));
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
     }
@@ -903,25 +903,25 @@
 
 .clear-search-button {
   padding: 0.5rem 1rem;
-  border: 1px solid #667eea;
+  border: 1px solid rgb(var(--clr-periwinkle-blue));
   border-radius: 6px;
-  background: white;
-  color: #667eea;
+  background: rgb(var(--clr-white));
+  color: rgb(var(--clr-periwinkle-blue));
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #667eea;
-    color: white;
+    background: rgb(var(--clr-periwinkle-blue));
+    color: rgb(var(--clr-white));
   }
 }
 
 .mobile-list-header {
   padding: 1rem;
   border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%);
+  color: rgb(var(--clr-white));
   position: relative;
   overflow: hidden;
 
@@ -1002,7 +1002,7 @@
 
   // Focus glow effect when search is active
   &:focus-within {
-    background: #fff;
+    background: rgb(var(--clr-white));
     box-shadow: inset 0 0 0 1px rgba(102, 126, 234, 0.2);
 
     &::before {
@@ -1047,7 +1047,7 @@
 
   // Icon animation on focus
   .search-input-wrapper:focus-within & {
-    color: #667eea;
+    color: rgb(var(--clr-periwinkle-blue));
     transform: scale(1.1);
   }
 }
@@ -1058,7 +1058,7 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   font-size: 0.875rem;
-  background: white;
+  background: rgb(var(--clr-white));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   z-index: 1;
@@ -1066,12 +1066,12 @@
   // Enhanced focus state
   &:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: rgb(var(--clr-periwinkle-blue));
     box-shadow: 
       0 0 0 3px rgba(102, 126, 234, 0.1),
       0 4px 12px rgba(102, 126, 234, 0.15);
     transform: translateY(-1px);
-    background: #fff;
+    background: rgb(var(--clr-white));
   }
 
   // Placeholder styling

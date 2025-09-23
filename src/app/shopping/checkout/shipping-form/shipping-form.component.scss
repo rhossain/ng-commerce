@@ -47,7 +47,7 @@
       padding: 1.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      background: white;
+      background: rgb(var(--clr-white));
 
       &:hover {
         border-color: #007bff;
@@ -125,7 +125,7 @@
 
         .default-badge {
           background-color: #007bff;
-          color: white;
+          color: rgb(var(--clr-white));
           padding: 0.25rem 0.5rem;
           border-radius: 12px;
           font-size: 0.75rem;

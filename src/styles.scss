@@ -64,7 +64,7 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
   &:hover {
     background-color: $brand-primary;
-    color: #fff;
+    color: rgb(var(--clr-white));
   }
 }
 
@@ -79,12 +79,12 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
   &:hover {
     background-color: $brand-secondary;
-    color: #fff;
+    color: rgb(var(--clr-white));
   }
 }
 
 .btn-minimal {
-  background: #fff;
+  background: rgb(var(--clr-white));
   color: #000;
   border: 1px solid #ccc;
   border-radius: 999px;
@@ -94,13 +94,13 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
   &:hover {
     background: #000;
-    color: #fff;
+    color: rgb(var(--clr-white));
   }
 }
 
 .btn-icon {
   background: #212529;
-  color: #fff;
+  color: rgb(var(--clr-white));
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   transition: background 0.3s ease;
@@ -139,14 +139,14 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 }
 .toast-success {
   background-color: #4CAF50 !important;
-  color: white;
+  color: rgb(var(--clr-white));
 }
 .toast-error {
   background-color: #F44336 !important;
 }
 .toast-info {
   background-color: #026ec6 !important;
-  color: white;
+  color: rgb(var(--clr-white));
 }
 .toast-warning {
   background-color: #FFC107 !important;
@@ -165,6 +165,17 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 .divider-v {
     width: 1px;
     height: 100%;
+}
+
+// Status Badge Colors
+.badge {
+  &.bg-text-warning { background-color: #ffc107 !important; color: #212529 !important; }
+  &.bg-text-info { background-color: #17a2b8 !important; }
+  &.bg-text-primary { background-color: #007bff !important; }
+  &.bg-text-success { background-color: #28a745 !important; }
+  &.bg-text-danger { background-color: #dc3545 !important; }
+  &.bg-text-secondary { background-color: #6c757d !important; }
+  &.bg-text-muted { background-color: #6c757d !important; }
 }
 
 .custom-radio {
@@ -429,7 +440,7 @@ router-outlet {
     }
 
     &:hover {
-      background: #fff;
+      background: rgb(var(--clr-white));
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
   }

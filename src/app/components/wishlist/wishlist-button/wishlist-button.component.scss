@@ -12,13 +12,13 @@
 }
 
 .icon-btn.wishlist:hover {
-    background: #fff;
+    background: rgb(var(--clr-white));
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     // transform: scale(1.1);
 }
 
 .icon-btn.wishlist.active {
-    background: #fff;
+    background: rgb(var(--clr-white));
     border-color: #dc3545;
 }
 

@@ -263,88 +263,6 @@
     }
 }
 
-// Header specific styles
-.header {
-  // .navbar-toggler {
-  //   background: none;
-  //   border: none;
-  //   padding: 0.5rem;
-  //   font-size: 1.2rem;
-  //   color: #333;
-  //   cursor: pointer;
-  //   transition: all 0.2s ease;
-    
-  //   &:hover {
-  //     color: #667eea;
-  //     transform: scale(1.1);
-  //   }
-    
-  //   &:focus {
-  //     outline: none;
-  //     box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  //     border-radius: 4px;
-  //   }
-  // }
-  
-  // .search-box-icon {
-  //   padding: 0.5rem;
-  //   font-size: 1.1rem;
-  //   color: #333;
-  //   cursor: pointer;
-  //   transition: all 0.2s ease;
-    
-  //   &:hover {
-  //     color: #667eea;
-  //     transform: scale(1.1);
-  //   }
-  // }
-  
-  // .user-dropdown {
-  //   button {
-  //     background: none;
-  //     border: none;
-  //     padding: 0.5rem;
-  //     color: #333;
-  //     font-size: 0.9rem;
-  //     font-weight: 500;
-  //     cursor: pointer;
-  //     transition: all 0.2s ease;
-  //     border-radius: 4px;
-      
-  //     &:hover {
-  //       background: #f8f9fa;
-  //       color: #667eea;
-  //     }
-      
-  //     &:focus {
-  //       outline: none;
-  //       box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
-  //     }
-  //   }
-  // }
-}
-
-// Mobile-specific header adjustments
-@media (max-width: 767.98px) {
-  .header {
-    // .header-middle-inner {
-    //   padding: 0.75rem 0;
-    // }
-    
-    // .navbar-toggler,
-    // .search-box-icon {
-    //   padding: 0.75rem;
-    //   font-size: 1.3rem;
-    // }
-    
-    // .divider-v {
-    //   height: 24px;
-    //   width: 1px;
-    //   opacity: 0.3;
-    // }
-  }
-}
-
 // Enhanced sidebar animations
 .sidebar {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -391,7 +309,7 @@
 // Category-specific icon gradients (matching navbar design)
 .category-icon-modern {
   &[data-category-slug*="electronic"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -463,7 +381,7 @@
   }
   
   &[data-category-slug*="laptop"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -471,7 +389,7 @@
   }
   
   &[data-category-slug*="phone"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -523,83 +441,5 @@
   
   .show-toggle-modern:active {
     transform: scale(0.98);
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  // .header {
-  //   background: #1e1e1e;
-  //   color: #ffffff;
-    
-  //   .navbar-toggler,
-  //   .search-box-icon {
-  //     color: #ffffff;
-      
-  //     &:hover {
-  //       color: #667eea;
-  //     }
-  //   }
-    
-  //   .user-dropdown button {
-  //     color: #ffffff;
-      
-  //     &:hover {
-  //       background: #2d2d2d;
-  //       color: #667eea;
-  //     }
-  //   }
-  // }
-  
-  // .sidebar {
-  //   background: #1e1e1e;
-  //   color: #ffffff;
-  //   border-color: #404040;
-  // }
-}
-
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .modern-category-item {
-    border: 2px solid transparent;
-    
-    &:hover,
-    &:focus {
-      border-color: #000000;
-    }
-    
-    &.active {
-      border-color: #000000;
-    }
-  }
-  
-  .category-icon-modern {
-    border: 2px solid #cccccc;
-  }
-}
-
-// Reduced motion support
-@media (prefers-reduced-motion: reduce) {
-  .modern-category-item,
-  .category-link-modern,
-  .category-arrow,
-  .toggle-chevron,
-  .sidebar,
-  .sidebar-backdrop {
-    animation: none !important;
-    transition: none !important;
-  }
-  
-  .modern-category-item::before {
-    display: none;
-  }
-}
-
-// Print styles (hide interactive elements)
-@media print {
-  .header,
-  .sidebar,
-  .sidebar-backdrop {
-    display: none !important;
   }
 }

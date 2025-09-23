@@ -1,6 +1,6 @@
 .checkout-summary {
   .summary-card {
-    background: white;
+    background: rgb(var(--clr-white));
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 2rem;
@@ -24,7 +24,7 @@
 
       .item-count {
         background: rgb(var(--clr-secondary-custom));
-        color: white;
+        color: rgb(var(--clr-white));
         padding: 0.25rem 0.75rem;
         border-radius: 12px;
         font-size: 0.875rem;

@@ -59,7 +59,7 @@
     .hamburger {
         width: 24px;
         height: 2px;
-        background: white;
+        background: rgb(var(--clr-white));
         display: block;
         position: absolute;
         top: 50%;
@@ -208,7 +208,6 @@
                     text-align: center;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                    // text-shadow: 0 3.36px 5.896px rgb(var(--clr-white)), 0 0px 1px rgb(var(--clr-white));
                 }
 
                 .#{$this}-list-icon {

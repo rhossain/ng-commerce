@@ -34,7 +34,7 @@
       padding: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
-      background: white;
+      background: rgb(var(--clr-white));
 
       &:hover:not(.disabled) {
         border-color: rgb(var(--clr-secondary-custom));
@@ -98,7 +98,7 @@
           height: 30px;
           border-radius: 50%;
           background-color: #28a745;
-          color: white;
+          color: rgb(var(--clr-white));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -266,10 +266,10 @@
     animation: slideDown 0.3s ease-out;
 
     .wallet-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%);
       border-radius: 12px;
       padding: 2rem;
-      color: white;
+      color: rgb(var(--clr-white));
       display: flex;
       align-items: center;
 
@@ -322,7 +322,7 @@
   }
 
   .payment-summary {
-    background: white;
+    background: rgb(var(--clr-white));
     border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 1.5rem;
