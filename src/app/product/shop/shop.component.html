@@ -1,0 +1,200 @@
+<div class="mobile-gradient">
+    <div class="overlay"></div>
+</div>
+
+<section class="com-shop py-4 position-relative">
+    <div class="container">
+        
+        <div class="row mb-4" *ngIf="isSearchMode || filterType || minPrice || maxPrice || selectedCategoryId">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                    <div>
+                        <h2 class="h4 mb-1">{{ getPageTitle() }}</h2>
+                        <p class="text-muted mb-0">
+                            {{ getResultsMessage() }}
+                            <span *ngIf="getActiveFiltersText()" class="ms-2">
+                                • {{ getActiveFiltersText() }}
+                            </span>
+                        </p>
+                    </div>
+                    <button 
+                        class="btn btn-outline-secondary" 
+                        (click)="isSearchMode ? clearSearch() : clearAllFilters()">
+                        <i class="bi bi-x-circle me-1"></i>
+                        {{ isSearchMode ? 'Clear Search' : 'Clear All Filters' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <aside class="col-xl-3 col-lg-4 sidebar">
+                
+                <div class="card mb-3 block-sidebar">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Search Products</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content">
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search products..."
+                                [(ngModel)]="searchQuery"
+                                (keyup.enter)="onSearchSubmit()">
+                            <button 
+                                class="btn btn-outline-secondary" 
+                                type="button"
+                                (click)="onSearchSubmit()">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Filter -->
+                <div class="card mb-3 block-sidebar">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Categories</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content p-0">
+                        <app-featured-category
+                            [categories]="categories"
+                            [styleType]="'sidebar'"
+                            [selectedCategoryId]="selectedCategoryId"
+                            (categorySelected)="onCategorySelect($event)">
+                        </app-featured-category>
+                    </div>
+                </div>
+
+                <!-- ✅ ENHANCED: Price Range Filter -->
+                <div class="card mb-3 block-sidebar">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Price Range</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small">Min</label>
+                                <div class="input-group input-group-sm">
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        placeholder="Min price"
+                                        [(ngModel)]="minPrice"
+                                        (change)="onPriceChange()">
+                                    <button 
+                                        *ngIf="minPrice" 
+                                        class="btn btn-outline-secondary" 
+                                        type="button"
+                                        (click)="clearMinPrice()"
+                                        title="Clear min price">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small">Max</label>
+                                <div class="input-group input-group-sm">
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        placeholder="Max price"
+                                        [(ngModel)]="maxPrice"
+                                        (change)="onPriceChange()">
+                                    <button 
+                                        *ngIf="maxPrice" 
+                                        class="btn btn-outline-secondary" 
+                                        type="button"
+                                        (click)="clearMaxPrice()"
+                                        title="Clear max price">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- ✅ Clear Price Range Button -->
+                        <button 
+                            *ngIf="minPrice || maxPrice"
+                            class="btn btn-outline-warning btn-sm w-100 mt-2" 
+                            (click)="clearPriceRange()">
+                            <i class="bi bi-x-circle me-1"></i>
+                            Clear Price Range
+                        </button>
+                        
+                        <!-- ✅ Quick Price Range Buttons -->
+                        <div class="mt-2" *ngIf="!minPrice && !maxPrice">
+                            <small class="text-muted d-block mb-2">Quick Filters:</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button class="btn btn-outline-secondary btn-sm" (click)="setQuickPrice(0, 25)">
+                                    Under $25
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" (click)="setQuickPrice(25, 100)">
+                                    $25-$100
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" (click)="setQuickPrice(100, 500)">
+                                    $100-$500
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" (click)="setQuickPrice(500, null)">
+                                    $500+
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Types (hide in search mode) -->
+                <div class="card mb-3 block-sidebar" *ngIf="!isSearchMode">
+                    <div class="card-header border-bottom-0 p-0 block-sidebar-header">
+                        <h4 class="block-sidebar-title">Filter Types</h4>
+                    </div>
+                    <div class="card-body block-sidebar-content">
+                        <div class="filter-chips">
+                            <button 
+                                class="btn me-2 mb-2" 
+                                [class.btn-primary]="filterType === 'featured'"
+                                [class.btn-outline-secondary]="filterType !== 'featured'"
+                                (click)="applyFilter('featured')">
+                                Featured
+                            </button>
+                            <button 
+                                class="btn me-2 mb-2" 
+                                [class.btn-primary]="filterType === 'new'"
+                                [class.btn-outline-secondary]="filterType !== 'new'"
+                                (click)="applyFilter('new')">
+                                New
+                            </button>
+                            <!-- ✅ Clear All Filters Button -->
+                            <button 
+                                class="btn btn-outline-danger btn-sm w-100 mt-2" 
+                                (click)="clearAllFilters()"
+                                *ngIf="filterType">
+                                Clear All Filters
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="col-xl-9 col-lg-8">
+                <!-- ✅ ENHANCED: Use List Component with conditional data -->
+                <app-product-list 
+                    [minPrice]="minPrice ?? undefined" 
+                    [maxPrice]="maxPrice ?? undefined" 
+                    [categoryId]="selectedCategoryId"
+                    [filterType]="filterType"
+                    [searchQuery]="isSearchMode ? searchQuery : undefined"
+                    [externalProducts]="isSearchMode ? searchResults?.items : undefined"
+                    [externalPagination]="isSearchMode ? searchResults?.pagination : undefined"
+                    (productCountChanged)="productCountChanged($event)">
+                </app-product-list>
+                
+                <!-- ✅ Debug button (remove after testing) -->
+                <!-- <button class="btn btn-warning mt-3" (click)="debugPriceFilter()">
+                    Debug Price Filter
+                </button> -->
+            </div>
+        </div>
+    </div>
+</section>

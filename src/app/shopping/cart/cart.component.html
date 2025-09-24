@@ -1,0 +1,207 @@
+<div class="cart-mini" (click)="toggleCart()">
+    <div class="d-flex align-items-center cart-mini-anchor" id="cartMini">
+        <div class="position-relative d-inline-flex align-items-center justify-content-center cart-mini-mask">
+            <div class="position-absolute d-flex align-items-center justify-content-center cart-mini-count">
+              {{ cartItemsQuantity$ | async }}
+            </div>
+            <fa-icon [icon]="faBagShopping" class="cart-mini-icon"></fa-icon>
+        </div>
+        <div class="d-none d-md-flex flex-column text-end text-uppercase cart-mini-info">
+            <span class="cart-mini-name">My Cart</span>
+            <span class="cart-mini-amount">{{ subtotal$ | async | currency }}</span>
+        </div>
+    </div>
+</div>
+
+<app-sidebar 
+  [id]="sidebarId" 
+  title="Shopping Cart" 
+  position="right"
+  width="350px"
+  (isOpenChange)="!$event && cartClosed.emit()">
+  
+  <!-- Free Shipping Progress Bar -->
+  <div class="p-3 border-bottom border-top shadow-lg" [class.d-none]="(cartItems$ | async)?.length === 0">
+    <div class="small text-center text-dark">
+      <ng-container *ngIf="(subtotal$ | async) as currentSubtotal">
+        <ng-container *ngIf="currentSubtotal >= freeShippingThreshold; else needMore">
+          <span class="text-success">
+            <i class="bi bi-truck"></i>
+            You qualify for <strong>FREE SHIPPING!</strong> 🎉
+          </span>
+        </ng-container>
+        <ng-template #needMore>
+          <div class="mb-2">
+            Add <strong class="text-secondary">{{ freeShippingThreshold - currentSubtotal | currency }}</strong> more for <strong class="text-secondary">FREE SHIPPING</strong>
+          </div>
+          <!-- Progress Bar -->
+          <div class="progress" style="height: 4px;">
+            <div class="progress-bar bg-success" [style.width.%]="(currentSubtotal / freeShippingThreshold) * 100"></div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Cart Items -->
+  <div class="cart-items" [class.empty]="(cartItems$ | async)?.length === 0">
+    <ng-container *ngIf="(cartItems$ | async) as items">
+      <ng-container *ngIf="items.length > 0; else emptyCart">
+        <div class="cart-item p-3 border-bottom" 
+             *ngFor="let item of items; trackBy: trackByItem; let i = index"
+             [class.updating]="isUpdating(item)">
+          <div class="d-flex mb-3">
+            <!-- Product Image -->
+            <div class="position-relative">
+              <img [src]="getItemImage(item)" 
+                   [alt]="item.product.name" 
+                   width="80" 
+                   height="80"
+                   class="rounded me-3 object-fit-cover"
+                   [class.opacity-50]="isUpdating(item)">
+              <!-- Loading Spinner -->
+              <div class="position-absolute top-50 start-50 translate-middle" 
+                   *ngIf="isUpdating(item)">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+            </div>
+            
+            <div class="flex-grow-1">
+              <!-- Product Name & Remove Button -->
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="mb-1 fw-semibold">{{ item.product.name }}</h6>
+                <button class="btn btn-link text-danger p-0 ms-2" 
+                        (click)="removeItem(item)"
+                        [disabled]="isUpdating(item)"
+                        title="Remove item">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+
+              <!-- Stock Warning -->
+              <div class="mb-2" *ngIf="isLowStock(item.variant)">
+                <small class="text-warning">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  Only {{ item.variant.stock }} left in stock
+                </small>
+              </div>
+              
+              <!-- Quantity Selector -->
+              <div class="mb-2">
+                <app-quantity-selector
+                  [productVariantStock]="item.variant.stock"
+                  [showAvailable]="false"
+                  (quantityChange)="updateItemQuantity(item, $event)"
+                  (stockOut)="onStockOut()">
+                </app-quantity-selector>
+              </div>
+              
+              <!-- Price Information -->
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <!-- Show discounted price and original price if discount exists -->
+                  <ng-container *ngIf="pricingService.getDiscountPrice(item.variant) as discountPrice; else noDiscountPrice">
+                    <!-- Current Price (Discounted) -->
+                    <strong class="text-primary">
+                      {{ pricingService.formatPrice(discountPrice) }}
+                    </strong>
+                    <!-- Original Price (crossed out) -->
+                    <small class="text-muted text-decoration-line-through ms-2">
+                      {{ pricingService.formatPrice(pricingService.getOriginalPrice(item.variant)) }}
+                    </small>
+                    <!-- Savings Badge -->
+                    <span class="badge bg-success ms-1">
+                      Save {{ pricingService.formatPrice(getItemSavings(item)) }}
+                    </span>
+                  </ng-container>
+                  
+                  <!-- Show only original price if no discount -->
+                  <ng-template #noDiscountPrice>
+                    <strong class="text-primary">
+                      {{ pricingService.formatPrice(pricingService.getOriginalPrice(item.variant)) }}
+                    </strong>
+                  </ng-template>
+                </div>
+                <!-- Item Subtotal -->
+                <strong class="text-end">
+                  {{ getItemSubtotal(item) | currency }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+    
+    <!-- Empty Cart State -->
+    <ng-template #emptyCart>
+      <div class="text-center py-5">
+        <i class="bi bi-cart-x text-muted display-3"></i>
+        <h5 class="mt-3">Your cart is empty</h5>
+        <p class="text-muted">Start shopping to add items to your cart</p>
+        <button class="btn btn-primary mt-2" 
+                routerLink="/product/shop" 
+                (click)="closeSidebar()">
+          <i class="bi bi-bag-plus me-2"></i>
+          Continue Shopping
+        </button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Cart Footer -->
+  <div class="p-3 border-top bg-light" [class.d-none]="(cartItems$ | async)?.length === 0">
+    <!-- Cart Summary -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span class="text-muted">Items ({{ (cartItemsQuantity$ | async) || 0 }}):</span>
+        <span>{{ subtotal$ | async | currency }}</span>
+      </div>
+      <div class="d-flex justify-content-between mb-1">
+        <span class="text-muted">Shipping:</span>
+        <span class="text-success" *ngIf="(subtotal$ | async) && (subtotal$ | async)! >= freeShippingThreshold; else shippingCost">
+          FREE
+        </span>
+        <ng-template #shippingCost>
+          <span class="text-muted">Calculated at checkout</span>
+        </ng-template>
+      </div>
+      <hr class="my-2">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Subtotal:</span>
+        <span>{{ subtotal$ | async | currency }}</span>
+      </div>
+    </div>
+    
+    <small class="text-muted d-block mb-3">
+      <i class="bi bi-info-circle me-1"></i>
+      Taxes and shipping calculated at checkout
+    </small>
+    
+    <!-- Action Buttons -->
+    <div class="d-grid gap-2">
+      <button class="btn btn-outline-primary" 
+              (click)="viewFullCart()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-cart3 me-2"></i>
+        View Cart
+      </button>
+      <button class="btn btn-primary" 
+              (click)="proceedToCheckout()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-credit-card me-2"></i>
+        Proceed to Checkout
+      </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="d-flex justify-content-center mt-3">
+      <button class="btn btn-link btn-sm text-muted" 
+              (click)="clearCart()"
+              [disabled]="(cartItems$ | async)?.length === 0">
+        <i class="bi bi-trash3 me-1"></i>
+        Clear Cart
+      </button>
+    </div>
+  </div>
+</app-sidebar>

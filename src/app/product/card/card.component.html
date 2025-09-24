@@ -1,0 +1,63 @@
+<!-- card.component.html - Updated with wishlist button -->
+<!-- Skeleton View -->
+<div class="product-card shimmer" *ngIf="!imageVisible && isLoading">
+    <div class="skeleton-image"></div>
+    <div class="skeleton-line short"></div>
+    <div class="skeleton-line"></div>
+    <div class="skeleton-line"></div>
+</div>
+
+<div #imgContainer class="product-card" *ngIf="!isLoading">
+    <div class="product-image-wrapper">
+        <div
+            #imageEl
+            class="product-image set-bg shimmer-bg"
+            [class.loaded]="imageVisible"
+            [style.background-image]="imageVisible ? 'url(' + imageUrl + ')' : null">
+        </div>
+        <div class="product-image-hover" [style.background-image]="imageVisible ? 'url(' + imageUrl + ')' : null"></div>
+    </div>
+    
+    <div class="action-icons">
+        <!-- Updated wishlist button -->
+        <app-wishlist-button [productId]="product.id"></app-wishlist-button>
+        
+        <button 
+            class="icon-btn quick" 
+            (click)="openQuickview()"
+            title="Quick View"
+            [attr.aria-label]="'Quick view ' + product.name">
+            <fa-icon [icon]="faEye"></fa-icon>
+        </button>
+        
+        <button class="icon-btn compare" appUnderDevelopment>
+            <fa-icon [icon]="faRightLeft"></fa-icon>
+        </button>
+    </div>
+    
+    <div class="product-details">
+      <a [routerLink]="['/product/detail', product.id]" class="w-100 btn btn-outline-brand-secondary">
+              {{ product.name }}
+      </a>
+      
+      <app-star-rating class="d-flex py-2 text-black" [rating]="avgRating" [reviewCount]="product.reviews?.length"></app-star-rating>
+       
+      <div class="price-section">
+            <!-- Show discounted price and original price if discount exists -->
+            <ng-container *ngIf="pricingService.getDiscountPrice(product.variants?.[0]) as discountPrice; else noDiscountPrice">
+                <div class="final-price">${{ discountPrice }}</div>
+                <div class="original-price">${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</div>
+            </ng-container>
+            
+            <!-- Show only original price if no discount -->
+            <ng-template #noDiscountPrice>
+                <div class="final-price">${{ pricingService.getOriginalPrice(product.variants?.[0]) }}</div>
+            </ng-template>
+        </div>
+    </div>
+    
+    <button class="cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
+        <fa-icon [icon]="faCartPlus"></fa-icon>
+        <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm"></span>
+    </button>
+</div>

@@ -1,0 +1,131 @@
+@import 'bootstrap-bp.scss';
+
+.product {
+    &-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+            .product-info {
+                background-color: rgba(var(--clr-white), 0.7);
+            }
+
+            .image-wrapper {
+                img {
+                    filter: grayscale(70%);
+                }
+            }
+        }
+    }
+
+    &-info {
+        position: absolute;
+        bottom: auto;
+        left: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        row-gap: 8px;
+        width: auto;
+        height: auto;
+        background-color: rgba(var(--clr-white), 0.5);
+        padding: 20px;
+        border-radius: 16px;
+        transition: background-color 300ms ease-in;
+
+        @include media-breakpoint-up(lg) {
+            max-width: 40%;
+        }
+    }
+
+    &-pricing {
+      .price-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .current-price {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: rgb(var(--clr-secondary-custom));
+        }
+
+        .original-price {
+          font-size: 0.9rem;
+          color: rgb(var(--clr-gray-darker));
+          text-decoration: line-through;
+        }
+      }
+    }
+}
+
+.image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+
+    @include media-breakpoint-down(md) {
+        max-height: 300px;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        transition: opacity 0.3s ease;
+    }
+
+    .spinner-wrapper {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        background-color: rgb(var(--clr-gray));
+        border-radius: 0.5rem;
+    }
+}
+
+.loading-placeholder, .empty-placeholder {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-placeholder {
+  color: #6c757d;
+}
+
+swiper-container {
+  width: 100%;
+  height: 100%;
+  
+  swiper-slide {
+    width: 100% !important;
+    height: auto;
+  }
+  
+  .swiper-button-next, 
+  .swiper-button-prev {
+    color: #000;
+    background: rgba(255,255,255,0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &::after {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}

@@ -1,0 +1,165 @@
+<!-- product-quickview.component.html -->
+<div class="quickview-container">
+  <!-- Modal Header -->
+  <div class="modal-header border-0 pb-0">
+    <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()">
+      <fa-icon [icon]="faTimes"></fa-icon>
+    </button>
+  </div>
+
+  <!-- Modal Body -->
+  <div class="modal-body">
+    <div class="row" *ngIf="product">
+      <!-- Product Image -->
+      <div class="col-12 col-lg-6">
+        <div class="quickview-image-container">
+          <div class="quickview-image">
+            <img 
+              [src]="getMainImage()" 
+              [alt]="product.name"
+              class="img-fluid"
+              (error)="onImageError($event)"
+              [class.loading]="imageLoading"
+            />
+            <div *ngIf="imageLoading" class="image-loading-overlay">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Sale Badge -->
+          <div class="sale-badge" *ngIf="hasDiscount()">
+            {{ getSaleBadge() }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details -->
+      <div class="col-12 col-lg-6">
+        <div class="quickview-details">
+          <!-- Brand -->
+          <!-- <div class="product-brand mb-2" *ngIf="product.brand">
+            <span class="badge bg-light text-dark">{{ product.brand }}</span>
+          </div> -->
+
+          <h4 class="modal-title text-brand-primary">{{ product.name }}</h4>
+
+          <!-- Rating -->
+          <div class="product-rating mb-3">
+            <app-star-rating 
+              [rating]="avgRating" 
+              [showRatingText]="false"
+              [reviewCount]="product.reviews?.length"
+              class="d-flex align-items-center">
+            </app-star-rating>
+          </div>
+
+          <!-- Price Section -->
+          <div class="price-section mb-4">
+            <ng-container *ngIf="getDiscountPrice() as discountPrice; else noDiscountTemplate">
+              <div class="price-wrapper">
+                <span class="current-price">${{ discountPrice }}</span>
+                <span class="original-price">${{ getOriginalPrice() }}</span>
+                <span class="discount-badge">Save ${{ getSavings() }}</span>
+              </div>
+            </ng-container>
+            
+            <ng-template #noDiscountTemplate>
+              <div class="price-wrapper">
+                <span class="current-price">${{ getOriginalPrice() }}</span>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Description -->
+          <div class="product-description mb-4" *ngIf="product.description">
+            <h6 class="fw-bold text-muted">Description</h6>
+            <p class="description-text">{{ product.description }}</p>
+          </div>
+
+          <!-- Stock Status -->
+          <div class="stock-status mb-3">
+            <ng-container *ngIf="isInStock(); else outOfStockTemplate">
+              <span class="badge bg-success">
+                <fa-icon [icon]="faCheck"></fa-icon>
+                In Stock ({{ getStockQuantity() }} available)
+              </span>
+            </ng-container>
+            
+            <ng-template #outOfStockTemplate>
+              <span class="badge bg-danger">
+                <fa-icon [icon]="faTimes"></fa-icon>
+                Out of Stock
+              </span>
+            </ng-template>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="quantity-section mb-4" *ngIf="isInStock()">
+            <label class="form-label fw-bold">Quantity:</label>
+            <app-quantity-selector
+              [productVariantStock]="getStockQuantity()"
+              [showAvailable]="true"
+              (quantityChange)="onQuantityChange($event)"
+              (stockOut)="onStockOut()">
+            </app-quantity-selector>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button 
+              class="btn btn-primary btn-lg w-100 mb-2" 
+              (click)="addToCart()"
+              [disabled]="!isInStock() || isAddingToCart">
+              <fa-icon [icon]="faCartPlus" class="me-2"></fa-icon>
+              <span *ngIf="!isAddingToCart">Add to Cart</span>
+              <span *ngIf="isAddingToCart" class="d-flex align-items-center justify-content-center">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Adding...
+              </span>
+            </button>
+
+            <div class="secondary-actions d-flex gap-2">
+              <app-wishlist-button 
+                [productId]="product.id" 
+                class="flex-fill">
+              </app-wishlist-button>
+              
+              <a 
+                [routerLink]="['/product/detail', product.id]" 
+                class="btn btn-outline-primary flex-fill"
+                (click)="closeModal()">
+                View Details
+              </a>
+            </div>
+          </div>
+
+          <!-- Product Meta -->
+          <!-- <div class="product-meta mt-4">
+            <div class="meta-row" *ngIf="product.category_id">
+              <strong>Category:</strong>
+              <span>{{ getCategoryName() }}</span>
+            </div>
+            <div class="meta-row" *ngIf="hasVariants()">
+              <strong>Variants:</strong>
+              <span>{{ getVariantCount() }} available</span>
+            </div>
+            <div class="meta-row" *ngIf="getTotalSold() > 0">
+              <strong>Total Sold:</strong>
+              <span>{{ getTotalSold() }} items</span>
+            </div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="!product" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading product...</span>
+      </div>
+      <p class="mt-2 text-muted">Loading product details...</p>
+    </div>
+  </div>
+</div>

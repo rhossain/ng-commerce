@@ -1,0 +1,44 @@
+<!-- <div class="star-rating">
+  <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+    <i class="star-icon"
+       [ngClass]="{
+         'filled': star <= floor(rating),
+         'half': supportHalfStar && star === ceil(rating) && rating % 1 >= 0.5,
+         'empty': star > rating
+       }"
+       (click)="onStarClick(star)">
+      &#9733;
+    </i>
+  </ng-container>
+
+  <span *ngIf="showRatingText" class="rating-text">
+    {{ rating.toFixed(1) }} {{ ratingLabel }}
+  </span>
+
+  <span *ngIf="reviewCount !== undefined" class="review-count">
+    ({{ reviewCount }} Reviews)
+  </span>
+</div> -->
+
+<div class="d-flex align-items-center star-rating">
+    <span class="d-flex align-items-center">
+        <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+            <i class="star-icon"
+            [ngClass]="{
+                'filled': star <= floor(rating),
+                'half': supportHalfStar && star === ceil(rating) && rating % 1 >= 0.5,
+                'empty': star > rating
+            }"
+            (click)="onStarClick(star)">
+            &#9733;
+            </i>
+        </ng-container>
+    </span>
+    <span *ngIf="showRatingText" class="fw-bold ps-2">
+        {{ rating.toFixed(1) }} {{ ratingLabel }}
+    </span>
+</div>
+<div *ngIf="reviewCount !== undefined" class="mx-2 bg-gray divider-v">[invisible]</div>
+<div *ngIf="reviewCount !== undefined" class="d-flex align-items-center">
+    <span class="d-inline-block pe-1 fw-bold">{{ reviewCount }}</span> reviews
+</div>

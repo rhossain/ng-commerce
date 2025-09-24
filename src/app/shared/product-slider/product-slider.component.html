@@ -1,0 +1,99 @@
+<swiper-container 
+  [pagination]="{ clickable: true, dynamicBullets: true }"
+  [navigation]="true"
+  class="product-slider h-100"
+  *ngIf="shouldShowSlider()"
+  >
+    <swiper-slide *ngFor="let product of products; let i = index">
+        <div class="product-card h-100">
+          <!-- Image wrapper -->
+          <div class="image-wrapper position-relative">
+            <!-- Spinner -->
+            <div class="spinner-wrapper" *ngIf="loadingImages[i]">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
+    
+            <!-- Product Image -->
+            <img
+              [src]="product.variant?.product_images?.[0]?.image_url || product.product.main_image_url"
+              alt="{{ product.product.name }}"
+              (load)="loadingImages[i] = false"
+              (error)="loadingImages[i] = false"
+              [class.invisible]="loadingImages[i]"
+            />
+          </div>
+    
+          <div class="product-info">
+            <!-- Product Offer -->
+            <p class="mb-0" *ngIf="pricingService.hasValidDiscount(product.variant)">
+              Exclusive offer <span class="text-danger fw-bold">{{ pricingService.getDiscountPercentage(product.variant) }}%</span> off this week
+            </p>
+
+            <!-- Product Info -->
+            <h3 class="product-name mb-0">
+              <a [routerLink]="['/product/detail', product.product.id]">
+                {{ product.product.name }}
+              </a>
+            </h3>
+
+            <!-- Pricing -->
+            <div class="product-pricing" *ngIf="showPricing && product.variant">
+              <div class="price-container">
+                <!-- Show discounted price and original price if discount exists -->
+                <ng-container *ngIf="pricingService.getDiscountPrice(product.variant) as discountPrice; else noDiscountPrice">
+                  <span class="current-price">
+                    {{ pricingService.formatPrice(discountPrice) }}
+                  </span>
+                  <span class="original-price">
+                    {{ pricingService.formatPrice(pricingService.getOriginalPrice(product.variant)) }}
+                  </span>
+                </ng-container>
+                
+                <!-- Show only original price if no discount -->
+                <ng-template #noDiscountPrice>
+                  <span class="current-price">
+                    {{ pricingService.formatPrice(pricingService.getOriginalPrice(product.variant)) }}
+                  </span>
+                </ng-template>
+              </div>
+            </div>
+
+            <!-- Add to Cart Button -->
+            <div class="product-cart-section" *ngIf="showAddToCartButton">
+              <button 
+                type="button"
+                class="btn btn-primary btn-add-to-cart"
+                [disabled]="!isInStock(product.variant) || isAddingToCart(product.product, product.variant)"
+                (click)="quickAddToCart(product.product, product.variant)">
+                
+                <!-- Loading state -->
+                <span *ngIf="isAddingToCart(product.product, product.variant)" class="d-flex align-items-center">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Adding...
+                </span>
+                
+                <!-- Default state -->
+                <span *ngIf="!isAddingToCart(product.product, product.variant)" class="d-flex align-items-center">
+                  <fa-icon [icon]="faCartPlus" class="me-2"></fa-icon>
+                  {{ isInCart(product.product, product.variant) ? 'Add More' : 'Add to Cart' }}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+    </swiper-slide>
+</swiper-container>
+
+<!-- Loading state -->
+<div *ngIf="shouldShowLoading()" class="loading-placeholder">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- Empty state -->
+<div *ngIf="shouldShowEmpty()" class="empty-placeholder">
+  <p>No products to display</p>
+</div>

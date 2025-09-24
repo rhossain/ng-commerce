@@ -1,0 +1,115 @@
+<div class="shipping-method">
+  <h2>Delivery Options</h2>
+  <p class="form-description">Choose how you'd like to receive your order</p>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <fa-icon [icon]="faSpinner" class="fa-spin"></fa-icon>
+    <span>Loading shipping methods...</span>
+  </div>
+
+  <!-- Shipping Methods -->
+  <div *ngIf="!isLoading" class="shipping-methods">
+    <div 
+      *ngFor="let method of shippingMethods" 
+      class="method-card"
+      [class.selected]="selectedMethod?.id === method.id"
+      [class.disabled]="!method.is_active"
+      (click)="method.is_active && onMethodSelect(method)">
+      
+      <!-- Method Header -->
+      <div class="method-header">
+        <div class="method-info">
+          <div class="method-icon-wrapper">
+            <fa-icon [icon]="getMethodIcon(method)" class="method-icon"></fa-icon>
+          </div>
+          
+          <div class="method-details">
+            <h3 class="method-name">{{ method.name }}</h3>
+            <p class="method-description">{{ getMethodDescription(method) }}</p>
+            <div class="delivery-estimate">
+              <strong>Estimated delivery: </strong>
+              <span>{{ getEstimatedDeliveryDate(method) }}</span>
+              <span class="delivery-time">({{ method.estimated_delivery_days }})</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="method-pricing">
+          <div class="price-wrapper">
+            <span 
+              class="price"
+              [class.free]="isFreeShipping(method)">
+              {{ isFreeShipping(method) ? 'FREE' : formatPrice(getShippingCost(method)) }}
+            </span>
+            <span 
+              *ngIf="isFreeShipping(method)"
+              class="original-price">
+              {{ formatPrice(method.base_cost) }}
+            </span>
+          </div>
+          
+          <!-- Selection Indicator -->
+          <div class="selection-indicator" *ngIf="selectedMethod?.id === method.id">
+            <fa-icon [icon]="faCheck" class="check-icon"></fa-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Free Shipping Threshold Message -->
+      <div 
+        *ngIf="getFreeShippingThresholdMessage(method)"
+        class="threshold-message">
+        <fa-icon [icon]="faInfoCircle" class="info-icon"></fa-icon>
+        <span>{{ getFreeShippingThresholdMessage(method) }}</span>
+      </div>
+
+      <!-- Method Features -->
+      <div class="method-features" *ngIf="method.carrier">
+        <div class="feature-item">
+          <span class="feature-label">Carrier:</span>
+          <span class="feature-value">{{ method.carrier }}</span>
+        </div>
+        <div class="feature-item" *ngIf="method.max_weight">
+          <span class="feature-label">Max Weight:</span>
+          <span class="feature-value">{{ method.max_weight }} lbs</span>
+        </div>
+      </div>
+
+      <!-- Method Restrictions -->
+      <div 
+        *ngIf="method.restrictions"
+        class="method-restrictions">
+        <small class="restrictions-text">{{ method.restrictions }}</small>
+      </div>
+    </div>
+
+    <!-- No Methods Available -->
+    <div *ngIf="shippingMethods.length === 0" class="no-methods">
+      <div class="no-methods-content">
+        <fa-icon [icon]="faInfoCircle" class="info-icon"></fa-icon>
+        <h3>No shipping methods available</h3>
+        <p>Please check your shipping address or contact support.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selected Method Summary -->
+  <div *ngIf="selectedMethod && !isLoading" class="selected-summary">
+    <div class="summary-card">
+      <h4>Selected Shipping Method</h4>
+      <div class="summary-content">
+        <div class="summary-icon">
+          <fa-icon [icon]="getMethodIcon(selectedMethod)"></fa-icon>
+        </div>
+        <div class="summary-details">
+          <h5>{{ selectedMethod.name }}</h5>
+          <p>{{ selectedMethod.estimated_delivery_days }}</p>
+          <p class="summary-price">
+            {{ isFreeShipping(selectedMethod) ? 'FREE' : formatPrice(getShippingCost(selectedMethod)) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
