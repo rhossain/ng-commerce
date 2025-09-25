@@ -13,12 +13,12 @@
       align-items: center;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
-      border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgb(var(--clr-border-light));
 
       h3 {
         font-size: 1.4rem;
         font-weight: 600;
-        color: #2c3e50;
+  color: rgb(var(--clr-slate-navy));
         margin: 0;
       }
 
@@ -37,8 +37,8 @@
 
       .cart-toggle-btn {
         width: 100%;
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
+  background: rgb(var(--clr-gray-lighter));
+  border: 1px solid rgb(var(--clr-border-light));
         border-radius: 6px;
         padding: 0.75rem 1rem;
         display: flex;
@@ -47,11 +47,11 @@
         cursor: pointer;
         transition: all 0.3s ease;
         font-weight: 500;
-        color: #495057;
+  color: rgb(var(--clr-slate-ink));
 
         &:hover {
-          background: #e9ecef;
-          border-color: #ced4da;
+          background: rgb(var(--clr-border-light));
+          border-color: rgb(var(--clr-border-medium));
         }
 
         .toggle-icon {
@@ -66,7 +66,7 @@
 
         &.expanded {
           max-height: 500px;
-          border: 1px solid #e9ecef;
+          border: 1px solid rgb(var(--clr-border-light));
           border-top: none;
           border-radius: 0 0 6px 6px;
           overflow: auto;
@@ -76,7 +76,7 @@
           display: flex;
           align-items: center;
           padding: 1rem;
-          border-bottom: 1px solid #f1f3f4;
+          border-bottom: 1px solid rgb(var(--clr-gray-divider));
 
           &:last-child {
             border-bottom: none;
@@ -91,7 +91,7 @@
               height: 50px;
               object-fit: cover;
               border-radius: 4px;
-              border: 1px solid #e9ecef;
+              border: 1px solid rgb(var(--clr-border-light));
             }
           }
 
@@ -102,7 +102,7 @@
             .item-name {
               font-size: 0.9rem;
               font-weight: 500;
-              color: #2c3e50;
+              color: rgb(var(--clr-slate-navy));
               margin: 0 0 0.25rem 0;
               line-height: 1.3;
             }
@@ -112,7 +112,7 @@
 
               .variant-option {
                 font-size: 0.8rem;
-                color: #6c757d;
+                color: rgb(var(--clr-slate-gray));
                 margin-right: 0.5rem;
               }
             }
@@ -124,19 +124,19 @@
               font-size: 0.85rem;
 
               .quantity {
-                color: #6c757d;
+                color: rgb(var(--clr-slate-gray));
               }
 
               .price {
                 font-weight: 500;
-                color: #495057;
+                color: rgb(var(--clr-slate-ink));
               }
             }
           }
 
           .item-total {
             font-weight: 600;
-            color: #2c3e50;
+            color: rgb(var(--clr-slate-navy));
             font-size: 0.9rem;
           }
         }
@@ -146,7 +146,7 @@
     .promotion-section {
       margin-bottom: 1.5rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgb(var(--clr-border-light));
 
       .promotion-input {
         .input-group {
@@ -154,7 +154,7 @@
 
           .form-control {
             flex: 1;
-            border: 1px solid #ced4da;
+            border: 1px solid rgb(var(--clr-border-medium));
             border-radius: 6px 0 0 6px;
             padding: 0.75rem;
             font-size: 0.9rem;
@@ -165,7 +165,7 @@
             }
 
             &:disabled {
-              background-color: #f8f9fa;
+              background-color: rgb(var(--clr-gray-lighter));
             }
           }
 
@@ -187,7 +187,7 @@
         }
 
         .promotion-error {
-          color: #dc3545;
+          color: rgb(var(--clr-danger-red-alt));
           font-size: 0.85rem;
           margin-top: 0.5rem;
         }
@@ -195,8 +195,8 @@
 
       .applied-promotion {
         .promotion-info {
-          background: #d4edda;
-          border: 1px solid #c3e6cb;
+          background: rgb(var(--clr-success-bg));
+          border: 1px solid rgb(var(--clr-success-border));
           border-radius: 6px;
           padding: 1rem;
 
@@ -206,13 +206,13 @@
             margin-bottom: 0.5rem;
 
             .success-icon {
-              color: #28a745;
+              color: rgb(var(--clr-success-green-alt));
               margin-right: 0.5rem;
             }
 
             .promotion-code {
               font-weight: 600;
-              color: #155724;
+              color: rgb(var(--clr-success-text));
               flex: 1;
             }
 
@@ -223,7 +223,7 @@
           }
 
           .promotion-description {
-            color: #155724;
+            color: rgb(var(--clr-success-text));
             font-size: 0.9rem;
             margin: 0;
           }
@@ -241,37 +241,37 @@
         margin-bottom: 0.75rem;
 
         .label {
-          color: #495057;
+          color: rgb(var(--clr-slate-ink));
           font-size: 0.95rem;
 
           .shipping-method {
             font-size: 0.85rem;
-            color: #6c757d;
+            color: rgb(var(--clr-slate-gray));
           }
         }
 
         .value {
           font-weight: 500;
-          color: #2c3e50;
+          color: rgb(var(--clr-slate-navy));
 
           &.free {
-            color: #28a745;
+            color: rgb(var(--clr-success-green-alt));
             font-weight: 600;
           }
 
           &.discount {
-            color: #28a745;
+            color: rgb(var(--clr-success-green-alt));
           }
         }
 
         &.discount-line {
           .label {
-            color: #28a745;
+            color: rgb(var(--clr-success-green-alt));
           }
         }
 
         &.total-final {
-          border-top: 2px solid #e9ecef;
+          border-top: 2px solid rgb(var(--clr-border-light));
           padding-top: 1rem;
           margin-top: 1rem;
           margin-bottom: 0;
@@ -279,7 +279,7 @@
           .label {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: rgb(var(--clr-slate-navy));
           }
 
           .total-amount {
@@ -291,8 +291,8 @@
       }
 
       .savings-summary {
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
+        background: rgb(var(--clr-warning-bg));
+        border: 1px solid rgb(var(--clr-warning-accent));
         border-radius: 6px;
         padding: 0.75rem;
         margin: 1rem 0;
@@ -300,12 +300,12 @@
         .savings-line {
           display: flex;
           align-items: center;
-          color: #856404;
+          color: rgb(var(--clr-warning-text));
           font-weight: 500;
           font-size: 0.9rem;
 
           .savings-icon {
-            color: #28a745;
+            color: rgb(var(--clr-success-green-alt));
             margin-right: 0.5rem;
           }
         }
@@ -315,7 +315,7 @@
     .shipping-info {
       margin-bottom: 1.5rem;
       padding: 1rem;
-      background: #f8f9fa;
+  background: rgb(var(--clr-gray-lighter));
       border-radius: 6px;
 
       .shipping-method-info {
@@ -332,12 +332,12 @@
           h4 {
             font-size: 1rem;
             font-weight: 600;
-            color: #2c3e50;
+            color: rgb(var(--clr-slate-navy));
             margin: 0 0 0.25rem 0;
           }
 
           p {
-            color: #6c757d;
+            color: rgb(var(--clr-slate-gray));
             font-size: 0.9rem;
             margin: 0;
           }
@@ -391,12 +391,12 @@
         h4 {
           font-size: 1.2rem;
           font-weight: 600;
-          color: #2c3e50;
+          color: rgb(var(--clr-slate-navy));
           margin-bottom: 0.5rem;
         }
 
         p {
-          color: #6c757d;
+          color: rgb(var(--clr-slate-gray));
           font-size: 0.9rem;
           margin: 0;
         }

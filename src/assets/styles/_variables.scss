@@ -1,16 +1,20 @@
 
-$primary:           #2F4F4F;
-$primary-light:     #708A8A;
-$primary-medium:    #4A6B6B;
-$primary-dark:      #1E3333;
-$secondary:         #F97316;
-$secondary-light:   #FED7AA;
-$secondary-medium:  #FB8C44;
-$secondary-dark:    #C45A0A;
+$primary:           #2F4F4F;  // brand primary base
+$primary-light:     #708A8A;  // brand primary light
+$primary-medium:    #4A6B6B;  // brand primary medium
+$primary-dark:      #1E3333;  // brand primary dark
+$secondary:         #F97316;  // brand accent base
+$secondary-light:   #FED7AA;  // brand accent light
+$secondary-medium:  #FB8C44;  // brand accent medium
+$secondary-dark:    #C45A0A;  // brand accent dark
+
+// Semantic / status (SCSS level duplicates of CSS custom properties)
 $success:           #38B000;
-$info:              #F7A51B;
-$warning:           #F7A51B;
+$info:              #F7A51B;  // mapped to warning style usage historically
+$warning:           #F7A51B;  // intentional alias
 $danger:            #EF233C;
+
+// Neutrals & grayscale
 $light:             #F2F2F2;
 $dark:              #222831;
 $gray:              #F2F2F2;
@@ -19,64 +23,171 @@ $gray-dark:         #DDDDDD;
 $gray-darker:       #8890A0;
 
 :root {
-    --clr-primary-custom:           47, 79, 79;     // #2F4F4F
-    --clr-primary-light:            112, 138, 138;  // #708A8A
-    --clr-primary-medium:           74, 107, 107;   // #4A6B6B
-    --clr-primary-dark:             30, 51, 51;     // #1E3333
-    --clr-secondary-custom:         249, 115, 22;   // #F97316;
-    --clr-secondary-light:          252, 194, 129;  // #FED7AA;
-    --clr-secondary-medium:         251, 140, 68;   // #FB8C44;
-    --clr-secondary-dark:           196, 90, 10;    // #C45A0A;
-    --clr-white:                    255, 255, 255;  // #FFFFFF;
-    --clr-black:                    0, 0, 0;        // #000000;
-    --clr-dark:                     34, 40, 49;     // #222831;
-    --clr-dark-light:               57, 62, 70;     // #393E46;
-    --clr-dark-lighter:             82, 82, 82;     // #525252;
-    --clr-gray:                     242, 242, 242;  // #F2F2F2;
-    --clr-gray-light:               238, 238, 238;  // #EEEEEE;
-    --clr-gray-lighter:             248, 249, 250;  // #F8F9FA;
-    --clr-gray-dark:                221, 221, 221;  // #DDDDDD;
-    --clr-gray-darker:              136, 144, 160;  // #8890A0;
-    --clr-green:                    56, 176, 0;     // #38B000;
-    --clr-green-dark:               38, 115, 2;     // #267302;
-    --clr-red:                      239, 35, 60;    // #EF233C;
-    --clr-yellow:                   255, 182, 39;   // #FFB627;
-    --clr-orange:                   232, 93, 4;     // #E85D04;
+     /* ========================================
+         Brand Core Palette
+         ======================================== */
+     --clr-primary-custom:           47, 79, 79;     // #2F4F4F
+     --clr-primary-light:            112, 138, 138;  // #708A8A
+     --clr-primary-medium:           74, 107, 107;   // #4A6B6B
+     --clr-primary-dark:             30, 51, 51;     // #1E3333
+     --clr-secondary-custom:         249, 115, 22;   // #F97316
+     --clr-secondary-light:          252, 194, 129;  // #FED7AA
+     --clr-secondary-medium:         251, 140, 68;   // #FB8C44
+     --clr-secondary-dark:           196, 90, 10;    // #C45A0A
+     --clr-brand-blue:               52, 152, 219;   // #3498DB
 
-    --clr-periwinkle-blue:              102, 126, 234;  // #667EEA;
-    --clr-crimson-red:                  229, 62, 62;    // #E53E3E;
-    --clr-fuchsia-rose:                 213, 63, 140;   // #D53F8C;
-    --clr-indigo-blue:                  76, 81, 191;    // #4C51BF;
-    --clr-aqua-green:                   56, 178, 172;   // #38B2AC;
-    --clr-amethyst-purple:              128, 90, 213;   // #805AD5;
-    --clr-sapphire-blue:                43, 108, 176;   // #2B6CB0;
-    --clr-charcoal-gray:                45, 55, 72;     // #2D3748;
-    --clr-cerulean-blue:                49, 130, 206;   // #3182CE;
-    --clr-carrot-orange:                237, 137, 54;   // #ED8936;
-    --clr-emerald-green:                56, 161, 105;   // #38A169;
-    --clr-royal-purple:                 118, 75, 162;   // #764BA2;
-    --clr-lavender-rose:                240, 147, 251;  // #F093FB;
-    --clr-coral-red:                    245, 87, 108;   // #F5576C;
-    --clr-sky-blue:                     79, 172, 254;   // #4FACFE;
-    --clr-cyan:                         0, 242, 254;    // #00F2FE;
-    --clr-spring-green:                 67, 233, 123;   // #43E97B;
-    --clr-turquoise:                    56, 249, 215;   // #38F9D7;
-    --clr-hot-pink:                     250, 112, 154;  // #FA709A;
-    --clr-golden-yellow:                254, 225, 64;   // #FEE140;
-    --clr-pale-aqua:                    168, 237, 234;  // #A8EDEA;
-    --clr-blush-pink:                   254, 214, 227;  // #FED6E3;
-    --clr-mauve:                        210, 153, 194;  // #D299C2;
-    --clr-light-cream:                  254, 249, 215;  // #FEF9D7;
-    --clr-peach:                        255, 236, 210;  // #FFECD2;
-    --clr-light-coral:                  252, 182, 159;  // #FCB69F;
+     /* ========================================
+         Neutrals & Base Grays
+         ======================================== */
+     --clr-white:                    255, 255, 255;  // #FFFFFF
+     --clr-black:                    0, 0, 0;        // #000000
+     --clr-dark:                     34, 40, 49;     // #222831
+     --clr-dark-light:               57, 62, 70;     // #393E46
+     --clr-dark-lighter:             82, 82, 82;     // #525252
+     --clr-gray:                     242, 242, 242;  // #F2F2F2
+     --clr-gray-light:               238, 238, 238;  // #EEEEEE
+     --clr-gray-lighter:             248, 249, 250;  // #F8F9FA
+     --clr-gray-dark:                221, 221, 221;  // #DDDDDD
+     --clr-gray-darker:              136, 144, 160;  // #8890A0
+     --clr-gray-ultra-light:         250, 250, 250;  // #FAFAFA
+     --clr-gray-ultra-soft:          249, 249, 249;  // #F9F9F9
+     --clr-gray-mid:                 204, 204, 204;  // #CCCCCC
+     --clr-gray-soft:                224, 224, 224;  // #E0E0E0
+     --clr-gray-divider:             241, 243, 244;  // #F1F3F4
+     --clr-gray-dim:                 152, 162, 179;  // #98A2B3
+     --clr-gray-333:                 51, 51, 51;     // #333333
 
-    --sidebar-width:                280px;
+     /* ========================================
+         Semantic Status (Primary set & alternates)
+         ======================================== */
+     --clr-green:                    56, 176, 0;     // #38B000
+     --clr-green-dark:               38, 115, 2;     // #267302
+     --clr-success-green-alt:        40, 167, 69;    // #28A745
+     --clr-success-alt2:             25, 135, 84;    // #198754
+     --clr-success-bg:               212, 237, 218;  // #D4EDDA
+     --clr-success-border:           195, 230, 203;  // #C3E6CB
+     --clr-success-text:             21, 87, 36;     // #155724
+     --clr-success-bg-alt:           159, 223, 159;  // #9FDF9F
+     --clr-success-text-alt:         15, 81, 50;     // #0F5132
 
-    --grid-gap: 20px;
-    --item-radius: 8px;
-    --content-padding: 15px;
-    --content-bg: rgba(0, 0, 0, 0.7);
-    --text-color: #ffffff;
+     --clr-red:                      239, 35, 60;    // #EF233C
+     --clr-danger-red-alt:           220, 53, 69;    // #DC3545
+     --clr-danger-alt2:              244, 67, 54;    // #F44336
+     --clr-danger-alt3:              200, 35, 51;    // #C82333
+
+     --clr-yellow:                   255, 182, 39;   // #FFB627
+     --clr-warning-gold:             255, 193, 7;    // #FFC107
+     --clr-warning-accent:           255, 234, 167;  // #FFEAA7
+     --clr-warning-bg:               255, 243, 205;  // #FFF3CD
+     --clr-warning-text:             133, 100, 4;    // #856404
+     --clr-warning-text-alt:         214, 137, 16;   // #D68910
+
+     --clr-orange:                   232, 93, 4;     // #E85D04
+     --clr-info:                     23, 162, 184;   // #17A2B8
+     --clr-info-accent:              2, 110, 198;    // #026EC6
+     --clr-info-deep:                25, 118, 210;   // #1976D2
+     --clr-info-border:              184, 218, 255;  // #B8DAFF
+     --clr-info-bg:                  231, 243, 255;  // #E7F3FF
+     --clr-info-bg-alt:              209, 237, 255;  // #D1EDFF
+     --clr-info-bg-soft:             227, 242, 253;  // #E3F2FD
+     --clr-info-text:                0, 64, 133;     // #004085
+
+     /* ========================================
+         Social Brand Colors
+         ======================================== */
+     --clr-social-facebook:          19, 132, 255;   // #1384FF
+     --clr-social-twitter:           85, 172, 238;   // #55ACEE
+     --clr-social-linkedin:          41, 131, 197;   // #2983C5
+     --clr-social-youtube:           214, 4, 4;      // #D60404
+     --clr-social-pinterest:         254, 64, 68;    // #FE4044
+
+     /* ========================================
+         Extended Accent Palette (Gradients / Decorative)
+         ======================================== */
+     --clr-periwinkle-blue:          102, 126, 234;  // #667EEA
+     --clr-crimson-red:              229, 62, 62;    // #E53E3E
+     --clr-fuchsia-rose:             213, 63, 140;   // #D53F8C
+     --clr-indigo-blue:              76, 81, 191;    // #4C51BF
+     --clr-aqua-green:               56, 178, 172;   // #38B2AC
+     --clr-amethyst-purple:          128, 90, 213;   // #805AD5
+     --clr-sapphire-blue:            43, 108, 176;   // #2B6CB0
+     --clr-charcoal-gray:            45, 55, 72;     // #2D3748
+     --clr-cerulean-blue:            49, 130, 206;   // #3182CE
+     --clr-carrot-orange:            237, 137, 54;   // #ED8936
+     --clr-emerald-green:            56, 161, 105;   // #38A169
+     --clr-royal-purple:             118, 75, 162;   // #764BA2
+     --clr-lavender-rose:            240, 147, 251;  // #F093FB
+     --clr-coral-red:                245, 87, 108;   // #F5576C
+     --clr-sky-blue:                 79, 172, 254;   // #4FACFE
+     --clr-cyan:                     0, 242, 254;    // #00F2FE
+     --clr-spring-green:             67, 233, 123;   // #43E97B
+     --clr-turquoise:                56, 249, 215;   // #38F9D7
+     --clr-hot-pink:                 250, 112, 154;  // #FA709A
+     --clr-golden-yellow:            254, 225, 64;   // #FEE140
+     --clr-pale-aqua:                168, 237, 234;  // #A8EDEA
+     --clr-blush-pink:               254, 214, 227;  // #FED6E3
+     --clr-mauve:                    210, 153, 194;  // #D299C2
+     --clr-light-cream:              254, 249, 215;  // #FEF9D7
+     --clr-peach:                    255, 236, 210;  // #FFECD2
+     --clr-light-coral:              252, 182, 159;  // #FCB69F
+     --clr-gold:                     255, 215, 0;    // #FFD700
+     --clr-accent-tan:               195, 155, 106;  // #C39B6A
+     --clr-cream-soft:               247, 240, 233;  // #F7F0E9
+
+     /* ========================================
+         Surfaces & Structural
+         ======================================== */
+     --clr-panel-bg:                 248, 250, 254;  // #F8FAFE
+     --clr-surface-alt:              241, 245, 249;  // #F1F5F9
+     --clr-surface-muted:            226, 232, 240;  // #E2E8F0
+     --clr-surface-accent:           203, 213, 224;  // #CBD5E0
+     --clr-surface-contrast:         248, 250, 252;  // #F8FAFC
+     --clr-mint-cream:               248, 255, 249;  // #F8FFF9
+
+     /* ========================================
+         Borders & Lines
+         ======================================== */
+     --clr-border-light:             233, 236, 239;  // #E9ECEF
+     --clr-border-medium:            206, 212, 218;  // #CED4DA
+     --clr-border-subtle:            222, 226, 230;  // #DEE2E6
+
+     /* ========================================
+         Text & Typography
+         ======================================== */
+     --clr-body-text:                33, 37, 41;     // #212529
+     --clr-slate-ink:                73, 80, 87;     // #495057
+
+     /* ========================================
+         Dark Alternatives / Utility Shades
+         ======================================== */
+     --clr-dark-alt:                 52, 58, 64;     // #343A40
+     --clr-slate-navy:               44, 62, 80;     // #2C3E50
+     --clr-slate-gray:               108, 117, 125;  // #6C757D
+
+     /* ========================================
+         Scrollbar Specific
+         ======================================== */
+     --clr-gray-track:               241, 241, 241;  // #F1F1F1
+     --clr-gray-thumb:               193, 193, 193;  // #C1C1C1
+     --clr-gray-thumb-hover:         161, 161, 161;  // #A1A1A1
+
+     /* ========================================
+         Links
+         ======================================== */
+     --clr-link-blue:                0, 123, 255;    // #007BFF
+     --clr-link-blue-light:          134, 183, 254;  // #86B7FE
+     --clr-link-blue-alt:            13, 110, 253;   // #0D6EFD
+
+     /* ========================================
+         Layout Metrics / Design Tokens
+         (Non-color custom properties)
+         ======================================== */
+     --sidebar-width:                280px;
+     --grid-gap:                     20px;
+     --item-radius:                  8px;
+     --content-padding:              15px;
+     --content-bg:                   rgba(0, 0, 0, 0.7);
+     --text-color:                   #ffffff;
 }
 
 :host {

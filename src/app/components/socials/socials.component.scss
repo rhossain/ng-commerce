@@ -20,8 +20,8 @@
         &-facebook {
             a {
                 &:hover, &:focus, &:active {
-                    color: #1384FF;
-                    border-color: #1384FF;
+                    color: rgb(var(--clr-social-facebook));
+                    border-color: rgb(var(--clr-social-facebook));
                 }
             }
         }
@@ -29,8 +29,8 @@
         &-twitter {
             a {
                 &:hover, &:focus, &:active {
-                    color: #55ACEE;
-                    border-color: #55ACEE;
+                    color: rgb(var(--clr-social-twitter));
+                    border-color: rgb(var(--clr-social-twitter));
                 }
             }
         }
@@ -38,8 +38,8 @@
         &-linkedin {
             a {
                 &:hover, &:focus, &:active {
-                    color: #2983c5;
-                    border-color: #2983c5;
+                    color: rgb(var(--clr-social-linkedin));
+                    border-color: rgb(var(--clr-social-linkedin));
                 }
             }
         }
@@ -47,8 +47,8 @@
         &-youtube {
             a {
                 &:hover, &:focus, &:active {
-                    color: #d60404;
-                    border-color: #d60404;
+                    color: rgb(var(--clr-social-youtube));
+                    border-color: rgb(var(--clr-social-youtube));
                 }
             }
         }
@@ -56,8 +56,8 @@
         &-instagram {
             a {
                 &:hover, &:focus, &:active {
-                    color: #FE4044;
-                    border-color: #FE4044;
+                    color: rgb(var(--clr-social-pinterest));
+                    border-color: rgb(var(--clr-social-pinterest));
                 }
             }
         }

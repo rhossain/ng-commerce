@@ -309,7 +309,7 @@
 // Category-specific icon gradients (matching navbar design)
 .category-icon-modern {
   &[data-category-slug*="electronic"] {
-    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, rgb(var(--clr-royal-purple)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -317,7 +317,7 @@
   }
   
   &[data-category-slug*="clothing"] {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-lavender-rose)) 0%, rgb(var(--clr-coral-red)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -325,7 +325,7 @@
   }
   
   &[data-category-slug*="furniture"] {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-sky-blue)) 0%, rgb(var(--clr-cyan)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -333,7 +333,7 @@
   }
   
   &[data-category-slug*="shoes"] {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-spring-green)) 0%, rgb(var(--clr-turquoise)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -341,7 +341,7 @@
   }
   
   &[data-category-slug*="bags"] {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-hot-pink)) 0%, rgb(var(--clr-golden-yellow)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -349,7 +349,7 @@
   }
   
   &[data-category-slug*="sports"] {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-pale-aqua)) 0%, rgb(var(--clr-blush-pink)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -357,7 +357,7 @@
   }
   
   &[data-category-slug*="home"] {
-    background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-mauve)) 0%, rgb(var(--clr-light-cream)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -365,7 +365,7 @@
   }
   
   &[data-category-slug*="car"] {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-peach)) 0%, rgb(var(--clr-light-coral)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -373,7 +373,7 @@
   }
   
   &[data-category-slug*="motorcycle"] {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-pale-aqua)) 0%, rgb(var(--clr-blush-pink)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -381,7 +381,7 @@
   }
   
   &[data-category-slug*="laptop"] {
-    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, rgb(var(--clr-royal-purple)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);
@@ -389,7 +389,7 @@
   }
   
   &[data-category-slug*="phone"] {
-    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, #764ba2 100%) !important;
+    background: linear-gradient(135deg, rgb(var(--clr-periwinkle-blue)) 0%, rgb(var(--clr-royal-purple)) 100%) !important;
     
     .category-image {
       filter: brightness(1.1) contrast(1.1);

@@ -8,7 +8,7 @@
       font-size: 0.9rem;
       
       &:hover {
-        color: #dc3545 !important;
+        color: rgb(var(--clr-danger-red-alt)) !important;
         transform: scale(1.1);
       }
     }
@@ -22,7 +22,7 @@
 // Fallback card for unavailable products
 .card.bg-light {
   min-height: 300px;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed rgb(var(--clr-border-subtle));
   
   .card-body {
     min-height: 250px;

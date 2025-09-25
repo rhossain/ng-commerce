@@ -1,6 +1,6 @@
 .icon-btn.wishlist {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #e0e0e0;
+    background: rgba(var(--clr-white), 0.9);
+    border: 1px solid rgb(var(--clr-gray-soft));
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -19,7 +19,7 @@
 
 .icon-btn.wishlist.active {
     background: rgb(var(--clr-white));
-    border-color: #dc3545;
+    border-color: rgb(var(--clr-danger-red-alt));
 }
 
 .icon-btn.wishlist:disabled {
@@ -29,7 +29,7 @@
 }
 
 .text-danger {
-    color: #dc3545 !important;
+    color: rgb(var(--clr-danger-red-alt)) !important;
 }
 
 fa-icon {

@@ -36,7 +36,7 @@
 }
 
 .progress-bar {
-    background-color: #ddd;
+    background-color: rgb(var(--clr-gray-dark));
     border-radius: 8px;
     overflow: hidden;
     width: 300px;
@@ -48,7 +48,7 @@
 }
 
 .progress-fill {
-    background-color: #4caf50;
+    background-color: rgb(var(--clr-green-alt));
     height: 100%;
     color: rgb(var(--clr-white));
     font-size: 12px;
@@ -57,7 +57,7 @@
 }
 
 .star-icon {
-    color: #ffd700;
+    color: rgb(var(--clr-gold));
 }
 
 app-star-rating.icon-large {

@@ -7,12 +7,12 @@
 }
 
 .wishlist-counter:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    color: #dc3545;
+    background-color: rgba(var(--clr-black), 0.05);
+    color: rgb(var(--clr-danger-red-alt));
 }
 
 .wishlist-counter.has-items {
-    color: #dc3545;
+    color: rgb(var(--clr-danger-red-alt));
 }
 
 .badge {

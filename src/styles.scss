@@ -85,28 +85,28 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
 .btn-minimal {
   background: rgb(var(--clr-white));
-  color: #000;
-  border: 1px solid #ccc;
+  color: rgb(var(--clr-black));
+  border: 1px solid rgb(var(--clr-gray-mid));
   border-radius: 999px;
   padding: 0.5rem 1.5rem;
   font-weight: 500;
   transition: all 0.25s ease-in-out;
 
   &:hover {
-    background: #000;
+    background: rgb(var(--clr-black));
     color: rgb(var(--clr-white));
   }
 }
 
 .btn-icon {
-  background: #212529;
+  background: rgb(var(--clr-body-text));
   color: rgb(var(--clr-white));
   padding: 0.5rem 1rem;
   border-radius: 0.375rem;
   transition: background 0.3s ease;
 
   &:hover {
-    background: #343a40;
+    background: rgb(var(--clr-dark-alt));
   }
 
   i {
@@ -138,19 +138,19 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
   position: fixed !important;
 }
 .toast-success {
-  background-color: #4CAF50 !important;
+  background-color: rgb(var(--clr-green-alt)) !important;
   color: rgb(var(--clr-white));
 }
 .toast-error {
-  background-color: #F44336 !important;
+  background-color: rgb(var(--clr-danger-alt2)) !important;
 }
 .toast-info {
-  background-color: #026ec6 !important;
+  background-color: rgb(var(--clr-info-accent)) !important;
   color: rgb(var(--clr-white));
 }
 .toast-warning {
-  background-color: #FFC107 !important;
-  color: black;
+  background-color: rgb(var(--clr-warning-gold)) !important;
+  color: rgb(var(--clr-black));
 }
 
 .divider-h, .divider-v {
@@ -169,13 +169,13 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
 
 // Status Badge Colors
 .badge {
-  &.bg-text-warning { background-color: #ffc107 !important; color: #212529 !important; }
-  &.bg-text-info { background-color: #17a2b8 !important; }
-  &.bg-text-primary { background-color: #007bff !important; }
-  &.bg-text-success { background-color: #28a745 !important; }
-  &.bg-text-danger { background-color: #dc3545 !important; }
-  &.bg-text-secondary { background-color: #6c757d !important; }
-  &.bg-text-muted { background-color: #6c757d !important; }
+  &.bg-text-warning { background-color: rgb(var(--clr-warning-gold)) !important; color: rgb(var(--clr-body-text)) !important; }
+  &.bg-text-info { background-color: rgb(var(--clr-info)) !important; }
+  &.bg-text-primary { background-color: rgb(var(--clr-link-blue)) !important; }
+  &.bg-text-success { background-color: rgb(var(--clr-success-green-alt)) !important; }
+  &.bg-text-danger { background-color: rgb(var(--clr-danger-red-alt)) !important; }
+  &.bg-text-secondary { background-color: rgb(var(--clr-slate-gray)) !important; }
+  &.bg-text-muted { background-color: rgb(var(--clr-slate-gray)) !important; }
 }
 
 .custom-radio {
@@ -224,7 +224,7 @@ $brand-secondary: rgb(var(--clr-secondary-custom));
     list-style: none;
 
     &.nav-tabs {
-      border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid rgb(var(--clr-border-subtle));
       text-align: center !important;
 
        .nav-item {
@@ -436,7 +436,7 @@ router-outlet {
     
     &::after {
       font-size: 16px;
-      color: #212529;
+      color: rgb(var(--clr-body-text));
     }
 
     &:hover {
@@ -448,12 +448,12 @@ router-outlet {
   .swiper-pagination-bullet {
     width: 8px;
     height: 8px;
-    background: #ccc;
+  background: rgb(var(--clr-gray-mid));
     opacity: 0.5;
     transition: all 0.3s ease;
 
     &.swiper-pagination-bullet-active {
-      background: #007bff;
+      background: rgb(var(--clr-link-blue));
       opacity: 1;
       transform: scale(1.2);
     }
