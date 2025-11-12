@@ -107,7 +107,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     z-index: 1;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(var(--clr-black),0.1);
   }
 }
 
@@ -247,7 +247,7 @@
       .modal-content {
         border: none;
         border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(var(--clr-black),0.1);
         overflow: hidden;
       }
     }

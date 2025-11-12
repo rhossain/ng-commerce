@@ -1,3 +1,5 @@
+@import 'bootstrap-bp.scss';
+
 .wishlist-product-item {
   .wishlist-info-bar {
     padding: 0 0.25rem;
@@ -6,6 +8,10 @@
     .btn-link {
       text-decoration: none;
       font-size: 0.9rem;
+
+      @include media-breakpoint-down(md) {
+        opacity: 1 !important;
+      }
       
       &:hover {
         color: rgb(var(--clr-danger-red-alt)) !important;
@@ -40,15 +46,6 @@
       .btn-link {
         opacity: 1;
       }
-    }
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .wishlist-info-bar {
-    .btn-link {
-      opacity: 1 !important; // Always visible on mobile
     }
   }
 }

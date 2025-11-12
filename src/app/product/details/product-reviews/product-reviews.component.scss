@@ -7,9 +7,9 @@
 
 .review-card {
   padding: 1rem;
-  border: 1px solid #eee;
+  border: 1px solid rgb(var(--clr-gray-light));
   border-radius: 8px;
-  background-color: #fafafa;
+  background-color: rgb(var(--clr-gray-ultra-light));
 }
 
 .review-rating {
@@ -23,7 +23,7 @@
 
 .review-meta {
   font-size: 12px;
-  color: #777;
+  color: rgb(var(--clr-gray-darker));
 }
 
 .star-rating-input {
@@ -36,12 +36,12 @@
 
 .star-icon {
   font-size: 24px;
-  color: #ddd;
+  color: rgb(var(--clr-gray-dark));
   transition: color 0.3s ease;
 }
 
 .star-icon.filled {
-  color: #FFD700;
+  color: rgb(var(--clr-gold));
 }
 
 .review-input {

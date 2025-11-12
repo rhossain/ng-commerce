@@ -100,7 +100,7 @@
 }
 
 .empty-placeholder {
-  color: #6c757d;
+  color: rgb(var(--clr-slate-gray));
 }
 
 swiper-container {
@@ -114,8 +114,8 @@ swiper-container {
   
   .swiper-button-next, 
   .swiper-button-prev {
-    color: #000;
-    background: rgba(255,255,255,0.7);
+    color: rgb(var(--clr-black));
+    background: rgba(var(--clr-white),0.7);
     width: 40px;
     height: 40px;
     border-radius: 50%;

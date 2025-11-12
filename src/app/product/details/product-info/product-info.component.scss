@@ -189,8 +189,7 @@
     display: none;
 
     + label {
-      color: #333;
-      font-family: Arial, sans-serif;
+      color: rgb(var(--clr-gray-dark));
       font-size: 14px;
 
       span {
@@ -204,7 +203,7 @@
         cursor: pointer;
         border-radius: 50%;
         border: 2px solid rgb(var(--clr-white));
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
+        box-shadow: 0 1px 3px 0 rgba(var(--clr-black), 0.33);
         background-repeat: no-repeat;
         background-position: center;
         text-align: center;

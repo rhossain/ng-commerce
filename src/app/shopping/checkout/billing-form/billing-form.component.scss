@@ -1,3 +1,5 @@
+@import 'bootstrap-bp.scss';
+
 .billing-form {
   h2 {
     font-size: 1.5rem;
@@ -17,6 +19,15 @@
     background: rgb(var(--clr-gray-lighter));
     border: 1px solid rgb(var(--clr-border-light));
     border-radius: 8px;
+
+    @include media-breakpoint-down(md) {
+      padding: 1rem;
+    }
+
+    @include media-breakpoint-down(sm) {
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
 
     .form-check {
       margin: 0;
@@ -58,7 +69,11 @@
       border: 2px solid rgb(var(--clr-success-green-alt));
       border-radius: 8px;
       padding: 1.5rem;
-  background: rgb(var(--clr-mint-cream));
+      background: rgb(var(--clr-mint-cream));
+
+      @include media-breakpoint-down(sm) {
+        padding: 0.75rem;
+      }
 
       .address-header {
         display: flex;
@@ -114,15 +129,27 @@
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
       margin-bottom: 1.5rem;
+
+      @include media-breakpoint-down(md) {
+        grid-template-columns: 1fr;
+      }
     }
 
     .address-card {
-  border: 2px solid rgb(var(--clr-border-light));
+      border: 2px solid rgb(var(--clr-border-light));
       border-radius: 8px;
       padding: 1.5rem;
       cursor: pointer;
       transition: all 0.3s ease;
       background: rgb(var(--clr-white));
+
+      @include media-breakpoint-down(md) {
+        padding: 1rem;
+      }
+
+      @include media-breakpoint-down(sm) {
+        padding: 0.75rem;
+      }
 
       &:hover {
         border-color: rgb(var(--clr-link-blue));
@@ -132,7 +159,7 @@
 
       &.selected {
         border-color: rgb(var(--clr-success-green-alt));
-  background-color: rgb(var(--clr-mint-cream));
+        background-color: rgb(var(--clr-mint-cream));
         box-shadow: 0 2px 8px rgba(40, 167, 69, 0.15);
       }
 
@@ -208,7 +235,7 @@
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 8px rgba(var(--clr-black), 0.1);
       }
     }
   }
@@ -219,6 +246,16 @@
     padding: 2rem;
     margin-top: 1rem;
     animation: slideDown 0.3s ease-out;
+
+    @include media-breakpoint-down(md) {
+      padding: 1.5rem;
+    }
+
+    @include media-breakpoint-down(sm) {
+      padding: 1rem;
+      margin-left: -0.5rem;
+      margin-right: -0.5rem;
+    }
 
     .form-header {
       margin-bottom: 2rem;
@@ -281,7 +318,7 @@
       justify-content: flex-end;
       margin-top: 2rem;
       padding-top: 1.5rem;
-  border-top: 1px solid rgb(var(--clr-border-subtle));
+      border-top: 1px solid rgb(var(--clr-border-subtle));
 
       .btn {
         min-width: 120px;
@@ -289,6 +326,10 @@
         font-weight: 500;
         border-radius: 6px;
         transition: all 0.3s ease;
+
+        @include media-breakpoint-down(md) {
+          width: 100%;
+        }
 
         &.btn-outline-secondary {
           color: rgb(var(--clr-slate-gray));
@@ -300,57 +341,6 @@
             transform: translateY(-1px);
           }
         }
-      }
-    }
-  }
-}
-
-// Responsive Design
-@media (max-width: 767.98px) {
-  .billing-form {
-    .saved-addresses {
-      .address-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .address-card {
-        padding: 1rem;
-      }
-    }
-
-    .address-form {
-      padding: 1.5rem;
-
-      .form-actions {
-        .btn {
-          width: 100%;
-        }
-      }
-    }
-
-    .same-address-option {
-      padding: 1rem;
-    }
-  }
-}
-
-@media (max-width: 575.98px) {
-  .billing-form {
-    .address-form {
-      padding: 1rem;
-      margin-left: -0.5rem;
-      margin-right: -0.5rem;
-    }
-
-    .same-address-option {
-      margin-left: -0.5rem;
-      margin-right: -0.5rem;
-    }
-
-    .selected-address-display,
-    .saved-addresses {
-      .address-card {
-        padding: 0.75rem;
       }
     }
   }
