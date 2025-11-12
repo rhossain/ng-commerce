@@ -1,0 +1,1 @@
+import"./chunk-4CLCTAJ7.js";var o=[{path:"",pathMatch:"full",redirectTo:"shop"},{path:"shop",loadComponent:()=>import("./chunk-RSK2LFTH.js")},{path:"search",loadComponent:()=>import("./chunk-RUGWPBXO.js")},{path:"detail/:productId",loadComponent:()=>import("./chunk-3WMA5PZO.js")}],t=o;export{t as default};

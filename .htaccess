@@ -1,10 +1,10 @@
 RewriteEngine On
-RewriteBase /demo/ngcommerce/
+RewriteBase /ngcommerce/
 
 # Handle Angular routing - redirect all requests to index.html
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /demo/ngcommerce/index.html [L]
+RewriteRule . /ngcommerce/index.html [L]
 
 # Security headers
 Header always set X-Frame-Options SAMEORIGIN
