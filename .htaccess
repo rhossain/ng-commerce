@@ -1,10 +1,11 @@
 RewriteEngine On
-RewriteBase /ngcommerce/
+# Since domain points to subdirectory root, use root RewriteBase
+RewriteBase /
 
 # Handle Angular routing - redirect all requests to index.html
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /ngcommerce/index.html [L]
+RewriteRule . /index.html [L]
 
 # Security headers
 Header always set X-Frame-Options SAMEORIGIN

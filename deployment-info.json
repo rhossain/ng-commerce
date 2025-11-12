@@ -1,8 +1,9 @@
 {
-  "deployedAt": "2025-11-12T10:01:47Z",
+  "deployedAt": "2025-11-12T11:30:35Z",
   "deployedFrom": "development",
   "subdirectory": "ngcommerce",
-  "baseHref": "/ngcommerce/",
+  "baseHref": "/",
+  "note": "Domain (ngcommerce.rshossain.me) already points to subdirectory root",
   "environment": "production",
   "buildOutput": "dist/ng-commerce/browser",
   "projectDirectory": "ng-commerce",
